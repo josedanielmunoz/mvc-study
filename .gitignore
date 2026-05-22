@@ -1,0 +1,56 @@
+# MVC Study repository — gitignore
+# Aligned with validate_pipeline_integrity.py FORBIDDEN_UPLOAD_PATTERNS.
+
+# macOS Finder metadata
+.DS_Store
+.DS_Store?
+._*
+
+# Windows thumbnails
+Thumbs.db
+ehthumbs.db
+
+# Editor swap files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Python venvs (never in repo)
+mvc_env/
+venv/
+.venv/
+
+# R session files
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+# Build cruft
+*.bak
+*.tmp
+*.log
+*.pre_*
+_pandoc_*.tex
+_pandoc_*.lua
+missfont.log
+
+# Secrets — NEVER in repo
+*.env
+.env*
+Keys*.txt
+*_api_key*
+*_API_KEY*
+
+# Local operational evidence
+backups/
