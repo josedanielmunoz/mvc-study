@@ -289,3 +289,108 @@ The aborted re-run wrote 88 partial live records before manual interrupt: 60 lin
 - Post-fix notification email to PI is pending immediately after this commit, as agreed in the WhatsApp approval message.
 
 ---
+
+## Entry 003 — 2026-05-25 — §7.4 functional execution correction: reasoning-model token budgets and Gemini SDK finish_reason alignment
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry 003.
+**Entry timestamp (UTC):** `2026-05-25T20:22:04Z`
+**Type:** §7.4 functional execution correction
+**Affected files:** `04_Data_Collection_Script.py`
+**Trigger:** C.1.1 second rerun (under the double-patched script from Entries 001 + 002) completed 1,200 / 1,200 cells in 2 h 08 min on 2026-05-24 → 2026-05-25, with no abort and no traceback, but post-run diagnostic revealed Stage 1 empty-response patterns of 300/300 (100%) for both `gpt-5.5` and `gemini-3.1-pro`. Root cause analysis identified two converging failure modes specific to reasoning-capable models under the script's registered configuration: (1) GPT-5.5 consumed the Stage 1 `max_tokens=10` budget entirely on internal reasoning before producing visible output, returning `finish_reason=length` on 300/300 Stage 1 records, and (2) Gemini 3.1 Pro likewise exhausted its output budget but additionally was being misclassified as a safety refusal because the script's existing `finish_reason_indicates_safety_block` helper had `"2"` hardcoded as a SAFETY marker, whereas under the current `google-generativeai` SDK the integer value 2 maps to the enum member `MAX_TOKENS` and SAFETY is value 3. Claude (`802/802` clean) and DeepSeek (`29/897` empty, all Stage 2) were unaffected. Full diagnostic was escalated to PI by formal email on 2026-05-25.
+**PI written approval:** Email from Emile Boullineau dated 2026-05-25, in reply to the RA's diagnostic escalation email "C.1.1 second rerun: data validity blocker — methodological decision required". The approval email specifies four named fixes (Fix 1 finish_reason alignment, Fix 2 GPT-5.5 token-budget + reasoning-effort, Fix 3 Gemini token-budget + thoughts_token_count, Fix 4 metadata logging fields + per-run `run_metadata.json`) and authorises their consolidated application under §7.4 with magnitude statement explicitly framed as "Confined to API parameter handling and finish-reason canonicalisation. Does not alter model selection, prompts, registered analytic procedure, exclusion criteria, significance thresholds, or any pre-registered prediction. Within §7.4 boundary." The same email instructs the operator to send the diff and the post-fix hash to the PI for written sign-off before any live execution proceeds.
+
+### File hashes
+
+| File | Pre-fix SHA-256 | Post-fix SHA-256 |
+|---|---|---|
+| `04_Data_Collection_Script.py` (pre-Patch-003, post-Patch-002) | `0f3d1d8b74a4f2447e0526bfde00482795da07f500675df5da7970013972d213` | `82c25f1026242b5223084ae8461b79ff29d7e2e3cf966ad1bf08b8438bf8ddab` |
+| `validate_pipeline_integrity.py` | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` (unchanged; Appendix D anchor preserved per Entries 001 + 002) |
+
+For full chain-of-correction traceability: the original Appendix D registered hash of `04_Data_Collection_Script.py` is `d614714016df41e01adb2908ff6ad38b1f3e64beddaeda332f5fb40c0712f49d`. Entry 001 (commit `4e9772d1c364fe2f0adc1db0d7f99cc3357a5d0b`) and Entry 002 (commit `c376d74e82d433791c2e41c4d897b00eb336476a`) authorised the prior divergences. This Entry 003 authorises the further divergence to `82c25f1026...` arising from the four named fixes below.
+
+### Sub-changes applied to `04_Data_Collection_Script.py`
+
+**Sub-change 1 — Gemini finish_reason reading aligned with current SDK enum (Fix 1).**
+
+The previous implementation read Gemini's `candidate.finish_reason` as an integer (e.g. `2`) and the helper `finish_reason_indicates_safety_block` treated `"2"` as a SAFETY marker based on an earlier SDK mapping. Under the `google-generativeai` SDK currently active in the operational venv (`0.8.6`), the integer `2` corresponds to the enum member `MAX_TOKENS` and SAFETY is value `3`. The previous reading caused Gemini length-truncation responses to be misclassified as safety refusals.
+
+The corrected implementation introduces a module-level helper `finish_reason_name(finish_reason)` that returns the SDK enum's `.name` attribute when present and falls back to the string representation otherwise, providing a stable string interface across providers. A second helper `canonical_finish_reason(finish_reason)` maps the raw string to one of four registered audit categories: `complete` (`stop`, `end_turn`, `STOP`), `length` (`length`, `max_tokens`, `MAX_TOKENS`), `safety` (`content_filter`, `SAFETY`, `BLOCKLIST`, `PROHIBITED_CONTENT`, `SPII`, `RECITATION`), and `other`. The helper `finish_reason_indicates_safety_block` now reads through `finish_reason_name(...)` and no longer contains the bare `"2"` marker; the SAFETY-block set is now strictly the semantic enum names. `_call_google` uses `finish_reason_name(...)` when extracting the finish reason, so the raw record reflects the SDK string (e.g. `"MAX_TOKENS"`) rather than the integer.
+
+This sub-change aligns the script with pre-reg §2.7(d) (safety-blocked outputs treated as registered refusal-style outcome) under the current SDK enum mapping, without altering the registered handling of true safety blocks.
+
+**Sub-change 2 — GPT-5.5-only reasoning-effort suppression and raised output-token budget (Fix 2).**
+
+`_call_openai` now accepts the `stage` parameter and, only when `self.model_key == "gpt-5.5"`, sets `token_param = "max_completion_tokens"`, raises the request budget to `512` tokens for Stage 1 and `1024` tokens for Stage 3, and adds `reasoning_effort="minimal"` to the request kwargs. Other OpenAI-style branches (including `deepseek-v4-flash`, which is configured under the OpenAI provider with a custom `base_url`) are untouched. The change addresses the observed pattern in which GPT-5.5 consumed the registered Stage 1 `max_tokens=10` budget entirely on internal reasoning before emitting visible output, returning `finish_reason=length` on 300/300 Stage 1 records in the second rerun.
+
+This sub-change is the registered provider-constrained decoding mechanism from pre-reg §3.4 extended to the reasoning-model class observed in production. It does not alter the registered binary verbalisation task in Stage 1 (the model is still asked for a Yes/No response); it raises the budget within which the model may produce that verbalisation.
+
+**Sub-change 3 — Gemini raised output-token budget and reasoning-tokens metadata (Fix 3).**
+
+`_call_google` now accepts the `stage` parameter and raises `max_output_tokens` to `2048` for Stage 1 and `8192` for Stage 3. The request additionally captures `response.usage_metadata.thoughts_token_count` via a defensive `getattr(usage_metadata, "thoughts_token_count", None)` so the field is recorded when present without raising on SDK versions where it is absent. No `safety_settings` are passed to the Gemini SDK; the provider's default safety configuration is preserved.
+
+The change addresses the observed pattern in which Gemini 3.1 Pro consumed its Stage 1 output budget on internal reasoning and produced an empty visible response with `finish_reason=MAX_TOKENS` on the majority of Stage 1 records. Combined with sub-change 1, Gemini length-truncations will now be recorded as `finish_reason_canonical = length` rather than misclassified as safety refusals.
+
+**Sub-change 4 — Per-call metadata fields and per-run `run_metadata.json` (Fix 4).**
+
+Two new metadata fields are written for every API call across all four providers:
+
+- `finish_reason_raw`: the provider SDK's native finish-reason value. For OpenAI and DeepSeek this is `choices[0].finish_reason`; for Anthropic, `stop_reason`; for Gemini, the result of `finish_reason_name(candidate.finish_reason)`.
+- `finish_reason_canonical`: the canonical category from `canonical_finish_reason(...)` — one of `complete`, `length`, `safety`, `other`.
+
+These fields are populated in `_call_openai`, `_call_anthropic`, and `_call_google` and are propagated through the existing `last_request_metadata` mechanism into `calls.jsonl`. The existing `response_finish_reason` field is preserved for backward compatibility with downstream consumers.
+
+Additionally, a new module-level function `write_pretest_run_metadata(script_path)` is invoked in `main()` whenever `args.mode == "pretest"`. It writes a single immutable file `data/pretest/<YYYY-MM-DD>/run_metadata.json` containing the run start timestamp (UTC, ISO 8601), the current script SHA-256, and the output of `pip show openai anthropic google-generativeai deepseek` (capturing installed SDK versions). The file is opened with `open(..., "x")` and a prior `metadata_path.exists()` check, so it is idempotent and never overwrites a prior run's metadata.
+
+### Operational note on SDK naming
+
+Emile's approval email references the `google-genai` SDK by name. The script and operational venv currently use `google-generativeai 0.8.6`, which exposes the same `candidate.finish_reason.name` interface targeted by sub-change 1. No SDK migration was performed under this patch; the fix operates on the SDK currently installed. If a future operator migrates to `google-genai`, the `finish_reason_name(...)` helper continues to work because it reads the `.name` attribute generically.
+
+### Magnitude assessment (per pre-reg §7.4 boundary)
+
+All four sub-changes are confined to API parameter handling, finish-reason canonicalisation, and per-call metadata. None alter model selection, model version strings, prompts, scenarios, personas, repetitions, exclusion criteria, significance thresholds, ambiguity-binning thresholds, or any pre-registered prediction (P1, P2, P3a, P3b, P4) or failure condition. Logprobs handling is unchanged from Entries 001 + 002.
+
+The behavioural effect is: reasoning-capable models that previously exhausted their Stage 1 output budget on internal reasoning before producing visible output now have sufficient budget to emit the registered binary verbalisation. Length-truncation outcomes that were previously misclassified as safety refusals (Gemini) are now recorded with their correct canonical category. The registered binary verbalisation task itself is unchanged — Stage 1 still asks for and parses a Yes/No response from `response_text`.
+
+PI's own magnitude statement in the approval email is incorporated by reference: *"Confined to API parameter handling and finish-reason canonicalisation. Does not alter model selection, prompts, registered analytic procedure, exclusion criteria, significance thresholds, or any pre-registered prediction. Within §7.4 boundary."*
+
+This correction is well inside the < 1% magnitude boundary registered in pre-reg §7.4.
+
+### Validation chain (registered authority cited)
+
+- **Pre-reg §7.4** — Code execution and bug-fix clause. Functional execution corrections within the magnitude boundary do not constitute a deviation from the pre-registration. Public Git history is the authoritative diff record.
+- **Pre-reg §3.4** — Provider-constrained decoding mechanism. This correction extends the registered fallback behaviour to the reasoning-model token-budget interaction observed in production from GPT-5.5 and Gemini 3.1 Pro.
+- **Pre-reg §2.7(d)** — Safety-blocked outputs treated as registered refusal-style outcome. The Gemini SDK alignment in sub-change 1 brings the script's finish_reason reading into line with the current SDK enum, preserving §2.7(d) handling for true safety blocks while preventing length-truncation outcomes from being misclassified as safety refusals.
+
+### Pre-commit verification
+
+The `canonical_finish_reason(...)` helper was unit-verified against fourteen representative finish-reason values spanning all four providers (OpenAI `stop`, `length`, `content_filter`; Anthropic `end_turn`, `max_tokens`; Gemini `STOP`, `MAX_TOKENS`, `SAFETY`, `BLOCKLIST`, `PROHIBITED_CONTENT`, `SPII`, `RECITATION`; plus `None` and an unknown string). All fourteen mapped to the expected canonical category. The script passed static syntax verification via `python -m py_compile` with exit status 0. The script permission was restored to `444 / -r--r--r--` after editing.
+
+### Evidence artefacts (operator-local, not in repo)
+
+- Pre-patch script backup: `~/MVC_Study_operational/patches/c11_patch_003_2026-05-25/04_Data_Collection_Script_PRE_PATCH_003.py`
+- Pre-patch SHA-256 record: `~/MVC_Study_operational/patches/c11_patch_003_2026-05-25/pre_patch_sha256.txt`
+- Patch 003 unified diff: `~/MVC_Study_operational/patches/c11_patch_003_2026-05-25/patch_003_script.diff`
+- Post-patch SHA-256 record: `~/MVC_Study_operational/patches/c11_patch_003_2026-05-25/post_patch_sha256.txt`
+- Static-check record: `~/MVC_Study_operational/patches/c11_patch_003_2026-05-25/static_check.txt`
+- SDK versions record at the time of the patch: `~/MVC_Study_operational/patches/c11_patch_003_2026-05-25/sdk_versions.txt`
+- Aborted second-rerun log (Entries 001 + 002 script, pre-Entry 003): `~/MVC_Study_operational/c11_pretest_live_run_rerun2_20260524_211814.log`
+- Second-rerun raw per-provider response files (Gemini 290/300 empties, GPT-5.5 300/300 empties) preserved as audit-trail of the reclassification.
+
+The textual diff for this entry is fully recoverable from the Git history of this repository via `git diff` between the previous commit (Entry 002, `c376d74e82d433791c2e41c4d897b00eb336476a`) and this commit; the operator-local artefacts back up that record outside the repo.
+
+### Partial data and analysis pipeline state
+
+`data/pretest/` was cleared of the contaminated dry-run artefacts prior to Entry 001. The second rerun's outputs (used as diagnostic evidence for this Entry 003) remain in their original location and will be cleared before the next live execution. No live execution has occurred since the Entry 002 commit; the second rerun's outputs are explicitly excluded from any registered analysis. `validated_trials.csv` was not generated; the registered validation harness has not been run on second-rerun data.
+
+The A.3 validator continues to report the hash mismatch for `04_Data_Collection_Script.py` (now `expected d6147140... got 82c25f10...`). This is the registered behaviour under pre-reg §7.4, the cumulative effect of Entries 001 + 002 + 003. Per pre-reg §7.4: *"If a reviewer or auditor observes that a final published script hash differs from the pre-registered Appendix D hash, they can consult the Git log to verify that every change falls within this execution-fix boundary."* The validator self-check against Appendix D in `00_OSF_Pre_Registration.md` returns OK; the validator file itself remains at its registered anchor.
+
+### Post-patch state and immediate next step
+
+- `04_Data_Collection_Script.py` chmod `444`; new SHA-256 recorded above.
+- `validate_pipeline_integrity.py` unchanged; Appendix D anchor preserved.
+- No data collection, smoke test, dry run, or live run has been executed under this patch.
+- `script_checksums.txt` and the operational working copy of `validate_pipeline_integrity.py` `REGISTERED_HASHES` have been updated to the new post-fix hash as part of this Entry's commit cycle.
+
+The patch is now at the gate registered in the PI approval email: the diff and new hash must be sent to the PI for written sign-off before the four-provider smoke test or any subsequent live execution proceeds.
+
+---
