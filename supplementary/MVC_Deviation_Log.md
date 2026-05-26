@@ -572,3 +572,120 @@ The A.3 canonical validator now reports two hash mismatches: the long-running mi
 The immediate next operational step is to re-run the validation harness against the C.1.1 third rerun outputs, confirm it completes cleanly with the new guard in place, compute the pre-test metrics requested by the PI (per-provider Stage 1 Yes-rates, refusal-rate breakdown by `finish_reason_canonical`, ambiguity-band check across the 10 scenarios × 4 models grid), and send the consolidated Stage 1 Pre-Test Checkpoint email to the PI with Patch 005 notification included.
 
 ---
+
+## Entry 006 — 2026-05-26 — §7.4 functional execution correction: validation harness pretest-only guard clause (refusal/missingness module)
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry 006.
+**Entry timestamp (UTC):** `2026-05-26T07:00:31Z`
+**Type:** §7.4 functional execution correction
+**Affected files:** `analysis_phases/06_refusal_missingness_sensitivity.R`
+**Trigger:** Following Entry 005, the validation harness was re-run against the C.1.1 third rerun outputs and continued to fail, this time at the refusal/missingness sensitivity module with the same structural error class as P3 had presented (`Error in aggregate.data.frame(lhs, mf[-1L], FUN = FUN, ...) : no rows to aggregate`). A systematic read-only audit was then conducted across all `analysis_phases/*.R` modules to determine the full scope of the issue rather than continuing to patch reactively. The audit confirmed that of the six modules using `subset(mode == "main") + aggregate(...)`, five already carried the empty-subset guard clause (`02_p1_classification.R`, `03_p2_domain_generality.R`, `04_p3_narrative_and_reliability.R` post-Entry-005, `05_p4_dissociation.R`, `08_sdt_vci_supplementary.R`), and one — `06_refusal_missingness_sensitivity.R` — did not. This Entry 006 is the single remaining guard clause needed to bring the registered harness into full parity with its own pre-existing convention.
+**PI approval reference:** Standing anticipatory approval from Emile Boullineau dated 2026-05-25 authorising operational bug-fixes within the §7.4 magnitude boundary with post-fix email notification. Post-fix notification will be consolidated with the Stage 1 Pre-Test Checkpoint email once the validation harness completes cleanly under Entries 005 + 006.
+
+### File hashes
+
+| File | Pre-fix SHA-256 | Post-fix SHA-256 |
+|---|---|---|
+| `analysis_phases/06_refusal_missingness_sensitivity.R` | `9b63bd828b5cc671e205442aa8e6c8e15901d4f9da715456178ac9ba0cafca21` (registered Appendix D anchor) | `d57e0cf3672baeebdc108e4922029e5936f29b8c22f5c8c16d0e2c6d4aae6ecf` |
+| `analysis_phases/04_p3_narrative_and_reliability.R` | `b6263b14f095fd05861515bf16ef76812f19cafe448f4a33aaee3f15eba711d4` (post-Entry-005) | `b6263b14f095fd05861515bf16ef76812f19cafe448f4a33aaee3f15eba711d4` (unchanged) |
+| `04_Data_Collection_Script.py` | `e09d00ee49762a2843579ca0db2a0a47a2c3ed30229973e21b66bfbef4639720` (post-Entry-004) | `e09d00ee49762a2843579ca0db2a0a47a2c3ed30229973e21b66bfbef4639720` (unchanged) |
+| `validate_pipeline_integrity.py` | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` (unchanged; Appendix D anchor preserved per Entries 001–005) |
+
+Prior commits in the §7.4 chain: Entry 001 `4e9772d1c364fe2f0adc1db0d7f99cc3357a5d0b`, Entry 002 `c376d74e82d433791c2e41c4d897b00eb336476a`, Entry 003 `998ecd7979a7a547fe13e5ed585b023fc4741031`, Entry 004 `897c7d4c7c15e8d35f55aa191575f7869d14cd2a`, Entry 005 `e683aae6e34a27a8360be10d09c0907ebb8d1d5e`. This Entry 006 is the second §7.4 correction to affect a file in `analysis_phases/`, and is the direct sibling of Entry 005 applying the equivalent guard clause to the refusal/missingness module.
+
+### Sub-change applied to `analysis_phases/06_refusal_missingness_sensitivity.R`
+
+**Single guard clause insertion mirroring the existing pattern in `04_p3_narrative_and_reliability.R` (post-Entry-005), `05_p4_dissociation.R`, and `08_sdt_vci_supplementary.R`.** The previous implementation subset trials to `mode == "main"` and then proceeded directly to mutate the subset and call `aggregate(...)`:
+
+```r
+main <- subset(trials, mode == "main" & grepl("^scenario_", scenario_id))
+main$looks_refusal <- grepl(refusal_pattern, tolower(as.character(main$response)))
+main$missing_response <- is.na(main$response) | trimws(as.character(main$response)) == ""
+
+by_model <- aggregate(
+    cbind(looks_refusal, missing_response) ~ model + stage,
+    data = main,
+    FUN = function(x) c(n = length(x), count = sum(x), rate = mean(x))
+)
+```
+
+The corrected implementation inserts a guard clause between the `subset(...)` and the subsequent mutations and `aggregate(...)` call:
+
+```r
+main <- subset(trials, mode == "main" & grepl("^scenario_", scenario_id))
+
+if (nrow(main) == 0L) {
+  return(mvc_append_status(
+    inputs, "refusal_missingness", "main_rows_available", "FAIL",
+    "No main rows available for refusal/missingness sensitivity analysis"
+  ))
+}
+
+main$looks_refusal <- grepl(refusal_pattern, tolower(as.character(main$response)))
+main$missing_response <- is.na(main$response) | trimws(as.character(main$response)) == ""
+
+by_model <- aggregate(
+    cbind(looks_refusal, missing_response) ~ model + stage,
+    data = main,
+    FUN = function(x) c(n = length(x), count = sum(x), rate = mean(x))
+)
+```
+
+The guard follows the identical pattern used by the sibling modules: detect the empty-subset condition immediately after the `subset(...)` (before any mutation of the subset or any aggregation), return early via `mvc_append_status(...)` with a `"FAIL"` status code (`"refusal_missingness"` / `"main_rows_available"`) and a descriptive message, and skip the downstream computation that would otherwise crash. The status entry is the registered mechanism for the harness to record that a specific check was attempted but could not be performed against the supplied data, without halting execution of the wider harness.
+
+The guard is placed before the `main$looks_refusal` and `main$missing_response` assignments deliberately: those assignments operate on the empty subset cleanly enough (resulting in a 0-row data frame with the added columns), but the downstream `aggregate(...)` call is what raises the unguarded error. Placing the guard immediately after the `subset(...)` keeps the pattern symmetric with the other modules and avoids unnecessary work on the empty subset.
+
+### Magnitude assessment (per pre-reg §7.4 boundary)
+
+This correction is a single guard clause whose behaviour is identical to clauses already present in five other modules of the same harness, including the analogous module patched in Entry 005. It does not alter:
+
+- model selection, prompts, scenarios, personas, repetitions, or any input to data collection;
+- decoding parameters, sampling, or the call flow of `04_Data_Collection_Script.py`;
+- exclusion criteria, significance thresholds, ambiguity binning, or any pre-registered prediction (P1, P2, P3a, P3b, P4) or failure condition;
+- the analytic logic of the refusal/missingness sensitivity check when run against main data, which is the registered use case — when `main` has rows, the guard is a no-op and the existing computation runs unchanged.
+
+The behavioural effect is restricted to pretest-only inputs (and any other input that produces zero main rows): the harness now records a `mvc_append_status` FAIL entry for the refusal/missingness check and continues, rather than crashing with an unguarded `aggregate(...)` error. This brings refusal/missingness into parity with the empty-subset handling already registered in P1, P2, P3 (post-Entry-005), P4, and SDT/VCI.
+
+This correction is well inside the < 1% magnitude boundary registered in pre-reg §7.4.
+
+### Validation chain (registered authority cited)
+
+- **Pre-reg §7.4** — Code execution and bug-fix clause. Functional execution corrections within the magnitude boundary do not constitute a deviation from the pre-registration. "Minor execution errors" is explicitly named in §7.4 as a §7.4-eligible class, and an inconsistency between sibling modules of the registered harness — where five of six modules carry the guard and one does not — is exactly that kind of minor execution error.
+- **Consistency with registered design** — The guard pattern, status code structure, and `mvc_append_status` mechanism are already part of the registered harness in five other modules. This Entry brings the sixth module into parity with the existing registered convention.
+
+### Pre-commit verification
+
+- R syntax check (`Rscript -e "parse(...)"`) on the patched file: `Syntax OK`.
+- File permission restored to `444 / -r--r--r--` after editing.
+- `script_checksums.txt` was not modified (the file's scope remains the four originally-registered Tier 1 critical files; `analysis_phases/` checksums are tracked through `validate_pipeline_integrity.py` `REGISTERED_HASHES` only).
+- Operational working copy of `validate_pipeline_integrity.py` (`~/MVC_Study_operational/validate_pipeline_integrity_working_copy.py`) updated with the new hash in `REGISTERED_HASHES`. Canonical validator at `~/MVC_Study/validate_pipeline_integrity.py` unchanged.
+- Canonical data collection script (`04_Data_Collection_Script.py`) unchanged at its Entry 004 post-fix hash.
+- `04_p3_narrative_and_reliability.R` unchanged at its Entry 005 post-fix hash.
+
+### Pre-patch read-only audit (recorded for reproducibility)
+
+A systematic read-only audit was conducted across all `analysis_phases/*.R` modules immediately before this Entry. The audit identified which modules subset by `mode == "main"`, which contain `aggregate(...)` calls, and which already carry an empty-subset guard clause. The audit confirmed that `06_refusal_missingness_sensitivity.R` was the only remaining module lacking the guard. The audit results are preserved in the operational evidence folder.
+
+### Evidence artefacts (operator-local, not in repo)
+
+- Pre-patch file backup: `~/MVC_Study_operational/patches/c11_patch_006_harness_2026-05-26/06_refusal_missingness_sensitivity_PRE_PATCH_006.R`
+- Patch 006 unified diff: `~/MVC_Study_operational/patches/c11_patch_006_harness_2026-05-26/patch_006_harness.diff`
+- Post-patch SHA-256 record: `~/MVC_Study_operational/patches/c11_patch_006_harness_2026-05-26/post_patch_sha256.txt`
+- Pre-patch read-only audit output: preserved in operational session log alongside the Entry 005 evidence.
+- C.1.1 third rerun raw outputs (the inputs that surfaced both Entry 005 and Entry 006 bugs): `~/MVC_Study/data/pretest/` and the third rerun execution log under `~/MVC_Study_operational/`.
+
+The textual diff for this Entry is fully recoverable from the Git history of this repository via `git diff` between the Entry 005 commit and this commit; the operator-local artefacts back up that record outside the repo.
+
+### Post-patch state and immediate next step
+
+- `analysis_phases/06_refusal_missingness_sensitivity.R` chmod `444`; new SHA-256 recorded above.
+- `analysis_phases/04_p3_narrative_and_reliability.R` unchanged at the Entry 005 post-fix hash.
+- `04_Data_Collection_Script.py` unchanged at the Entry 004 post-fix hash.
+- `validate_pipeline_integrity.py` canonical unchanged; Appendix D anchor preserved.
+- No live data collection, smoke test, or analytic harness run has been executed under this patch yet.
+
+The A.3 canonical validator now reports three hash mismatches: the long-running mismatch on `04_Data_Collection_Script.py` (per Entries 001–004), the mismatch on `analysis_phases/04_p3_narrative_and_reliability.R` (per Entry 005), and a new mismatch on `analysis_phases/06_refusal_missingness_sensitivity.R` (`expected 9b63bd82... got d57e0cf3...`, per this Entry 006). All three are the registered behaviour under pre-reg §7.4 when running the canonical validator; the operational working copy of `validate_pipeline_integrity.py` carries all three new hashes in its `REGISTERED_HASHES` and returns OK on all files. Per pre-reg §7.4: *"If a reviewer or auditor observes that a final published script hash differs from the pre-registered Appendix D hash, they can consult the Git log to verify that every change falls within this execution-fix boundary."*
+
+The immediate next operational step is to re-run the validation harness against the C.1.1 third rerun outputs under the dual guard (Entries 005 + 006), confirm it completes cleanly with the registered convention now uniform across all six main-subset modules, compute the pre-test metrics requested by the PI (per-provider Stage 1 Yes-rates, refusal-rate breakdown by `finish_reason_canonical`, ambiguity-band check across the 10 scenarios × 4 models grid), and send the consolidated Stage 1 Pre-Test Checkpoint email to the PI with Entries 005 + 006 notification included.
+
+---
