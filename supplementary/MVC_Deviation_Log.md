@@ -394,3 +394,79 @@ The A.3 validator continues to report the hash mismatch for `04_Data_Collection_
 The patch is now at the gate registered in the PI approval email: the diff and new hash must be sent to the PI for written sign-off before the four-provider smoke test or any subsequent live execution proceeds.
 
 ---
+
+## Entry 004 — 2026-05-26 — §7.4 functional execution correction: GPT-5.5 reasoning_effort value alignment
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry 004.
+**Entry timestamp (UTC):** `2026-05-26T01:44:00Z`
+**Type:** §7.4 functional execution correction
+**Affected files:** `04_Data_Collection_Script.py`
+**Trigger:** The four-provider smoke test authorised under Entry 003 (PI sign-off email dated 2026-05-25) was executed on 2026-05-26 to validate Patch 003 against the live provider APIs prior to the C.1.1 full rerun. Three of the four providers passed: Claude Opus 4.7, Gemini 3.1 Pro, and DeepSeek V4 Flash returned non-empty visible text with `finish_reason_canonical = complete`. Gemini's response in particular confirmed the Patch 003 finish_reason alignment (Stage 1 returned `STOP / complete`, no longer misread as safety). GPT-5.5 failed with an OpenAI 400 `BadRequestError`: the value `reasoning_effort="minimal"` set by Patch 003 is not accepted by the current OpenAI API for `gpt-5.5`. The API response specified the supported set: `none, low, medium, high, xhigh`. The value `minimal` had been written into Patch 003 per the PI approval email's wording at the time, but OpenAI's accepted set for this parameter no longer includes it on this model.
+**PI approval reference:** WhatsApp message from Emile Boullineau dated 2026-05-25 granting anticipatory approval for operational bug-fixes within §7.4 magnitude boundary, with post-fix email notification. Notification email sent to PI on 2026-05-26 prior to applying this patch, advising the smoke test outcome and the one-literal correction. The post-fix diff and new hash are being sent in the follow-up email after this commit.
+
+### File hashes
+
+| File | Pre-fix SHA-256 | Post-fix SHA-256 |
+|---|---|---|
+| `04_Data_Collection_Script.py` (pre-Patch-004, post-Patch-003) | `82c25f1026242b5223084ae8461b79ff29d7e2e3cf966ad1bf08b8438bf8ddab` | `e09d00ee49762a2843579ca0db2a0a47a2c3ed30229973e21b66bfbef4639720` |
+| `validate_pipeline_integrity.py` | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` (unchanged; Appendix D anchor preserved per Entries 001–003) |
+
+Cumulative chain-of-correction reference: the original Appendix D registered hash is `d614714016df41e01adb2908ff6ad38b1f3e64beddaeda332f5fb40c0712f49d`. Prior commits in the chain: Entry 001 `4e9772d1c364fe2f0adc1db0d7f99cc3357a5d0b`, Entry 002 `c376d74e82d433791c2e41c4d897b00eb336476a`, Entry 003 `998ecd7979a7a547fe13e5ed585b023fc4741031`. This Entry 004 authorises the further divergence to `e09d00ee49...`.
+
+### Sub-change applied to `04_Data_Collection_Script.py`
+
+**Single-line literal change in `_call_openai`.** The Patch 003 implementation set:
+
+```python
+if self.model_key == "gpt-5.5":
+    kwargs["reasoning_effort"] = "minimal"
+```
+
+The corrected implementation sets:
+
+```python
+if self.model_key == "gpt-5.5":
+    kwargs["reasoning_effort"] = "none"
+```
+
+The value `"none"` is the lowest setting in OpenAI's currently-accepted set for `reasoning_effort` on `gpt-5.5` (`none, low, medium, high, xhigh`). It satisfies the operational intent of Patch 003 sub-change 2 verbatim — minimise internal reasoning so the registered output budget is spent on the visible Yes/No verbalisation. No other change is made to the script.
+
+### Magnitude assessment (per pre-reg §7.4 boundary)
+
+This correction is a single string literal change in a parameter value, within an existing parameter setting that was itself authorised under Patch 003. It does not introduce new parameters, does not alter model selection, prompts, scenarios, personas, repetitions, exclusion criteria, significance thresholds, or any pre-registered prediction (P1–P4) or failure condition. The operational intent — suppress internal reasoning for GPT-5.5 so Stage 1 visible-output budget is preserved — is unchanged from Patch 003; the literal value is updated to match the current OpenAI accepted set.
+
+Well inside the < 1% magnitude boundary registered in pre-reg §7.4.
+
+### Validation chain (registered authority cited)
+
+- **Pre-reg §7.4** — Code execution and bug-fix clause; "API formatting changes" is named explicitly as an example of a §7.4-eligible correction. The OpenAI accepted-values change for `reasoning_effort` is an API formatting change of exactly that kind.
+- **Pre-reg §3.4** — Provider-constrained decoding mechanism; the reasoning-effort suppression for GPT-5.5 is the registered extension authorised in Entry 003 sub-change 2. This Entry only updates the literal value to match the provider's current accepted set.
+
+### Pre-commit verification
+
+- Static syntax check (`python -m py_compile`) on the patched script: exit status 0.
+- File permission restored to `444 / -r--r--r--` after editing.
+- `__pycache__` byproduct removed.
+- `script_checksums.txt` updated with the new post-fix hash.
+- Operational working copy of `validate_pipeline_integrity.py` (`~/MVC_Study_operational/validate_pipeline_integrity_working_copy.py`) updated with the new hash in `REGISTERED_HASHES`. Canonical validator at `~/MVC_Study/validate_pipeline_integrity.py` unchanged.
+
+### Evidence artefacts (operator-local, not in repo)
+
+- Pre-patch script backup: `~/MVC_Study_operational/patches/c11_patch_004_2026-05-26/04_Data_Collection_Script_PRE_PATCH_004.py`
+- Patch 004 unified diff: `~/MVC_Study_operational/patches/c11_patch_004_2026-05-26/patch_004_script.diff`
+- Smoke-test failure stdout log: `~/MVC_Study_operational/smoke_tests/c11_patch_003_smoke_test_stdout_20260526T012144Z.log`
+- Smoke-test failure JSON result: `~/MVC_Study_operational/smoke_tests/c11_patch_003_smoke_test_results_20260526T012200Z.json`
+
+The textual diff for this entry is fully recoverable from the Git history of this repository via `git diff` between the Entry 003 commit (`998ecd7979a7a547fe13e5ed585b023fc4741031`) and this commit; the operator-local artefacts back up that record outside the repo.
+
+### Post-patch state and immediate next step
+
+- `04_Data_Collection_Script.py` chmod `444`; new SHA-256 recorded above.
+- `validate_pipeline_integrity.py` unchanged; Appendix D anchor preserved.
+- No live execution has occurred under this patch. The smoke test will be re-run under Patch 004 as the immediate next operational step.
+
+The A.3 validator continues to report the hash mismatch for `04_Data_Collection_Script.py` (now `expected d6147140... got e09d00ee49...`). This is the registered behaviour under pre-reg §7.4, the cumulative effect of Entries 001 + 002 + 003 + 004. Per pre-reg §7.4: *"If a reviewer or auditor observes that a final published script hash differs from the pre-registered Appendix D hash, they can consult the Git log to verify that every change falls within this execution-fix boundary."*
+
+If the re-run smoke test passes on all four providers, the C.1.1 full rerun proceeds under PI sign-off from the 2026-05-25 email. If the smoke test fails on any provider, the operator halts and emails the PI before any further action.
+
+---
