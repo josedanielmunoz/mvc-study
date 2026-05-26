@@ -470,3 +470,105 @@ The A.3 validator continues to report the hash mismatch for `04_Data_Collection_
 If the re-run smoke test passes on all four providers, the C.1.1 full rerun proceeds under PI sign-off from the 2026-05-25 email. If the smoke test fails on any provider, the operator halts and emails the PI before any further action.
 
 ---
+
+## Entry 005 — 2026-05-26 — §7.4 functional execution correction: validation harness pretest-only guard clause
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry 005.
+**Entry timestamp (UTC):** `2026-05-26T06:24:16Z`
+**Type:** §7.4 functional execution correction
+**Affected files:** `analysis_phases/04_p3_narrative_and_reliability.R`
+**Trigger:** The C.1.1 third rerun completed cleanly on 2026-05-26 under Patches 001–004 (script hash `e09d00ee49762a2843579ca0db2a0a47a2c3ed30229973e21b66bfbef4639720`), with 1,200 / 1,200 cells, 3,386 trial rows in `validated_trials.csv`, and zero retry duplicates. The registered validation harness was then invoked as `Rscript analysis_phases/run_phase.R --phase validation --fast --data-dir data/pretest/` and failed at the P3 narrative-and-reliability module with `Error in aggregate.data.frame(lhs, mf[-1L], FUN = FUN, ...) : no rows to aggregate`. Diagnostic review confirmed the failure was a pretest-only edge case internal to the harness itself, not a data integrity issue: `04_p3_narrative_and_reliability.R` subsets to `mode == "main"` and then immediately calls `aggregate(...)` without first checking whether the subset is empty, while the sibling modules `05_p4_dissociation.R` and `08_sdt_vci_supplementary.R` already contain the equivalent empty-subset guard clause and return a `mvc_append_status(... "FAIL", ...)` graciously. Under pretest-only input, P3's `class_data` was empty (0 main Stage 1 rows; 1,200 pretest Stage 1 rows present) and the unguarded `aggregate(...)` crashed. Raw outputs were preserved intact and no R script was edited prior to PI escalation analysis.
+**PI approval reference:** WhatsApp message from Emile Boullineau dated 2026-05-25 granting anticipatory approval for operational bug-fixes within §7.4 magnitude boundary, with post-fix email notification. Post-fix notification will be consolidated with the Stage 1 Pre-Test Checkpoint email after the validation harness completes cleanly under this Entry 005.
+
+### File hashes
+
+| File | Pre-fix SHA-256 | Post-fix SHA-256 |
+|---|---|---|
+| `analysis_phases/04_p3_narrative_and_reliability.R` | `8d049484dfc9bb0ef0b6601c499ce82a6671cbb3903476dced3238f12ce0923e` (registered Appendix D anchor) | `b6263b14f095fd05861515bf16ef76812f19cafe448f4a33aaee3f15eba711d4` |
+| `04_Data_Collection_Script.py` | `e09d00ee49762a2843579ca0db2a0a47a2c3ed30229973e21b66bfbef4639720` | `e09d00ee49762a2843579ca0db2a0a47a2c3ed30229973e21b66bfbef4639720` (unchanged; this Entry does not touch the data collection script) |
+| `validate_pipeline_integrity.py` | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` (unchanged; Appendix D anchor preserved per Entries 001–004) |
+
+Prior commits in the §7.4 chain: Entry 001 `4e9772d1c364fe2f0adc1db0d7f99cc3357a5d0b`, Entry 002 `c376d74e82d433791c2e41c4d897b00eb336476a`, Entry 003 `998ecd7979a7a547fe13e5ed585b023fc4741031`, Entry 004 `897c7d4c7c15e8d35f55aa191575f7869d14cd2a`. This Entry 005 is the first §7.4 correction to affect a file in `analysis_phases/`; all prior corrections have been confined to `04_Data_Collection_Script.py`.
+
+### Sub-change applied to `analysis_phases/04_p3_narrative_and_reliability.R`
+
+**Single guard clause insertion mirroring the existing pattern in `05_p4_dissociation.R` and `08_sdt_vci_supplementary.R`.** The previous implementation subset trials to `mode == "main" & stage == 1L` and then called `aggregate(...)` directly:
+
+```r
+class_data <- subset(inputs$trials, mode == "main" & stage == 1L & grepl("^scenario_", scenario_id))
+
+variance <- aggregate(
+    stage1_yes ~ scenario_id + persona + model,
+    data = class_data,
+    FUN = function(x) c(n = length(x), rate = mean(x), variance = stats::var(as.numeric(x)))
+)
+```
+
+The corrected implementation inserts a guard clause between the `subset(...)` and the `aggregate(...)`:
+
+```r
+class_data <- subset(inputs$trials, mode == "main" & stage == 1L & grepl("^scenario_", scenario_id))
+
+if (nrow(class_data) == 0L) {
+  return(mvc_append_status(
+    inputs, "p3", "main_stage1_available", "FAIL",
+    "No main Stage 1 rows available for P3 narrative/reliability analysis"
+  ))
+}
+
+variance <- aggregate(
+    stage1_yes ~ scenario_id + persona + model,
+    data = class_data,
+    FUN = function(x) c(n = length(x), rate = mean(x), variance = stats::var(as.numeric(x)))
+)
+```
+
+The guard follows the identical pattern already used by the sibling modules: detect the empty-subset condition, return early via `mvc_append_status(...)` with a `"FAIL"` status and a descriptive message, and skip downstream computation that would otherwise crash. The status entry is the registered mechanism for the harness to record that a specific check was attempted but could not be performed against the supplied data, without halting execution of the wider harness.
+
+### Magnitude assessment (per pre-reg §7.4 boundary)
+
+This correction is a single guard clause whose behaviour is identical to clauses already present in two other modules of the same harness. It does not alter:
+
+- model selection, prompts, scenarios, personas, repetitions, or any input to data collection;
+- decoding parameters, sampling, or the call flow of `04_Data_Collection_Script.py`;
+- exclusion criteria, significance thresholds, ambiguity binning, or any pre-registered prediction (P1, P2, P3a, P3b, P4) or failure condition;
+- the analytic logic of P3 itself when run against main data, which is the registered use case — when `class_data` has rows, the guard is a no-op and `aggregate(...)` runs unchanged.
+
+The behavioural effect is restricted to pretest-only inputs (and any other input that produces zero main Stage 1 rows): the harness now records a `mvc_append_status` FAIL entry for the P3 check and continues, rather than crashing with an unguarded `aggregate(...)` error. This brings P3 into parity with the empty-subset handling already registered in P4 and the SDT/VCI supplementary module.
+
+This correction is well inside the < 1% magnitude boundary registered in pre-reg §7.4.
+
+### Validation chain (registered authority cited)
+
+- **Pre-reg §7.4** — Code execution and bug-fix clause. Functional execution corrections within the magnitude boundary do not constitute a deviation from the pre-registration. "Minor execution errors" is explicitly named in §7.4 as a §7.4-eligible class, and an inconsistency between sibling modules of the registered harness (two of three modules have the guard, one does not) is exactly that kind of minor execution error.
+- **Consistency with registered design** — The guard pattern, status code, and `mvc_append_status` mechanism are already part of the registered harness in `05_p4_dissociation.R` and `08_sdt_vci_supplementary.R`. This Entry brings P3 into parity with the existing registered convention.
+
+### Pre-commit verification
+
+- R syntax check (`Rscript -e "parse(...)"`) on the patched file: `Syntax OK`.
+- File permission restored to `444 / -r--r--r--` after editing.
+- `script_checksums.txt` was not modified (the file's scope remains the four originally-registered Tier 1 critical files; `analysis_phases/` checksums are tracked through `validate_pipeline_integrity.py` `REGISTERED_HASHES` only).
+- Operational working copy of `validate_pipeline_integrity.py` (`~/MVC_Study_operational/validate_pipeline_integrity_working_copy.py`) updated with the new hash in `REGISTERED_HASHES`. Canonical validator at `~/MVC_Study/validate_pipeline_integrity.py` unchanged.
+- Canonical data collection script (`04_Data_Collection_Script.py`) unchanged at its Entry 004 post-fix hash.
+
+### Evidence artefacts (operator-local, not in repo)
+
+- Pre-patch file backup: `~/MVC_Study_operational/patches/c11_patch_005_harness_2026-05-26/04_p3_narrative_and_reliability_PRE_PATCH_005.R`
+- Patch 005 unified diff: `~/MVC_Study_operational/patches/c11_patch_005_harness_2026-05-26/patch_005_harness.diff`
+- Post-patch SHA-256 record: `~/MVC_Study_operational/patches/c11_patch_005_harness_2026-05-26/post_patch_sha256.txt`
+- C.1.1 third rerun raw outputs (the inputs that surfaced the bug): `~/MVC_Study/data/pretest/` and the third rerun execution log under `~/MVC_Study_operational/`.
+
+The textual diff for this Entry is fully recoverable from the Git history of this repository via `git diff` between the Entry 004 commit (`897c7d4c7c15e8d35f55aa191575f7869d14cd2a`) and this commit; the operator-local artefacts back up that record outside the repo.
+
+### Post-patch state and immediate next step
+
+- `analysis_phases/04_p3_narrative_and_reliability.R` chmod `444`; new SHA-256 recorded above.
+- `04_Data_Collection_Script.py` unchanged at the Entry 004 post-fix hash.
+- `validate_pipeline_integrity.py` canonical unchanged; Appendix D anchor preserved.
+- No live data collection, smoke test, or analytic harness run has been executed under this patch yet.
+
+The A.3 canonical validator now reports two hash mismatches: the long-running mismatch on `04_Data_Collection_Script.py` (per Entries 001–004) and a new mismatch on `analysis_phases/04_p3_narrative_and_reliability.R` (`expected 8d049484... got b6263b14...`, per this Entry 005). Both are the registered behaviour under pre-reg §7.4 when running the canonical validator; the operational working copy of `validate_pipeline_integrity.py` carries both new hashes in its `REGISTERED_HASHES` and returns OK on both files. Per pre-reg §7.4: *"If a reviewer or auditor observes that a final published script hash differs from the pre-registered Appendix D hash, they can consult the Git log to verify that every change falls within this execution-fix boundary."*
+
+The immediate next operational step is to re-run the validation harness against the C.1.1 third rerun outputs, confirm it completes cleanly with the new guard in place, compute the pre-test metrics requested by the PI (per-provider Stage 1 Yes-rates, refusal-rate breakdown by `finish_reason_canonical`, ambiguity-band check across the 10 scenarios × 4 models grid), and send the consolidated Stage 1 Pre-Test Checkpoint email to the PI with Patch 005 notification included.
+
+---
