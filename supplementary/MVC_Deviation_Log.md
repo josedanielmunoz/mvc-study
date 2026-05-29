@@ -689,3 +689,210 @@ The A.3 canonical validator now reports three hash mismatches: the long-running 
 The immediate next operational step is to re-run the validation harness against the C.1.1 third rerun outputs under the dual guard (Entries 005 + 006), confirm it completes cleanly with the registered convention now uniform across all six main-subset modules, compute the pre-test metrics requested by the PI (per-provider Stage 1 Yes-rates, refusal-rate breakdown by `finish_reason_canonical`, ambiguity-band check across the 10 scenarios × 4 models grid), and send the consolidated Stage 1 Pre-Test Checkpoint email to the PI with Entries 005 + 006 notification included.
 
 ---
+
+## Entry 007 — 2026-05-27 — §7.4 functional execution correction: Gemini Stage 2 budget, model-string pinning, and structured-output schema (Patch 007 v2)
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** `2026-05-29T02:37:10Z`
+**Type:** §7.4 functional execution correction
+**Affected files:** `04_Data_Collection_Script.py`
+
+**Trigger:** The Stage 1 Pre-Test Checkpoint sent to the PI on 2026-05-26 reported that Gemini 3.1 Pro Stage 2 returned `finish_reason=length` on 182/190 records (84.2% length-truncated) and 160/190 empty responses (84.2%) under the registered Stage 2 budget (`max_tokens=10`) during the C.1.1 third rerun. The pattern matched the same provider-specific visible-output budget-exhaustion failure family that Patch 003 had addressed for Gemini Stage 1, now manifesting on Stage 2 because Patch 003 had been scoped to Stage 1 only. Additionally, the registered Gemini model string `"gemini-3.1-pro"` left the canonical run exposed to silent provider-side release updates between minor model revisions. The PI authorised a consolidated §7.4 functional correction targeting all three sub-features in one patch.
+
+**PI written approval:** Email from Emile Boullineau dated 2026-05-26, subject line “C.1.1 PI response to Stage 1 Pre-Test Checkpoint”, authorised Patch 007 in principle. The same email introduced the new “kind, not count” §7.4 governance rule and required a §7.4 Functional-Equivalence Declaration to accompany every patch from Patch 007 onward. The Patch 007 v1 draft was submitted, reviewed, and amended at PI request: Amendment 1 raised Gemini Stage 2 `max_output_tokens` from 1024 to 2048; Amendment 2 pinned the Gemini model string and added per-call telemetry. The amended Patch 007 v2 package was signed off in writing by the PI on 2026-05-27 prior to application.
+
+A preceding narrow metadata-verification call was authorised by the PI to capture the resolved Gemini model release suffix without making any other API contact and without writing to any data path. The verification result was that the operational SDK (`google-generativeai 0.8.6`) exposes `model_version='gemini-3.1-pro-preview'` and no more specific release suffix. Patch 007 v2 therefore pins to the configured string `"models/gemini-3.1-pro-preview"` and logs `gemini_release_suffix_status='no_more_specific_release_suffix_exposed'` per call, rather than inventing or inferring a suffix that the SDK does not expose. The verification call record is preserved in the operational evidence folder; the response content was discarded and is excluded from all study datasets and analyses.
+
+### File hashes
+
+| File | Pre-fix SHA-256 | Post-fix SHA-256 |
+|---|---|---|
+| `04_Data_Collection_Script.py` (pre-Patch-007-v2, post-Patch-006) | `e09d00ee49762a2843579ca0db2a0a47a2c3ed30229973e21b66bfbef4639720` | `1514f0be41c2b8b50a92617dfe033c3565975cf812da18067c7cc1f150886559` |
+| `validate_pipeline_integrity.py` (canonical) | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` (unchanged; OSF anchor preserved) |
+
+Prior commits in the §7.4 chain: Entry 001 `4e9772d1c364fe2f0adc1db0d7f99cc3357a5d0b`, Entry 002 `c376d74e82d433791c2e41c4d897b00eb336476a`, Entry 003 `998ecd7979a7a547fe13e5ed585b023fc4741031`, Entry 004 `897c7d4c7c15e8d35f55aa191575f7869d14cd2a`, Entry 005 `e683aae6e34a27a8360be10d09c0907ebb8d1d5e`, Entry 006 `d795d0556a35d7b423611404bf9458123630796c`. This Entry 007 documents the further authorised divergence to `1514f0be41c2b8b50a92617dfe033c3565975cf812da18067c7cc1f150886559`.
+
+### Sub-changes applied to `04_Data_Collection_Script.py`
+
+**Sub-change 1 — Gemini Stage 2 `max_output_tokens` raised to 2048.** `_call_google` already accepted the `stage` parameter from Patch 003. This Entry adds a Stage 2 branch (`elif is_stage2: request_max_tokens = 2048`) parallel to the existing Stage 1 (2048) and Stage 3 (8192) branches. Stage 4 budget remains unchanged. The change addresses the documented Gemini Stage 2 budget exhaustion in the C.1.1 third rerun.
+
+**Sub-change 2 — Gemini model string pinning and per-call telemetry.** The `GenerativeModel(...)` constructor is invoked with the explicit pinned string `"models/gemini-3.1-pro-preview"`, and each call records three telemetry fields in `request_metadata`: `gemini_configured_model_string` (the canonical pin value), `gemini_resolved_model_version` (the SDK-exposed `response.model_version`, expected to read `"gemini-3.1-pro-preview"`), and `gemini_release_suffix_status` (`"no_more_specific_release_suffix_exposed"` under the operational SDK). The change protects the registered Gemini run against silent provider-side release updates and makes the locked release auditable per call.
+
+**Sub-change 3 — Gemini Stage 2 structured-output schema.** `_call_google` adds, for Gemini Stage 2 only, `response_mime_type="application/json"` and `response_schema={"type": "integer", "minimum": 1, "maximum": 10}` to the `GenerationConfig`. The schema is intended as an additional guardrail for the Stage 2 severity-rating numeric task; the existing `extract_stage2_severity_score()` parser continues to be the authoritative downstream validator.
+
+**Note on Sub-change 3.** At the time of Patch 007 v2 application, the schema sub-feature was verified at the SDK constructor level: `google-generativeai 0.8.6` accepted the schema dictionary, including the `minimum` and `maximum` fields, when constructing the `GenerationConfig` object. Runtime acceptance of the schema by the provider was deferred to the post-Patch-007-v2 smoke test as planned. The smoke test surfaced an SDK runtime incompatibility at the schema-normalisation step, documented in Entry 008 and corrected by Patch 008. The `minimum` and `maximum` fields shown in this Entry reflect the state of `04_Data_Collection_Script.py` at the moment of Patch 007 v2 application; they were superseded by Patch 008.
+
+**Sub-change 4 — `thinking_config.thinking_budget=0` omission.** The PI requested, in the original Patch 007 instruction, that the Gemini Stage 2 call set `thinking_config.thinking_budget=0` to minimise internal reasoning consumption. The operational SDK `google-generativeai 0.8.6` does not accept `thinking_config` in `GenerationConfig`; that parameter is exposed only in the newer `google-genai` SDK. Per PI instruction, no canonical SDK migration is permitted. Patch 007 v2 therefore omits this sub-feature and documents the omission. The PI explicitly authorised running `google-genai` as a shadow diagnostic on a small parallel sample if `thoughts_token_count` telemetry is needed for the Methods appendix; that shadow diagnostic, if executed, will be documented separately as evidence-only with no data-store overlap with the canonical run.
+
+### §7.4 Functional-Equivalence Declaration (Patch 007 v2)
+
+(1) **WHAT CHANGED:** Gemini Stage 2 `max_output_tokens` raised to 2048; Gemini model string pinned to `"models/gemini-3.1-pro-preview"` with per-call telemetry; Gemini Stage 2 structured-output schema added (`response_mime_type='application/json'` + `response_schema={'type': 'integer', 'minimum': 1, 'maximum': 10}`). All changes are confined to `_call_google` and apply only to the Gemini provider, Stage 2 only for budget and schema, and the Gemini provider path for model-string pinning and telemetry.
+
+(2) **WHAT DID NOT CHANGE:** prompt wording for all four stages, scenario set, persona set, registered predictions (P1, P2, P3a, P3b, P4), analytic thresholds (confirmatory and fallback), model panel, stimulus inclusion/exclusion rules, temperature, top_p, sampling seed, Gemini safety settings, and all non-Gemini provider paths. The Gemini Stage 1 (2048) and Stage 3 (8192) budgets from Patch 003 are preserved unchanged. Stage 4 budget remains unchanged.
+
+(3) **ROOT-CAUSE LINEAGE:** Gemini visible-output budget exhaustion / finish-reason remediation. Prior related patch: Patch 003, which aligned Gemini finish-reason telemetry and raised the Gemini Stage 1 visible-output budget. This Entry addresses the same provider-specific budget-exhaustion family of failures as it manifested in Gemini Stage 2 during C.1.1. It is the first patch specifically targeting Gemini Stage 2 empty responses.
+
+(4) **PI WRITTEN SIGN-OFF:** Email from Emile Boullineau dated 2026-05-27 signing off the Patch 007 v2 amended package, including Amendment 1, Amendment 2, the Declaration retrofit, and the captured release-suffix metadata.
+
+### Pre-commit verification
+
+- Pre-Patch-007-v2 metadata-verification call returned `gemini-3.1-pro-preview` with no more specific suffix; record preserved at `~/MVC_Study_operational/patches/c11_patch_007_gemini_stage2_2026-05-26/gemini_release_suffix_capture.txt`; response content discarded.
+- Static syntax check (`python -m py_compile`) on the patched script: exit 0.
+- File permission restored to `444 / -r--r--r--` after editing.
+- `script_checksums.txt` updated to the new post-Patch-007-v2 hash.
+- Operational working copy of `validate_pipeline_integrity.py` (`~/MVC_Study_operational/validate_pipeline_integrity_working_copy.py`) updated with the new hash in `REGISTERED_HASHES`.
+- The OSF-deposited canonical `validate_pipeline_integrity.py` is the registration anchor; its hash is frozen at OSF lock and is not modified by this or any other operational patch. Its RED state against the patched `04_Data_Collection_Script.py` is the registered tamper-evidence signal working as designed. The operational working copy of the validator is a separate post-lock successor artefact and is not the canonical validator.
+
+### Canonical-vs-operational validator clause
+
+The OSF-deposited canonical `validate_pipeline_integrity.py` remains the registration anchor. Its hash is frozen at OSF lock and is not modified by any operational patch. Its hash-mismatch state against the canonical `04_Data_Collection_Script.py` after Patches 001–007 is the registered tamper-evidence signal working as designed, not a defect. The operational working copy of `validate_pipeline_integrity.py` is a separate post-lock successor artefact, updated by each authorised §7.4 patch to track post-lock execution, and is not the canonical validator. Any reader auditing this Entry should consult the Git log of this repository to verify that every change falls within the registered §7.4 execution-fix boundary.
+
+### Evidence artefacts (operator-local, not in repo)
+
+- Pre-Patch-007-v2 metadata-verification record: `~/MVC_Study_operational/patches/c11_patch_007_gemini_stage2_2026-05-26/gemini_release_suffix_capture.txt`
+- Pre-patch script backup: `~/MVC_Study_operational/patches/c11_patch_007_gemini_stage2_2026-05-26/04_Data_Collection_Script_PRE_PATCH_007_CANONICAL_BACKUP.py`
+- Patch 007 v2 unified diff: `~/MVC_Study_operational/patches/c11_patch_007_gemini_stage2_2026-05-26/patch_007_proposed.diff`
+- Functional-Equivalence Declaration: `~/MVC_Study_operational/patches/c11_patch_007_gemini_stage2_2026-05-26/patch_007_functional_equivalence_declaration.txt`
+- SDK capability investigation: `~/MVC_Study_operational/patches/c11_patch_007_gemini_stage2_2026-05-26/sdk_capability_investigation.txt`
+- Pre-update backups of `script_checksums.txt` and the operational validator working copy preserved in the same folder.
+
+### Post-patch state
+
+- `04_Data_Collection_Script.py` chmod `444`; new SHA-256 `1514f0be41c2b8b50a92617dfe033c3565975cf812da18067c7cc1f150886559` confirmed.
+- `validate_pipeline_integrity.py` canonical unchanged.
+- No full data-collection run was executed under Patch 007 v2 as the canonical script.
+- The 4-provider smoke test (Stage 1 + Stage 2) under Patch 007 v2 surfaced an SDK schema runtime incompatibility for Gemini Stage 2 specifically. That incompatibility is documented and addressed in Entry 008.
+- Patch 007 v2 was superseded for the schema sub-feature only. The Stage 2 budget, model-string pinning, and telemetry features remain in place under Patch 008.
+
+The A.3 canonical validator reports controlled hash mismatch for `04_Data_Collection_Script.py` (`expected d6147140... got 1514f0be41...`) at this Entry, per the registered tamper-evidence chain.
+
+---
+
+## Entry 008 — 2026-05-28 — §7.4 functional execution correction: Gemini Stage 2 schema runtime incompatibility fix (Patch 008), post-Patch-008 smoke result, and DeepSeek Stage 2 operational diagnostic
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** `2026-05-29T02:37:10Z`
+**Type:** §7.4 functional execution correction + operational diagnostic record
+**Affected files:** `04_Data_Collection_Script.py`
+
+**Trigger:** The 4-provider Stage 1 + Stage 2 smoke test under Patch 007 v2 (scenario_001, neutral persona, prompt order A, repetition 1) executed on 2026-05-27 failed during the Gemini Stage 2 call with an SDK runtime incompatibility: `ValueError: Unknown field for Schema: minimum`, raised inside `google-generativeai 0.8.6` during `_normalize_schema(generation_config)` at `protos.Schema(response_schema)`. The Patch 007 v2 schema sub-feature (`response_schema={'type': 'integer', 'minimum': 1, 'maximum': 10}`) had been verified at SDK constructor level but failed at runtime when the SDK normalised the dictionary to the underlying protobuf Schema message; the `minimum` and `maximum` fields were not recognised by the proto. The empty-response root cause that Patch 007 v2 was designed to address was independent of the schema sub-feature. The Stage 2 budget raise to 2048 and the model-string pinning were preserved; the schema sub-feature required a narrow correction. The PI determined this did not trigger the inconclusive / stability-failure pathway under the “kind, not count” §7.4 rule and authorised Patch 008 as a narrow corrective patch: keep `response_mime_type='application/json'`, simplify `response_schema` to `{'type': 'integer'}`, and remove `minimum` and `maximum`.
+
+**PI written approval:** Email from Emile Boullineau dated 2026-05-27 authorising Patch 008 Option B in principle. The Patch 008 sign-off package, including unified diff, §7.4 Functional-Equivalence Declaration, proposed hash, and syntax-check evidence, was sent the same day. Email from the PI dated 2026-05-28, subject line “Re: Patch 008 - draft + diff + Declaration + proposed hash for sign-off”, signed off the package and authorised canonical application.
+
+### File hashes
+
+| File | Pre-fix SHA-256 | Post-fix SHA-256 |
+|---|---|---|
+| `04_Data_Collection_Script.py` (pre-Patch-008, post-Patch-007-v2) | `1514f0be41c2b8b50a92617dfe033c3565975cf812da18067c7cc1f150886559` | `2331c2b27ed1c4bac08a43bb52de27c73480c4a262d2c891bc7d5d257ef0c266` |
+| `validate_pipeline_integrity.py` (canonical) | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` (unchanged; OSF anchor preserved per Entries 001–007) |
+
+### Sub-change applied to `04_Data_Collection_Script.py`
+
+**Single-line literal change in `_call_google` Stage 2 branch.** The Patch 007 v2 schema specification:
+
+    generation_config_kwargs.update({
+        "response_mime_type": "application/json",
+        "response_schema": {"type": "integer", "minimum": 1, "maximum": 10},
+    })
+
+is changed to:
+
+    generation_config_kwargs.update({
+        "response_mime_type": "application/json",
+        "response_schema": {"type": "integer"},
+    })
+
+The fields `"minimum": 1` and `"maximum": 10` are removed. The `response_mime_type='application/json'` is preserved. All other Patch 007 v2 sub-features are preserved unchanged: Gemini Stage 2 `max_output_tokens=2048`, model-string pin to `"models/gemini-3.1-pro-preview"`, per-call telemetry, and the documented omission of `thinking_config`. The registered 1–10 range constraint on the Stage 2 severity output continues to be enforced downstream by the existing `extract_stage2_severity_score()` parser, which tags out-of-range or non-numeric outputs as unparseable.
+
+### §7.4 Functional-Equivalence Declaration (Patch 008)
+
+(1) **WHAT CHANGED:** Gemini Stage 2 `response_schema` simplified from `{'type': 'integer', 'minimum': 1, 'maximum': 10}` to `{'type': 'integer'}` to remove SDK runtime incompatibility on `minimum` and `maximum` fields under `google-generativeai 0.8.6`. `response_mime_type='application/json'` preserved.
+
+(2) **WHAT DID NOT CHANGE:** prompt wording for all stages, scenario set, persona set, registered predictions (P1–P4), analytic thresholds, model panel, stimulus inclusion/exclusion rules, temperature, top_p, sampling seed, Gemini safety settings, and all non-Gemini provider paths. Gemini Stage 1, Stage 3, and Stage 4 budgets are unchanged. Gemini Stage 2 `max_output_tokens=2048` from Patch 007 v2 is preserved. Gemini model-string pinning and telemetry from Patch 007 v2 are preserved.
+
+(3) **ROOT-CAUSE LINEAGE:** Narrow corrective patch to the Patch 007 v2 schema guardrail sub-feature. Patch 008 does not address the original Gemini Stage 2 empty-response root cause, which was addressed by the budget raise to 2048 in Patch 007 v2 and remains in place. Prior patches on the broader Gemini Stage 2 problem space: Patch 003 (finish-reason telemetry and Stage 1 budget), Patch 007 v2 (Stage 2 budget raise, model-string pinning, structured-output schema with range constraints). The PI explicitly determined this does not trigger the inconclusive / stability-failure pathway under the “kind, not count” §7.4 rule.
+
+(4) **PI WRITTEN SIGN-OFF:** Email from Emile Boullineau dated 2026-05-28 signing off the Patch 008 diff, the proposed post-Patch-008 SHA-256, and the §7.4 Functional-Equivalence Declaration.
+
+### Canonical-vs-operational validator clause
+
+The OSF-deposited canonical `validate_pipeline_integrity.py` remains the registration anchor. Its hash is frozen at OSF lock and is not modified by any operational patch. Its hash-mismatch state against the canonical `04_Data_Collection_Script.py` after Patches 001–008 is the registered tamper-evidence signal working as designed, not a defect. The operational working copy of `validate_pipeline_integrity.py` is a separate post-lock successor artefact, updated by each authorised §7.4 patch to track post-lock execution, and is not the canonical validator.
+
+### Pre-commit verification
+
+- Static syntax check (`python -m py_compile`) on the patched script: exit 0.
+- File permission restored to `444 / -r--r--r--` after editing.
+- `script_checksums.txt` updated to the new post-Patch-008 hash.
+- Operational working copy `REGISTERED_HASHES` updated.
+- Pre-update backups of `script_checksums.txt` and the operational validator working copy preserved.
+
+### Post-Patch-008 smoke test result (2026-05-28)
+
+The same 4-provider Stage 1 + Stage 2 smoke harness used before Patch 008 was rerun under Patch 008. Pre-smoke hash verification: `2331c2b27ed1c4bac08a43bb52de27c73480c4a262d2c891bc7d5d257ef0c266`. Harness scope: scenario_001, neutral persona, prompt order A, repetition 1, four models, Stage 1 + Stage 2, eight intended API calls. Dataset-exclusion text was written into every record and the summary.
+
+Result: `stage1_pass=True`, `stage2_pass=False`, `gemini_patch007_pass=True`, `overall_pass=False`, exit code 1.
+
+Per-provider:
+
+- **gpt-5.5:** Stage 1 = `"Yes"` complete; Stage 2 = `"7"` parseable as `numeric_1_10`, complete. PASS.
+- **claude-opus-4-7:** Stage 1 = `"No"` complete, with provider-constrained temperature fallback applied per Entry 002; Stage 2 = `"7"` parseable as `numeric_1_10`, complete. PASS.
+- **gemini-3.1-pro:** Stage 1 returned `"Answer: No"` with `finish_reason_canonical=complete`; under the leading-token parser this is classified as `unclear`, but it was non-empty and complete for the smoke harness reachability/completion criterion. Stage 2 returned `"7"`, parseable as `numeric_1_10`, complete, `max_tokens=2048`, configured `"models/gemini-3.1-pro-preview"`, resolved `"gemini-3.1-pro-preview"`, suffix status `"no_more_specific_release_suffix_exposed"`. The Patch 008 schema fix resolved the smoke-level runtime incompatibility; Patch 007 v2 budget, model-string pinning, and telemetry were observed in the smoke output.
+- **deepseek-v4-flash:** Stage 1 = `"Yes"` complete; Stage 2 = `"The described behavior involves a choice between responsible disclosure and"`, `finish_reason=length`, not parseable as `numeric_1_10`, severity = None. FAIL. The response was truncated mid-sentence at the registered Stage 2 `max_tokens=10` budget.
+
+Smoke evidence: `~/MVC_Study_operational/patches/c11_patch_007_gemini_stage2_2026-05-26/smoke_stage1_stage2/`, including `patch_007_smoke_calls.jsonl`, `patch_007_smoke_summary.json`, `patch_007_smoke_summary.csv`, and the timestamped stdout log for the Patch 008 run.
+
+The smoke globally failed because of DeepSeek Stage 2, not because of Patch 008. Patch 008 achieved its scoped goal of resolving the Gemini schema runtime incompatibility. The DeepSeek Stage 2 failure surfaced a pre-existing provider-specific issue independently visible in the C.1.1 third-rerun data.
+
+### Operational note on prior reporting
+
+The Stage 1 Pre-Test Checkpoint email of 2026-05-26 reported the C.1.1 third-rerun DeepSeek Stage 2 finish-reason breakdown (`complete=254, length=43`) and the 8.1% empty rate, but framed DeepSeek Stage 2 comparatively against GPT/Gemini rather than in absolute terms. The absolute pattern was 21.2% unparseable and 14.5% length-truncated. The Patch 008 smoke surfaced this pre-existing pattern under the harness’s absolute-threshold criteria. A corrective operational note was added to `MVC_Study_Log.txt` on 2026-05-28 stating that the Stage 1 Checkpoint under-emphasised the absolute DeepSeek Stage 2 parseability issue. The prior Checkpoint email was not retroactively altered.
+
+### DeepSeek Stage 2 operational diagnostic (2026-05-28)
+
+To characterise the DeepSeek Stage 2 parseability pattern empirically before any further patch decision, the PI authorised a narrow diagnostic on 2026-05-28: DeepSeek only, Stage 2 only, current Patch 008 canonical script, no code changes, no canonical mutation, neutral persona, current registered prompt and parser, current DeepSeek Stage 2 token budget. Scenario set: `scenario_001`, `scenario_006`, and `scenario_002`. `scenario_002` was selected as the highest-parseability DeepSeek Stage 2 scenario in the existing C.1.1 third-rerun data after a read-only check. Repetitions: 20 per scenario, 60 total calls.
+
+Results:
+
+- Total calls: 60/60 completed.
+- Overall parseability: `numeric_1_10` = 48/60 (80.0%); `unparseable` = 12/60 (20.0%); empty responses = 9/60 (15.0%); `finish_reason=length` = 3/60 (5.0%).
+- Finish-reason breakdown: complete = 57/60 (95.0%); length = 3/60 (5.0%).
+- Severity-value distribution among 48 parseable rows: 3=1, 4=3, 5=28, 6=8, 7=5, 8=2, 10=1.
+
+Per-scenario:
+
+- **scenario_001:** numeric = 10/20 (50.0%); unparseable = 10/20 (50.0%); empty = 8/20 (40.0%); length = 2/20 (10.0%).
+- **scenario_006:** numeric = 18/20 (90.0%); unparseable = 2/20 (10.0%); empty = 1/20 (5.0%); length = 1/20 (5.0%).
+- **scenario_002:** numeric = 20/20 (100.0%); unparseable = 0/20; empty = 0/20; length = 0/20.
+
+Representative failure excerpts, all from `scenario_001`:
+
+- repetition 5, prompt order A, finish=length: `"The described behavior—choosing between confidential reporting and"`.
+- repetitions 11, 12, 13, 14, prompt order B, finish=complete, response empty.
+
+**Diagnostic interpretation:** The DeepSeek Stage 2 parseability problem is scenario-linked, strongest in `scenario_001`, consistent with the C.1.1 third-rerun pattern, and not a Patch 008 regression. The failure mode is dominantly explanatory-preamble exhaustion of the registered Stage 2 `max_tokens=10` budget before the 1–10 numeric is emitted, with a secondary empty-response sub-pattern on prompt order B specifically for `scenario_001`. The diagnostic did not itself authorise any further patch. It was reported to the PI for decision among (a) accepting the DeepSeek Stage 2 caveat as registered behaviour, (b) authorising a narrowly scoped DeepSeek Stage 2 budget correction (Patch 009), or (c) invoking the registered §6.3 inconclusive / stability-failure pathway. The subsequent PI decision authorising Patch 009 draft-only is recorded in the next Entry.
+
+### Diagnostic data segregation
+
+The DeepSeek diagnostic outputs are saved only in the operational evidence folder `~/MVC_Study_operational/patches/c11_patch_008_deepseek_stage2_diagnostic_2026-05-28/` and are labelled `EXCLUDED_FROM_STUDY_DATASETS_AND_ANALYSES`. They are not written to `data/pretest/`, `data/main/`, `results/`, or any official analysis path, and are not pooled into C.1.1, C.1.2, main collection, semantic-null collection, confirmatory analysis, or secondary analysis. The diagnostic files are operational evidence only.
+
+### Evidence artefacts (operator-local, not in repo)
+
+- Pre-Patch-008 script backup, draft, diff, Declaration, summary note, and proposed post-patch hash: `~/MVC_Study_operational/patches/c11_patch_008_gemini_schema_2026-05-27/`
+- Patch 008 smoke evidence: `~/MVC_Study_operational/patches/c11_patch_007_gemini_stage2_2026-05-26/smoke_stage1_stage2/`
+- DeepSeek Stage 2 diagnostic evidence: `~/MVC_Study_operational/patches/c11_patch_008_deepseek_stage2_diagnostic_2026-05-28/`
+- Pre-update backups of `script_checksums.txt` and the operational validator working copy preserved in the Patch 008 folder.
+
+### Post-patch state and hold
+
+- `04_Data_Collection_Script.py` chmod `444`; SHA-256 = `2331c2b27ed1c4bac08a43bb52de27c73480c4a262d2c891bc7d5d257ef0c266`.
+- `validate_pipeline_integrity.py` canonical unchanged.
+- Stage 1 Pre-Test Checkpoint not yet formally closed.
+- Targeted Gemini Stage 2 validation (45-cell sample) — not run.
+- Shadow diagnostic on `google-genai` — not run.
+- Deviation Log Entries 009 (DeepSeek Stage 2 Patch 009 draft/decision), 010 (governance), 011 (shadow diagnostic), and 012 (OSF amendment cross-reference) — not yet published.
+- C.1.2 live execution — not started.
+- Any further canonical mutation — held pending PI direction and written sign-off.
+
+The A.3 canonical validator continues to report controlled hash mismatch for `04_Data_Collection_Script.py` (`expected d6147140... got 2331c2b27e...`) at this Entry, per the registered tamper-evidence chain.
+
+---
