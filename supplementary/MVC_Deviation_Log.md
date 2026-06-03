@@ -896,3 +896,242 @@ The DeepSeek diagnostic outputs are saved only in the operational evidence folde
 The A.3 canonical validator continues to report controlled hash mismatch for `04_Data_Collection_Script.py` (`expected d6147140... got 2331c2b27e...`) at this Entry, per the registered tamper-evidence chain.
 
 ---
+
+## Entry 009 — 2026-05-28 — §7.4 functional execution correction: DeepSeek Stage 2 token budget (Patch 009)
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-06-03T03:06:32Z
+**Type:** §7.4 functional execution correction
+**Affected files:** `04_Data_Collection_Script.py`
+**Trigger:** The DeepSeek Stage 2 operational diagnostic logged in Entry 008 (60 calls, neutral persona, 3 scenarios) returned a parseability rate of 48/60 (80.0%) with 12/60 (20.0%) unparseable, dominated by explanatory-preamble exhaustion of the registered Stage 2 budget (`max_tokens=10`) before the 1–10 numeric severity could be emitted. The pattern was scenario-linked, strongest in `scenario_001`. Mechanistically the failure was the same class of token-budget-vs-output-size mismatch that Patch 007 v2 had already addressed for Gemini Stage 2 (raised to 2048): the budget was sized for a single-token numeric, but the provider emitted prose first. Patch 009 was authorised as a narrow §7.4 correction to raise DeepSeek Stage 2 `max_tokens` from 10 to 64.
+
+**PI written approval:** Email from Emile Boullineau dated 2026-05-28 (subject: "Re: DeepSeek Stage 2 diagnostic — Patch 009 authorised") signing off Patch 009 in principle. The signed package (diff, `§7.4` Functional-Equivalence Declaration, proposed SHA-256, syntax-check evidence, validation plan) was sent the same day and signed off in writing by the PI prior to canonical application.
+
+### File hashes
+
+| File | Pre-fix SHA-256 | Post-fix SHA-256 |
+|---|---|---|
+| `04_Data_Collection_Script.py` (pre-Patch-009, post-Patch-008) | `2331c2b27ed1c4bac08a43bb52de27c73480c4a262d2c891bc7d5d257ef0c266` | `7daa6043bb8b67fdd9912787443cc278f80a51d8f6412c04816fe1334235496d` |
+| `validate_pipeline_integrity.py` (canonical) | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` (unchanged; OSF anchor preserved) |
+
+### Sub-change applied to `04_Data_Collection_Script.py`
+
+**Single addition in `_call_openai` token-budget branching.** The existing GPT-5.5 branches established by Patch 003 (Stage 1 = 512, Stage 3 = 1024) are preserved unchanged. A new DeepSeek-specific Stage 2 branch is added:
+
+```python
+elif self.model_key == "deepseek-v4-flash" and stage == 2:
+    request_max_tokens = 64
+```
+
+The default global Stage 1/2 budget for all other model/stage combinations remains at 10. DeepSeek Stage 1, Stage 3, and Stage 4 remain on the default global budgets unchanged. No other branch, constant, prompt, scenario, persona, threshold, parser, or analysis path is modified.
+
+### §7.4 Functional-Equivalence Declaration (Patch 009)
+
+(1) **WHAT CHANGED:** DeepSeek Stage 2 `max_tokens` raised from 10 to 64 via a single-line conditional branch in `_call_openai`. The change is confined to the DeepSeek provider, Stage 2 only.
+
+(2) **WHAT DID NOT CHANGE:** prompt wording (all stages), scenario set, persona set, registered predictions (P1–P4), analytic thresholds (confirmatory and fallback), model panel (the four registered models), stimulus inclusion/exclusion rules, parsing logic, analysis logic, decoding parameters (temperature, top_p, sampling seed). DeepSeek Stage 1, Stage 3, and Stage 4 budgets unchanged. Other providers (OpenAI gpt-5.5, Anthropic claude-opus-4-7, Google gemini-3.1-pro) untouched. All Patch 007 v2 + Patch 008 Gemini features preserved end-to-end.
+
+(3) **ROOT-CAUSE LINEAGE:** DeepSeek Stage 2 budget-exhaustion sub-problem within the broader Stage 2 measurement reliability space. Prior patches on the broader Stage 2 reliability problem: Patch 007 v2 (Gemini Stage 2 budget raise + schema + pinning), Patch 008 (Gemini Stage 2 schema runtime fix). Patches 007 v2 and 008 resolved Gemini Stage 2. This is the first patch on the DeepSeek-side reliability sub-problem specifically.
+
+(4) **PI WRITTEN SIGN-OFF:** Email from Emile Boullineau dated 2026-05-28 signing off the Patch 009 diff, the proposed post-Patch-009 SHA-256, and the §7.4 Functional-Equivalence Declaration.
+
+### Canonical-vs-operational validator clause
+
+The OSF-deposited canonical `validate_pipeline_integrity.py` remains the registration anchor. Its hash is frozen at OSF lock and is not modified by any operational patch. Its hash-mismatch state against the canonical `04_Data_Collection_Script.py` after Patches 001–009 is the registered tamper-evidence signal working as designed, not a defect. The operational working copy of `validate_pipeline_integrity.py` is a separate post-lock successor artefact, updated by each authorised §7.4 patch to track post-lock execution, and is not the canonical validator.
+
+### Pre-commit verification
+
+- Static syntax check (`python -m py_compile`) on the patched script: exit 0.
+- File permission restored to `444 / -r--r--r--` after editing.
+- `script_checksums.txt` updated to the new post-Patch-009 hash.
+- Operational working copy `REGISTERED_HASHES` updated.
+- Pre-update backups of `script_checksums.txt` and the operational validator working copy preserved in the Patch 009 evidence folder.
+
+### Post-Patch-009 smoke test result (2026-05-29)
+
+The same 4-provider Stage 1 + Stage 2 smoke harness used pre-Patch-009 was rerun under Patch 009. Pre-smoke hash verification: `7daa6043bb8b67fdd9912787443cc278f80a51d8f6412c04816fe1334235496d`. Harness scope: `scenario_001`, neutral persona, prompt order A, repetition 1, 4 models, Stage 1 + Stage 2, 8 intended API calls. Dataset exclusion text written into every record and the summary.
+
+Result: `stage1_pass=True`, `stage2_pass=False`, `gemini_patch007_pass=True`, `overall_pass=False`, exit code 1.
+
+Per-provider:
+- **gpt-5.5:** Stage 1 = `"Yes"` complete; Stage 2 = `"8"` parseable as `numeric_1_10`, complete. PASS.
+- **claude-opus-4-7:** Stage 1 = `"No"` complete (provider-constrained temperature fallback per Entry 002); Stage 2 = `"7"` parseable, complete. PASS.
+- **gemini-3.1-pro:** Stage 1 complete; Stage 2 = `"7"` parseable, complete, all Patch 007 v2 + Patch 008 features preserved. PASS.
+- **deepseek-v4-flash:** Stage 1 complete; Stage 2 returned a non-empty response under the new `max_tokens=64` budget but the integer-only `extract_stage2_severity_score()` parser tagged it as `not_numeric_1_10` and severity as `None`, `finish_reason=length`. FAIL under the smoke harness pass criteria.
+
+The Patch 009 budget raise propagated correctly to the request layer (verified via `request_metadata.max_tokens=64`, `token_parameter=max_tokens`, `response_output_tokens=64`). The Stage 2 response contained the phrase `"the concern level is minimal"`, which is a registered verbal severity descriptor under pre-registration §4.2 and `extract_confidence()` in `05_Statistical_Analysis.R` (mapped to severity = 2 under the registered verbal fallback). The Stage 2 parser in `04_Data_Collection_Script.py` at the time of this smoke was integer-only and did not implement the registered verbal fallback, so the response was tagged unparseable at collection level despite being parseable under the registered inferential parser. This parser-concordance gap is documented and addressed in Entry 010 (Patch 010).
+
+### Evidence artefacts (operator-local, not in repo)
+
+- Pre-Patch-009 script backup, draft, diff, Declaration, summary note, proposed post-patch hash: `~/MVC_Study_operational/patches/c11_patch_009_deepseek_stage2_budget_2026-05-28/`
+- Patch 009 smoke evidence: `~/MVC_Study_operational/patches/c11_patch_007_gemini_stage2_2026-05-26/smoke_stage1_stage2/`
+- Pre-update backups of `script_checksums.txt` and the operational validator working copy preserved in the Patch 009 folder.
+
+### Post-patch state
+
+- `04_Data_Collection_Script.py` chmod `444`; SHA-256 = `7daa6043bb8b67fdd9912787443cc278f80a51d8f6412c04816fe1334235496d`.
+- `validate_pipeline_integrity.py` canonical unchanged.
+- Patch 009 smoke surfaced a parser-concordance mismatch between the data-collection script's integer-only Stage 2 parser and the registered §4.2 / `extract_confidence()` parser, prompting Patch 010 (see Entry 010).
+
+The A.3 canonical validator continues to report controlled hash mismatch for `04_Data_Collection_Script.py` (`expected d6147140... got 7daa6043...`) at this Entry, per the registered tamper-evidence chain.
+
+---
+
+## Entry 010 — 2026-06-01 — §7.4 functional execution correction: Stage 2 parser alignment with registered §4.2 / `extract_confidence()` (Patch 010) + post-Patch-010 smoke + targeted DeepSeek Stage 2 validation + residual reliability classification
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-06-03T03:06:32Z
+**Type:** §7.4 functional execution correction + validation record + residual classification
+**Affected files:** `04_Data_Collection_Script.py`
+**Trigger:** The Patch 009 smoke test (Entry 009) surfaced that the `04_Data_Collection_Script.py` Stage 2 parser was integer-only, whereas the OSF-registered Stage 2 parsing rule under pre-registration §4.2 and its canonical implementation in `05_Statistical_Analysis.R::extract_confidence()` specifies a two-route parser: (1) primary route = first integer 1–10; (2) secondary fallback = mapping of verbal severity descriptors to conservative ordinal midpoints. The collection-side parser was therefore not aligned with the registered inferential parser, and the DeepSeek Stage 2 response `"the concern level is minimal"` (which maps to severity = 2 under the registered fallback) was tagged unparseable at collection level. A read-only parser-concordance audit confirmed the mismatch on the Patch 009 smoke row and on a back-projected audit of the pre-Patch-009 DeepSeek Stage 2 diagnostic data (60 rows; 0/12 prior unparseable rows recovered by the registered verbal fallback under that historical data). Patch 010 was authorised as a narrow §7.4 functional correction to bring the collection-side parser into alignment with the registered §4.2 parser. The patch reduces, rather than introduces, divergence from the registered analytic specification: the registered parser specification predates OSF lock and is the authoritative reference; Patch 010 brings `04_Data_Collection_Script.py` into compliance with that pre-existing registered specification.
+
+**PI written approval:** Email from Emile Boullineau dated 2026-05-31 authorising Patch 010 as draft-only with the specific scope (numeric_primary preserved as primary route, verbal_fallback added as secondary route, legacy `extract_stage2_severity_score()` return shape preserved, parser-route metadata added, existing `parse_status` compatibility preserved). The Patch 010 sign-off package (diff, Declaration, proposed SHA-256, syntax-check evidence, no-API parser sanity output, validation plan) was sent the same day. Email from PI dated 2026-06-01 signing off the package and authorising canonical application "exactly as drafted, with no additional changes".
+
+### File hashes
+
+| File | Pre-fix SHA-256 | Post-fix SHA-256 |
+|---|---|---|
+| `04_Data_Collection_Script.py` (pre-Patch-010, post-Patch-009) | `7daa6043bb8b67fdd9912787443cc278f80a51d8f6412c04816fe1334235496d` | `46acf4c71c9e98b09fc71d7b657f64e53e498d1f0a0b91e81b87a9c67639aebd` |
+| `validate_pipeline_integrity.py` (canonical) | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` (unchanged; OSF anchor preserved per Entries 001–009) |
+
+### Sub-changes applied to `04_Data_Collection_Script.py`
+
+**Sub-change 1 — Parser helper added with route awareness.** A new helper `extract_stage2_severity_score_with_route(response: str) -> Tuple[Optional[int], str]` is added. It returns a `(score, route)` tuple where `route` is one of:
+
+- `numeric_primary` — the first integer 1–10 was matched in the response.
+- `verbal_fallback` — no parseable integer was matched, but a registered verbal severity descriptor was found and mapped to its conservative ordinal midpoint.
+- `missing_after_registered_parser` — neither route produced a parseable result.
+
+The verbal descriptor map matches the registered §4.2 / `extract_confidence()` specification:
+
+- `negligible`, `trivial` → 1
+- `very minor`, `very low`, `minimal` → 2
+- `minor`, `slight`, `low` → 3
+- `moderate`, `medium`, `middling` → 5
+- `considerable`, `notable` → 6
+- `serious`, `significant`, `high` → 7
+- `severe`, `very serious`, `very high` → 8
+- `extremely serious`, `critical`, `very severe` → 9
+- `profound`, `extreme`, `maximum` → 10
+
+**Sub-change 2 — Legacy wrapper preserved.** The existing function `extract_stage2_severity_score(response: str) -> Optional[int]` is preserved with its original return shape (an `Optional[int]`, no route information). Internally it now delegates to `extract_stage2_severity_score_with_route()` and returns only the `score` component. Any caller using the legacy function continues to receive an integer or `None` exactly as before. This guarantees no downstream signature breakage.
+
+**Sub-change 3 — Parser-route metadata added.** Each Stage 2 call now records the parser route in `request_metadata` as `stage2_parser_route` (with corresponding `parser_route` field at row level for audit output). The CSV audit writer is updated to include `parser_route` in its fieldnames; a draft-stage bug where row dictionaries had `parser_route` but CSV fieldnames did not was found and corrected during draft preparation, before sign-off, by independent operator review.
+
+**Sub-change 4 — `parse_status` compatibility preserved.** The existing `stage2_parse_status` field continues to be set to `numeric_1_10` whenever `severity_score is not None` (regardless of which route produced it) and `unparseable` when `severity_score is None`. This preserves the smoke harness and summary logic that counts parseable rows by checking `parse_status == numeric_1_10`. The parser route is reported alongside `parse_status` as a separate metadata field rather than replacing it.
+
+### §7.4 Functional-Equivalence Declaration (Patch 010)
+
+(1) **WHAT CHANGED:** `extract_stage2_severity_score()` in `04_Data_Collection_Script.py` is extended via a new route-aware helper to implement the already-registered two-route Stage 2 parser specification (numeric primary + verbal fallback). The legacy function signature is preserved. Per-call `stage2_parser_route` metadata is added with values `numeric_primary` | `verbal_fallback` | `missing_after_registered_parser`. The CSV audit writer is updated to include the new field.
+
+(2) **WHAT DID NOT CHANGE:** prompt wording (all four stages), scenario set, persona set, registered predictions (P1–P4), analytic thresholds (confirmatory and fallback), model panel (the four registered models), stimulus inclusion/exclusion rules, decoding parameters (temperature, top_p, sampling seed), all token budgets including the Patch 007 v2 Gemini Stage 2 budget (2048), the Patch 009 DeepSeek Stage 2 budget (64), and all other stage budgets. All provider call paths (`_call_openai`, `_call_anthropic`, `_call_google`) untouched at the API-call level. Stage 1, Stage 3, and Stage 4 parsers untouched. Output paths untouched except for the addition of the new metadata field. No API calls were made during draft preparation; no smoke was run during draft preparation.
+
+(3) **ROOT-CAUSE LINEAGE:** Stage 2 parser-concordance mismatch between the data-collection script and the OSF-registered analytic specification (§4.2 / `extract_confidence()` in `05_Statistical_Analysis.R`). The registered specification predates OSF lock; Patch 010 is a one-direction alignment that brings the data-collection-side parser into compliance with the already-registered inferential-side parser. The change reduces divergence from the registered specification; it does not modify the registered specification itself. This is the first patch on the parser-concordance root cause specifically; the prior patches on the broader Stage 2 reliability problem space (Patch 003 telemetry, Patch 007 v2 Gemini budget/schema/pinning, Patch 008 Gemini schema runtime fix, Patch 009 DeepSeek budget) addressed different root causes.
+
+(4) **PI WRITTEN SIGN-OFF:** Email from Emile Boullineau dated 2026-06-01 signing off the Patch 010 diff, the proposed post-Patch-010 SHA-256, and the §7.4 Functional-Equivalence Declaration, with explicit instruction to apply "exactly as drafted, with no additional changes".
+
+### Canonical-vs-operational validator clause
+
+The OSF-deposited canonical `validate_pipeline_integrity.py` remains the registration anchor. Its hash is frozen at OSF lock and is not modified by any operational patch. Its hash-mismatch state against the canonical `04_Data_Collection_Script.py` after Patches 001–010 is the registered tamper-evidence signal working as designed, not a defect. The operational working copy of `validate_pipeline_integrity.py` is a separate post-lock successor artefact, updated by each authorised §7.4 patch to track post-lock execution, and is not the canonical validator.
+
+### Pre-commit verification
+
+- Static syntax check (`python -m py_compile`) on the patched script: exit 0.
+- No-API parser sanity tests (preserved in evidence folder): `"7"` → score 7, route `numeric_primary`; `"10"` → score 10, route `numeric_primary`; `"The concern level is minimal."` → score 2, route `verbal_fallback`; `"This is a moderate concern."` → score 5, route `verbal_fallback`; `"This is extremely serious."` → score 9, route `verbal_fallback`; `"No severity answer."` → score `None`, route `missing_after_registered_parser`. All sanity tests passed.
+- File permission restored to `444 / -r--r--r--` after editing.
+- `script_checksums.txt` updated to the new post-Patch-010 hash.
+- Operational working copy `REGISTERED_HASHES` updated.
+- Pre-update backups of `script_checksums.txt` and the operational validator working copy preserved.
+
+### Post-Patch-010 4-provider smoke test result (2026-06-01)
+
+The same 4-provider Stage 1 + Stage 2 smoke harness used pre-Patch-010 was rerun under Patch 010 in the registered MVC virtual environment. Pre-smoke hash verification: `46acf4c71c9e98b09fc71d7b657f64e53e498d1f0a0b91e81b87a9c67639aebd`. Harness scope: `scenario_001`, neutral persona, prompt order A, repetition 1, 4 models, Stage 1 + Stage 2, 8 intended API calls. Dataset exclusion text written into every record and the summary.
+
+Result: `stage1_pass=True`, `stage2_pass=True`, `gemini_patch007_pass=True`, `overall_pass=True`, exit code 0.
+
+Per-provider:
+- **gpt-5.5:** Stage 1 complete; Stage 2 = `"8"`, parseable as `numeric_1_10` via `numeric_primary` route, complete. PASS.
+- **claude-opus-4-7:** Stage 1 complete; Stage 2 = `"7"`, parseable as `numeric_1_10` via `numeric_primary` route, complete. PASS.
+- **gemini-3.1-pro:** Stage 1 complete; Stage 2 = `"7"`, parseable as `numeric_1_10` via `numeric_primary` route, complete, all Patch 007 v2 + Patch 008 features preserved. PASS.
+- **deepseek-v4-flash:** Stage 1 complete; Stage 2 = `"5"`, parseable as `numeric_1_10` via `numeric_primary` route, `finish_reason=length`, `max_tokens=64`. PASS at smoke level.
+
+The 4-provider smoke confirms that the Patch 010 parser-alignment correction is functioning correctly at the canonical level across all four providers, and that the smoke harness pass criteria are satisfied under Patch 010.
+
+A preceding smoke attempt was aborted before any API calls when the wrong Python interpreter was invoked (system Python 3.14, missing `tqdm`). The aborted attempt made no API calls, is logged separately in `MVC_Study_Log.txt`, and is not part of the validated record. The smoke reported here was rerun under the registered MVC virtual environment (Python 3.13.6, all dependencies present).
+
+### Targeted DeepSeek Stage 2 validation result (2026-06-01)
+
+Scope per PI authorisation: DeepSeek only, Stage 2 only, neutral persona, scenarios `scenario_001`, `scenario_006`, `scenario_002`, 20 repetitions per scenario, prompt-order balance 10 A + 10 B per scenario, 60 calls total, operational evidence only, labelled `EXCLUDED_FROM_STUDY_DATASETS_AND_ANALYSES`.
+
+Results: 60/60 calls completed.
+
+Global parseability under the registered §4.2 parser:
+- `numeric_1_10` = 46/60 (76.67%).
+- `missing_after_registered_parser` = 14/60 (23.33%).
+
+Parser routes:
+- `numeric_primary` = 46/60 (76.67%).
+- `verbal_fallback` = 0/60 (0.00%).
+- `missing_after_registered_parser` = 14/60 (23.33%).
+
+Response-level diagnostics:
+- empty responses = 10/60 (16.67%).
+- `finish_reason=length` = 3/60 (5.00%).
+
+Severity distribution among 46 parseable rows: 1=1, 3=3, 4=6, 5=28, 6=4, 7=2, 8=2.
+
+Per scenario:
+- **scenario_001:** parseable 10/20 (50.0%); empty 6/20 (30.0%); length 3/20 (15.0%); parser routes: numeric_primary=10, verbal_fallback=0, missing=10.
+- **scenario_006:** parseable 16/20 (80.0%); empty 4/20 (20.0%); length 0/20; parser routes: numeric_primary=16, verbal_fallback=0, missing=4.
+- **scenario_002:** parseable 20/20 (100.0%); empty 0/20; length 0/20; parser routes: numeric_primary=20, verbal_fallback=0, missing=0.
+
+Pre-specified acceptance criteria check:
+- Global parseability ≥95%: FAIL (76.67%).
+- No scenario below 90%: FAIL (`scenario_001` 50.00%, `scenario_006` 80.00%).
+- No obvious severity compression: PASS (distribution spans 1–8; mode at 5 with 28/46 = 60.87% of parseable rows).
+- No new provider-side failure mode: FAIL (10 empty responses clustered on `scenario_001` prompt order B).
+
+Comparison to the pre-Patch-009 DeepSeek Stage 2 diagnostic (Entry 008, same scope, 60 calls):
+
+| Metric | Pre-Patch-009 (2026-05-28) | Post-Patch-010 (2026-06-01) |
+|---|---|---|
+| Global parseable | 48/60 = 80.00% | 46/60 = 76.67% |
+| Empty | 9/60 = 15.00% | 10/60 = 16.67% |
+| `finish=length` | 3/60 = 5.00% | 3/60 = 5.00% |
+| `scenario_001` parseable | 10/20 = 50.00% | 10/20 = 50.00% |
+| `scenario_006` parseable | 18/20 = 90.00% | 16/20 = 80.00% |
+| `scenario_002` parseable | 20/20 = 100.00% | 20/20 = 100.00% |
+| `verbal_fallback` usage | n/a (integer-only parser) | 0/60 = 0.00% |
+
+Patches 009 and 010 did not measurably improve DeepSeek Stage 2 parseability against the diagnostic baseline. The Patch 010 parser-alignment correction operated correctly but found no verbal descriptors to recover from the failing rows: the residual failures are dominated by empty responses (`finish_reason=complete` with empty `response_text`, clustered on `scenario_001` prompt order B) and a smaller length-truncation tail. The failure mode is provider-output-side rather than parser-side or budget-side.
+
+### PI residual classification
+
+Per the PI's written decision (email dated 2026-06-01), the residual DeepSeek Stage 2 issue is classified as:
+
+> **Provider/scenario-specific Stage 2 reliability limitation after successful parser-concordance correction.**
+
+This residual limitation will be handled downstream under the registered missingness/reliability framework and reported as a provider/scenario-specific limitation if it appears in study data. The targeted DeepSeek validation data are operational evidence only and excluded from study datasets and analyses; they are not pooled into C.1.1, C.1.2, main collection, semantic-null collection, confirmatory analysis, or secondary analysis. No further canonical mutation is authorised at this Entry. Patch 011 is explicitly not authorised. Patch 010 is accepted as successful for its intended purpose of resolving the parser-concordance mismatch.
+
+### Patch-count under the kind-not-count §7.4 rule
+
+On the DeepSeek Stage 2 reliability sub-problem specifically, Patches 009 and 010 are two patches that did not measurably improve parseability against the diagnostic baseline. Per the PI's written decision, this does not trigger the registered inconclusive / stability-failure pathway: the residual issue is reclassified as a provider/scenario-specific reliability limitation handled by the registered missingness framework, not a measurement-design failure. Patch 011 is not authorised.
+
+### Evidence artefacts (operator-local, not in repo)
+
+- Patch 010 draft, pre-patch backup, diff, Declaration, validation plan, summary note, parser sanity output, proposed post-patch hash: `~/MVC_Study_operational/patches/c11_patch_010_stage2_parser_alignment_2026-05-31/`
+- Patch 010 4-provider smoke evidence: `~/MVC_Study_operational/patches/c11_patch_010_stage2_parser_alignment_2026-05-31/patch_010_smoke_stage1_stage2_20260601_000558Z_venv/`
+- Patch 010 targeted DeepSeek validation evidence: `~/MVC_Study_operational/patches/c11_patch_010_stage2_parser_alignment_2026-05-31/targeted_deepseek_stage2_validation_2026-06-01/` (labelled `EXCLUDED_FROM_STUDY_DATASETS_AND_ANALYSES`).
+- Pre-update backups of `script_checksums.txt` and the operational validator working copy preserved in the Patch 010 folder.
+
+### Post-patch state and next operational step
+
+- `04_Data_Collection_Script.py` chmod `444`; SHA-256 = `46acf4c71c9e98b09fc71d7b657f64e53e498d1f0a0b91e81b87a9c67639aebd`.
+- `validate_pipeline_integrity.py` canonical unchanged.
+- Patch 010 accepted as successful by the PI.
+- No Patch 011 authorised.
+- Per PI direction (email 2026-06-01), the next operational step is C.1.2 semantic-null pretest dry-run check followed by live execution under the current Patch 010 canonical script. Main collection remains held pending C.1.2 checkpoint sign-off.
+
+The A.3 canonical validator continues to report controlled hash mismatch for `04_Data_Collection_Script.py` (`expected d6147140... got 46acf4c7...`) at this Entry, per the registered tamper-evidence chain.
+
+---
