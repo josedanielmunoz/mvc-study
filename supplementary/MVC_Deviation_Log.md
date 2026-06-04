@@ -1135,3 +1135,134 @@ On the DeepSeek Stage 2 reliability sub-problem specifically, Patches 009 and 01
 The A.3 canonical validator continues to report controlled hash mismatch for `04_Data_Collection_Script.py` (`expected d6147140... got 46acf4c7...`) at this Entry, per the registered tamper-evidence chain.
 
 ---
+
+
+---
+
+## Entry 011 — 2026-06-04 — §7.4 functional execution correction: Stage 1 classifier parser-robustness fix (Patch 011) + post-Patch-011 smoke + read-only re-classification of existing C.1.1 and C.1.2 data
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** `2026-06-04T22:43:51Z`
+**Type:** §7.4 functional execution correction + validation record
+**Affected files:** `04_Data_Collection_Script.py`
+**Trigger:** The H2 housekeeping check on the C.1.2 semantic-null pretest outputs (read-only inspection authorised by the PI on 2026-06-03) found that the canonical `classify_stage1_response()` function used `re.match(r"^yes\b", response_stripped)` and `re.match(r"^no\b", response_stripped)` patterns anchored at the start of the stripped response. Gemini's preferred Stage 1 response format `"Answer: No"` and `"Answer: Yes"` did not match either regex and fell through to the `fallthrough_unclear` branch. Quantitative evidence from C.1.2: Gemini Stage 1 detection_method distribution was `leading_token_no=115`, `fallthrough_unclear=35`; the 35/150 = 23.33% Gemini Unclear rate corresponded 1-to-1 with `Answer: No` responses. Since `classification_category` is written into the JSONL at collection time and Stage 2/3/4 are conditional on Stage 1 = Yes, mis-routing `"Answer: Yes"` to Unclear would prevent Stage 2/3/4 calls from ever being made for those rows in main collection. The PI explicitly determined this required a canonical fix (not a downstream-only fix) and authorised Patch 011 drafting on 2026-06-03 with strictly defined scope; Patch 011 application was authorised in writing on 2026-06-03 after package review.
+
+**PI written approval:** Email from Emile Boullineau dated 2026-06-03 authorising Patch 011 drafting with explicit scope (Stage 1 yes/no parser only; symmetric across all four providers; specific list of recognised answer formats; conservative negation/ambiguity guard). Email from PI dated 2026-06-03 signing off the Patch 011 package and authorising canonical application of the draft "exactly as drafted, with no additional changes".
+
+### File hashes
+
+| File | Pre-fix SHA-256 | Post-fix SHA-256 |
+|---|---|---|
+| `04_Data_Collection_Script.py` (pre-Patch-011, post-Patch-010) | `46acf4c71c9e98b09fc71d7b657f64e53e498d1f0a0b91e81b87a9c67639aebd` | `e6d936f427cfbab0aca119bdb160510821e3280150b5d3dd496527f166af1aa9` |
+| `validate_pipeline_integrity.py` (canonical) | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` | `322f81ecfac7ae554256328dd33dba5c58613c163ef732b88663d164760ef987` (unchanged; OSF anchor preserved per Entries 001–010) |
+
+### Sub-changes applied to `04_Data_Collection_Script.py`
+
+**Sub-change 1 — Stage 1 classifier extended with prefix recognition.** The body of `classify_stage1_response()` is expanded so that the yes/no regex matching tolerates a defined set of leading prefixes that the providers actually emit in practice. Recognised formats (case-insensitive):
+
+- bare `Yes` / `No`
+- `Answer: Yes` / `Answer: No`
+- `Final answer: Yes` / `Final answer: No`
+- `The answer is yes` / `The answer is no`
+- `My answer is yes` / `My answer is no`
+- `Classification: Yes` / `Classification: No`
+- `Response: Yes` / `Response: No`
+
+**Sub-change 2 — Conservative negation/ambiguity guard.** A negation guard is checked before the yes/no match: explicit non-answer patterns (`not yes`, `not no`, `cannot answer`, `no simple answer`, `no clear answer`, `it depends`, `neither yes nor no`, `ambiguous`, `is not yes`, `is not no`, `not clearly yes/no`) cause the function to return `unclear` via the existing `fallthrough_unclear` branch. This preserves the registered behaviour that genuinely ambiguous responses remain Unclear.
+
+**Sub-change 3 — Detection method values extended.** Per-call audit metadata now includes two new `detection_method` values: `prefixed_yes` and `prefixed_no`, recorded when the prefixed-form match succeeds. The existing values `leading_token_yes`, `leading_token_no`, and `fallthrough_unclear` are preserved unchanged. The classifier return shape `(classification, detection_method, is_yes)` is unchanged in signature.
+
+**Sub-change 4 — Symmetric across all four providers.** The fix applies provider-agnostically. No provider is treated specially; the regex change benefits whichever providers happen to use the prefixed-answer format in any given run. C.1.1 and C.1.2 data show that the providers currently using bare yes/no (GPT-5.5, Claude, DeepSeek) are unaffected by the patch, and that Gemini benefits from it.
+
+### §7.4 Functional-Equivalence Declaration (Patch 011)
+
+(1) **WHAT CHANGED:** `classify_stage1_response()` body extended with prefix recognition for clear wrapped yes/no responses (e.g. `Answer: No`, `Final answer: Yes`, `The answer is no`, `Classification: Yes`, `Response: No`, etc.) under a case-insensitive match. A conservative negation/ambiguity guard added so explicit non-answer patterns continue to return Unclear. Two new `detection_method` values (`prefixed_yes`, `prefixed_no`) added to per-call audit metadata; existing values preserved. Fix is symmetric across all four providers.
+
+(2) **WHAT DID NOT CHANGE:** prompt wording (all four stages), scenario set, persona set, registered predictions (P1–P4), analytic thresholds (confirmatory and fallback), model panel (the four registered models), stimulus inclusion/exclusion rules, decoding parameters (temperature, top_p, sampling seed), all token budgets across all stages and all providers (Patches 003–010 token budgets preserved). Stage 2 parser route logic from Patch 010 unchanged. Provider call paths (`_call_openai`, `_call_anthropic`, `_call_google`) unchanged. Gemini model string pinning and telemetry from Patches 007 v2 + 008 unchanged. DeepSeek Stage 2 budget from Patch 009 unchanged. Safety settings unchanged. Analysis logic in `05_Statistical_Analysis.R` unchanged. Output paths unchanged; audit CSV fieldnames unchanged except for the symmetric extension of `detection_method` enumeration values. The registered Stage 1 classification rule "Yes / No / Unclear based on Stage 1 response content" is unchanged; only the regex implementation is broadened to capture the same yes/no answer when wrapped with an explicit `Answer:` or equivalent prefix.
+
+(3) **ROOT-CAUSE LINEAGE:** Stage 1 classifier parser-robustness gap surfaced by the C.1.2 read-only summary on 2026-06-03 (Gemini `Answer: No` responses falling through to `fallthrough_unclear`). Symmetric in kind to Patch 010 (parser-concordance fix on Stage 2 numeric/verbal severity output); different stage, same class of fix. First patch on Stage 1 classifier parser-robustness specifically. Prior patches on the broader Stage 1 problem space: Patch 003 (finish-reason telemetry alignment + Gemini Stage 1 budget raise to 2048; did not address classifier patterns). Patch 011 does not address any other root cause and does not approach the registered inconclusive / stability-failure pathway under the kind-not-count §7.4 rule.
+
+(4) **PI WRITTEN SIGN-OFF:** Email from Emile Boullineau dated 2026-06-03 signing off the Patch 011 package (diff, proposed post-Patch-011 SHA-256 `e6d936f4...`, §7.4 Functional-Equivalence Declaration, parser unit tests result, before/after re-classification counts on existing C.1.1 and C.1.2 data) and authorising canonical application "exactly as drafted, with no additional changes".
+
+### Canonical-vs-operational validator clause
+
+The OSF-deposited canonical `validate_pipeline_integrity.py` remains the registration anchor. Its hash is frozen at OSF lock and is not modified by any operational patch. Its hash-mismatch state against the canonical `04_Data_Collection_Script.py` after Patches 001–011 is the registered tamper-evidence signal working as designed, not a defect. The operational working copy of `validate_pipeline_integrity.py` is a separate post-lock successor artefact, updated by each authorised §7.4 patch to track post-lock execution, and is not the canonical validator.
+
+### Pre-commit verification
+
+- Static syntax check (`python -m py_compile`) on the patched script: exit 0.
+- File permission restored to `444 / -r--r--r--` after editing.
+- `script_checksums.txt` updated to the new post-Patch-011 hash.
+- Operational working copy `REGISTERED_HASHES` updated.
+- Pre-update backups of `script_checksums.txt` and the operational validator working copy preserved.
+
+### Parser unit tests (post-application)
+
+Run against the canonical script under Patch 011. Test coverage:
+
+- 13 positive YES cases (bare `Yes` plus 6 prefixed forms with case and punctuation variations): all classified `yes`.
+- 13 positive NO cases (bare `No` plus 6 prefixed forms with case and punctuation variations): all classified `no`.
+- 11 negative cases (negation patterns, ambiguity statements, empty string): all classified `unclear`.
+
+ALL_PASS = True.
+
+### Read-only re-classification of existing C.1.1 and C.1.2 data
+
+Existing JSONL files were not modified. The re-classification compared the old Patch 010 classifier output against the new Patch 011 classifier output on the same response text. The C.1.1 and C.1.2 datasets were collected under their respective canonical scripts at the time of collection; the re-classification is an audit-only check that confirms Patch 011 reclassifies only the responses it is intended to reclassify.
+
+**C.1.2 semantic-null pretest (5 scenarios × 1 persona × 4 models × 30 reps = 600 Stage 1 rows):**
+
+| Model | Old (Patch 010) | New (Patch 011) | Rows reclassified |
+|---|---|---|---|
+| gpt-5.5 | no=150 | no=150 | 0 |
+| claude-opus-4-7 | no=150 | no=150 | 0 |
+| gemini-3.1-pro | no=115, unclear=35 | no=150 | 35 (all `Answer: No` → `no` via `prefixed_no`) |
+| deepseek-v4-flash | no=106, yes=44 | no=106, yes=44 | 0 |
+
+Gemini Unclear rate under C.1.2 drops from 35/150 = 23.33% to 0/150 = 0.00% under Patch 011. Other providers byte-identical.
+
+**C.1.1 pretest (60 cells × 4 models × varying reps = aggregate counts):**
+
+| Model | Old (Patch 010) | New (Patch 011) | Rows reclassified |
+|---|---|---|---|
+| gpt-5.5 | yes=300 | yes=300 | 0 |
+| claude-opus-4-7 | no=101, yes=199 | no=101, yes=199 | 0 |
+| gemini-3.1-pro | no=84, unclear=26, yes=190 | no=91, unclear=2, yes=207 | 24 (7 prefixed_no, 17 prefixed_yes; 2 remain genuinely Unclear) |
+| deepseek-v4-flash | no=3, yes=297 | no=3, yes=297 | 0 |
+
+Gemini Unclear rate under C.1.1 drops from 26/300 = 8.67% to 2/300 = 0.67% under Patch 011. The remaining 2/300 are genuinely ambiguous responses. Other providers byte-identical. The C.1.1 result also indicates that under Patch 010 some Gemini `Answer: Yes` responses were being tagged Unclear and would not have triggered Stage 2/3/4 in main collection; under Patch 011 they correctly classify as `yes` and the conditional Stage 2/3/4 calls would proceed as registered.
+
+### Post-Patch-011 4-provider Stage 1-only smoke test (2026-06-04)
+
+A 4-provider Stage 1-only smoke harness was run against the canonical Patch 011 script. Pre-smoke hash verification: `e6d936f427cfbab0aca119bdb160510821e3280150b5d3dd496527f166af1aa9`. Harness scope: `scenario_001`, neutral persona, prompt order A, repetition 1, 4 models, Stage 1 only, 4 intended API calls. Dataset exclusion text written into every record and the summary.
+
+Result: `classification_pass=True`, `detection_pass=True`, `all_nonempty=True`, `all_complete=True`, `overall_pass=True`, exit code 0.
+
+Per provider:
+
+| Provider | Response | classification_category | detection_method | finish_reason_canonical |
+|---|---|---|---|---|
+| gpt-5.5 | `Yes` | yes | leading_token_yes | complete |
+| claude-opus-4-7 | `No` | no | leading_token_no | complete |
+| gemini-3.1-pro | `Yes` | yes | leading_token_yes | complete |
+| deepseek-v4-flash | `Yes` | yes | leading_token_yes | complete |
+
+Note on the smoke: in this single-repetition Stage-1-only run, all four providers happened to emit bare-token responses, so the live `prefixed_*` detection branch introduced by Patch 011 was not exercised in this smoke. The live `prefixed_*` branch is empirically validated by the C.1.1 and C.1.2 re-classification audit above, where 59 Gemini rows in total (35 in C.1.2, 24 in C.1.1) were already known to carry the `Answer:` prefix and would route through the new branch under Patch 011 in any equivalent live re-run. The smoke confirms that the canonical Patch 011 script executes cleanly under live API calls, records `classification_category` and `detection_method` correctly, and produces the expected `(classification, detection_method, is_yes)` outputs for the bare-token branch; the prefix branch is covered by the unit tests, the re-classification audit, and the parser sanity tests.
+
+The canonical script hash remained unchanged at `e6d936f427cfbab0aca119bdb160510821e3280150b5d3dd496527f166af1aa9` after the smoke run.
+
+### Evidence artefacts (operator-local, not in repo)
+
+- Patch 011 draft, pre-patch backup, diff, Declaration, summary note, parser unit tests, parser sanity output, before/after re-classification outputs, proposed post-patch hash: `~/MVC_Study_operational/patches/c11_patch_011_stage1_classifier_2026-06-03/`
+- Post-Patch-011 Stage 1-only smoke evidence: `~/MVC_Study_operational/patches/c11_patch_011_stage1_classifier_2026-06-03/smoke_stage1_only/`
+- Pre-update backups of `script_checksums.txt` and the operational validator working copy preserved in the Patch 011 folder.
+
+### Post-patch state and next operational step
+
+- `04_Data_Collection_Script.py` chmod `444`; SHA-256 = `e6d936f427cfbab0aca119bdb160510821e3280150b5d3dd496527f166af1aa9`.
+- `validate_pipeline_integrity.py` canonical unchanged.
+- `script_checksums.txt` and the operational validator working copy carry the Patch 011 hash.
+- Patch 011 accepted as successful by the PI under the post-application checks specified in the sign-off email (canonical hash match, syntax check, parser unit tests, re-classification audit, 4-provider Stage 1-only smoke).
+- Per PI direction (email 2026-06-03), the next operational step is main collection under the current Patch 011 canonical script, with normal balance monitoring during the run and a checkpoint report after completion. C.1.1 and C.1.2 datasets are unchanged on disk; whether to re-run them under Patch 011 before or alongside main collection is at the PI's discretion and is not implied by this Entry.
+
+The A.3 canonical validator continues to report controlled hash mismatch for `04_Data_Collection_Script.py` (`expected d6147140... got e6d936f4...`) at this Entry, per the registered tamper-evidence chain.
