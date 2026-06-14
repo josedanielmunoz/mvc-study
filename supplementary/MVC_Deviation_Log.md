@@ -1266,3 +1266,96 @@ The canonical script hash remained unchanged at `e6d936f427cfbab0aca119bdb160510
 - Per PI direction (email 2026-06-03), the next operational step is main collection under the current Patch 011 canonical script, with normal balance monitoring during the run and a checkpoint report after completion. C.1.1 and C.1.2 datasets are unchanged on disk; whether to re-run them under Patch 011 before or alongside main collection is at the PI's discretion and is not implied by this Entry.
 
 The A.3 canonical validator continues to report controlled hash mismatch for `04_Data_Collection_Script.py` (`expected d6147140... got e6d936f4...`) at this Entry, per the registered tamper-evidence chain.
+
+## Entry 012 — 2026-06-14 — D.2 semantic-null corrected live run: preservation of mixed unreplaced/dry-run evidence, registered §2.3 reserve-bank substitution, corrected live-output validation, and backup record
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** `2026-06-14T16:24:10Z`
+**Type:** MINOR operational/provenance deviation + validation record
+**Affected files:** None in the canonical script. Affected operational outputs only. Canonical `04_Data_Collection_Script.py` SHA-256 `e6d936f427cfbab0aca119bdb160510821e3280150b5d3dd496527f166af1aa9` unchanged throughout; permission `-r--r--r--`.
+**PI written approval:** Emile Boullineau, email 2026-06-09 (reconciliation procedure + corrected-run authorisation) and clarification email same day (explicit replacement rule and post-live checks). Classification label specified by PI: "MINOR operational/provenance deviation; §2.3 reserve-bank substitution itself is NOT-A-DEVIATION."
+
+### Classification and scope
+
+Classification: MINOR operational/provenance deviation. The §2.3 reserve-bank substitution itself is NOT-A-DEVIATION (registered fallback acting as designed). The minor operational/provenance component is the existence of real but incomplete unreplaced D.2 records mixed with reserve dry-run output in a single folder, now preserved as evidence and excluded from analysis.
+
+Affected scope: D.2 semantic-null adjudicative collection only; scenarios `semantic_null_003`/`semantic_null_004`/`semantic_null_005` replaced by `semantic_null_reserve_001`/`semantic_null_reserve_002`/`semantic_null_reserve_003`; all four models. No effect on main collection, design, stimuli, personas, predictions, failure conditions, ambiguity threshold, or primary statistical specifications. Does not cross the §7.4 1% magnitude boundary.
+
+### Preserved evidence and excluded outputs
+
+The following are preserved in place, untouched, and EXCLUDED from the corrected D.2 analysis dataset:
+
+- Mixed evidence folder `data/semantic_null/<model>/2026-06-07/` — contains 8,265 real (non-dry-run) unreplaced D.2 records plus later reserve dry-run placeholder records. Preservation check: `7400` lines in `data/semantic_null/claude-opus-4-7/2026-06-07/calls.jsonl`.
+- The 8,265 real records use the unreplaced set (`semantic_null_001`–`semantic_null_005`) and are incomplete (Stage 2 near-absent). Real-record window `2026-06-07T19:49:06+00:00` → `2026-06-08T01:37:14+00:00`.
+- Superseded unreplaced backup: `backups/MVC_semantic_null_SUPERSEDED_unreplaced_backup_2026-06-08.zip`, SHA-256 `f250a0aad43f453bca82f4197b5a90271cb2fdab7ba38cfdcb38488b18996154` (19,065 records).
+
+Exclusion reason: unreplaced set + incomplete run + mixed folder. A saved-output vs provider-usage discrepancy was reconciled read-only: provider dashboards confirmed real contemporaneous API usage corresponding to these real records.
+
+### Registered §2.3 reserve-bank substitution
+
+Trigger: C.1.2 pretest showed DeepSeek-V4-Flash neutral-baseline Yes-rate exceeding the registered 15% threshold on `semantic_null_003` (53.33%), `semantic_null_004` (56.67%), and `semantic_null_005` (23.33%). Per pre-registration §2.3, the registered reserve-bank replacement is invoked before corrected D.2.
+
+Mechanism: registered `--semantic-null-flagged semantic_null_003 semantic_null_004 semantic_null_005`. `01_Scenario_Trigger_Bank.json` was NOT edited.
+
+Mapping (confirmed in dry-run `data/semantic_null_corrected_2026-06-11/`, preserved):
+
+- `semantic_null_003` → `semantic_null_reserve_001`
+- `semantic_null_004` → `semantic_null_reserve_002`
+- `semantic_null_005` → `semantic_null_reserve_003`
+
+### Corrected live D.2 run
+
+Output folder: `data/semantic_null_corrected_live_2026-06-14/` (fresh clean destination, physically separate from the preserved evidence and dry-run folders).
+
+Log: `logs/semantic_null_corrected_live_20260614_054145.log`. Completed normally ("Data collection complete!").
+
+Observed live window: `2026-06-14T05:41:48+00:00` → `2026-06-14T13:13:12+00:00`.
+
+### Post-live validation checks
+
+Record counts by model (Stage 1 / Stage 2 / Stage 3 / Stage 4 / total):
+
+| Model | S1 | S2 | S3 | S4 | Total |
+|---|---:|---:|---:|---:|---:|
+| `claude-opus-4-7` | 700 | 0 | 700 | 600 | 2000 |
+| `gpt-5.5` | 700 | 0 | 700 | 600 | 2000 |
+| `gemini-3.1-pro` | 700 | 3 | 700 | 600 | 2003 |
+| `deepseek-v4-flash` | 700 | 227 | 700 | 600 | 2227 |
+
+Reserve IDs present:
+
+| Model | `semantic_null_reserve_001` | `semantic_null_reserve_002` | `semantic_null_reserve_003` |
+|---|---:|---:|---:|
+| `claude-opus-4-7` | 400 | 400 | 400 |
+| `gpt-5.5` | 400 | 400 | 400 |
+| `gemini-3.1-pro` | 400 | 400 | 400 |
+| `deepseek-v4-flash` | 436 | 434 | 464 |
+
+- Flagged primary IDs absent as `scenario_id` (`semantic_null_003`/`semantic_null_004`/`semantic_null_005` = 0 in all four models).
+- No placeholder signatures: `response_time_ms: 0.0` = 0 and `model_version_string: "unknown"` = 0 in all models.
+- JSONL parseability OK; critical fields present; no serious log error patterns found.
+
+### Backup and integrity evidence
+
+- Backup: `backups/MVC_semantic_null_corrected_backup_2026-06-14.zip`, SHA-256 `77e999472e9ee7ae8b6f298b62c2f926fe8701bb2d6c1296fa8859ef768c2756`.
+- Sidecar: `backups/MVC_semantic_null_corrected_backup_2026-06-14.zip.sha256`.
+- Pre-backup manifest: `backups/MVC_semantic_null_corrected_manifest_2026-06-14.txt`.
+- Zip integrity: no errors detected. Original re-hash: ORIGINALS UNCHANGED.
+
+### Non-blocking diagnostic observations
+
+Stage 2 (severity; runs only on Stage-1 Yes) is near-zero for Claude/GPT/Gemini, reflecting clean rejection of mundane semantic-null controls (consistent with C.1.2 pretest). DeepSeek produced 227 Stage-2 records and slightly uneven per-scenario/reserve counts (total 2,227), consistent with its previously logged lower Stage-2 reliability. Handled downstream under the registered missingness framework. Not a blocker; flagged for PI awareness.
+
+### Evidence artefacts (operator-local, not in repo)
+
+- `data/semantic_null/<model>/2026-06-07/` (preserved mixed evidence)
+- `data/semantic_null_corrected_2026-06-11/` (preserved dry-run)
+- `data/semantic_null_corrected_live_2026-06-14/` (corrected live output)
+- `logs/semantic_null_corrected_live_20260614_054145.log`
+- Backups listed above
+- `MVC_Study_Log.txt` entries for D.2 reconciliation and corrected run
+
+### Post-entry state and next operational step
+
+Corrected D.2 is complete, validated, and backed up. The corrected dataset (`semantic_null_corrected_live_2026-06-14/`) is the analysis-ready D.2 set; all prior D.2 outputs are preserved-but-excluded. Next operational step: D.3 robustness (dry-run → live → backup), per PI instruction.
+
