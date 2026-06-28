@@ -1359,3 +1359,53 @@ Stage 2 (severity; runs only on Stage-1 Yes) is near-zero for Claude/GPT/Gemini,
 
 Corrected D.2 is complete, validated, and backed up. The corrected dataset (`semantic_null_corrected_live_2026-06-14/`) is the analysis-ready D.2 set; all prior D.2 outputs are preserved-but-excluded. Next operational step: D.3 robustness (dry-run → live → backup), per PI instruction.
 
+
+## Entry 013 — 2026-06-28 — MINOR operational deployment configuration: portal training-mode runtime variable via .Renviron
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** `2026-06-28T21:24:00Z`
+**Type:** MINOR operational deployment-configuration note
+**Affected files:** `portal_app/.Renviron` in the local portal deployment bundle only; public deviation log entry in this repository
+**Affected scope:** MVC Coding Portal deployment environment; runtime mode variable only
+**PI written approval:** Email from Emile Boullineau dated 2026-06-28 authorising the `.Renviron` approach for non-secret mode selection for training only.
+
+### What happened
+
+A `portal_app/.Renviron` file was created in the local MVC Coding Portal deployment bundle to supply the non-secret runtime mode variables `MVC_APP_MODE=training` and `MVC_TRAINING_SUBMODE=worked_examples` for Phase 1 training.
+
+This was required because shinyapps.io did not provide an available supported mechanism for setting environment variables in this deployment context: no Variables / Environment Variables section was available in the app dashboard, and `rsconnect::deployApp(envVars=...)` was rejected by shinyapps.io. The portal code reads the mode from `MVC_APP_MODE`, with fallback `"test"` if the variable is absent. Without this runtime configuration file, the remote portal remained in TEST mode after redeployment.
+
+### Justification
+
+This was authorised by the PI in writing as an operational deployment-configuration step to access the registered training workflow. It is not an analytical change and does not alter registered materials or study logic.
+
+### Impact assessment
+
+No change was made to registered data banks, schemas, gates, outputs, coding rules, analytical scripts, inferential specification, `app.R`, or `portal_support/` files. The change supplies only non-secret runtime mode variables for the deployment environment. No secrets or live tokens were placed in `.Renviron`. No live-mode switch was performed.
+
+### Action taken
+
+- `.Renviron` created with mode variables only:
+  - `MVC_APP_MODE=training`
+  - `MVC_TRAINING_SUBMODE=worked_examples`
+- Portal redeployed from the canonical `portal_app/` directory.
+- shinyapps.io bundle id: `12192453`.
+- Remote portal verified with TRAINING banner and `WORKED_EXAMPLES` submode.
+- Part A worked examples loaded from the registered training bank (`training_items.json`).
+- Coder and admin logins verified.
+- `self_check.R` run post-deploy: PASS, 26/26, WARN=0, FAIL=0.
+- No live coding initiated.
+- No `phase1_training_complete.flag` created.
+- No `app.R` edit.
+- No `portal_support/` edit.
+- No gate bypass.
+
+### Audit trail anchors
+
+- `MVC_Study_Log.txt` entry: `2026-06-28 21:24 UTC`.
+- `portal_self_check_receipt.json` generated_utc: `2026-06-28T21:24:30Z`.
+- PI authorisation email: `2026-06-28`.
+- shinyapps.io bundle id: `12192453`.
+- Local portal repo commit: `022382f`.
+
+**Logged by:** JDMA
