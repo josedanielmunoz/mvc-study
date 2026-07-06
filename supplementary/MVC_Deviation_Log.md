@@ -1409,3 +1409,54 @@ No change was made to registered data banks, schemas, gates, outputs, coding rul
 - Local portal repo commit: `022382f`.
 
 **Logged by:** JDMA
+
+
+## Entry 014 — 2026-07-06 — §7.4 functional bug-fix: portal training Save & Continue accessor correction
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.  
+**Entry timestamp (UTC):** `2026-07-06T18:15:00Z`  
+**Type:** §7.4 functional bug-fix (portal training flow)  
+**Affected files:** `portal_app/app.R` (function `save_current_codes()`)  
+**Affected scope:** Training-mode per-item feedback computation only  
+**PI written approval:** Emile Boullineau, email 2026-07-06 (§7.4 functional bug-fix pathway)
+
+### What happened
+
+In training mode, clicking "Save & Continue" crashed the worker with `Error in if: missing value where TRUE/FALSE needed` at `app.R#4477`, disconnecting the session on every save from item 2 onward. Root cause: `save_current_codes()` read expected training codes via the flat attention-check accessor `expected[[paste0("expected_", d)]]` (keys `expected_dim1..expected_dim5`), whereas the canonical hash-locked `training_items.json` stores expected codes in a nested object (`expected -> dim1..dim5`). The flat keys do not exist in the training bank, so `expected_val` resolved to a missing value and the subsequent `if (is_match)` aborted.
+
+A two-line correction aligned the runtime accessor with the registered training-item contract and added a scalar guard:
+
+    - expected_val <- as.numeric(expected[[paste0("expected_", d)]])
+    - is_match <- !is.na(coder_val) && !is.na(expected_val) && coder_val == expected_val
+    + expected_val <- as.numeric(expected$expected[[d]])
+    + is_match <- isTRUE(!is.na(coder_val) && !is.na(expected_val) && coder_val == expected_val)
+
+### Justification
+
+The operational runtime accessor was inconsistent with the hash-locked training-item bank. Other `app.R` consumers already use the nested contract (training metrics near line 827; sanity-check agreement near line 946); line 4475 was the sole inconsistent accessor, having reused the attention-check CSV convention. The fix restores alignment with the registered source; it does not alter that source.
+
+### Impact assessment
+
+No change to registered design, training bank, gold-standard codes, output schemas, exports, item ordering, attention-check logic, mode gates, live behaviour, or analytical procedure. Only the per-item training feedback computation changed. The registered training-item bank `training_items.json` is unchanged (SHA-256 confirmed identical before and after).
+
+### Verification result
+
+Non-live verification: `git diff` confirmed exactly two lines changed (2 insertions, 2 deletions). Portal remained in training mode (worked_examples). "Save & Continue" advanced item 2→3→4 with no crash and no "Disconnected"; per-dimension feedback rendered correctly from the nested expected codes. No live mode opened; no training-complete/sanity/live/auditor flag created (`portal_state` holds only `README.md`; `data/milestones` does not exist locally; no local `training_gate_*.json`). No schema, item-bank, or exported coding data changed. Deployed bundle 12229053.
+
+Remote shinyapps logs recorded the existing training-gate message during the technical verification session: `[TRAINING GATE] ra reached 93% accuracy (14/15 correct across 3 items) in worked_examples phase`. This event was produced by post-fix technical verification and is not treated as completion of the formal C.2.1 PI/RA training flow.
+
+### Audit trail anchors
+
+- Pre-fix `app.R` SHA-256: `448a46ac07e70b0636052bea7c0c492644a02eac00e356dc48f84e67e921c64f`
+- Post-fix `app.R` SHA-256: `b90cfcd93f02ce088b0f7734a647b8911ffbba67ea2ea7a34ec9803a8c7d9f0f`
+- `training_items.json` SHA-256 (unchanged): `bd56611d829e3edfcd59a40f2dd727c1c7b3deac53e5b0f6ce78ad4fcb11d4f7`
+- Pre-fix backup: `_backups/appR_pre_patch_2026-07-06/` (SHA matches pre-fix)
+- Deployed bundle: 12229053
+- PI authorisation: email 2026-07-06
+- `MVC_Study_Log.txt` entry: 2026-07-06 18:15 UTC
+
+### Post-entry state
+
+Patch applied and verified in the portal repo (REPO A). Portal in training mode. No live coding initiated. C.2.1 PI/RA training flow to resume next; C.3.3 sanity gate follows; D.5 full automated coding remains on hold until the sanity gate passes.
+
+**Logged by:** JDMA
