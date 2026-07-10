@@ -1460,3 +1460,87 @@ Remote shinyapps logs recorded the existing training-gate message during the tec
 Patch applied and verified in the portal repo (REPO A). Portal in training mode. No live coding initiated. C.2.1 PI/RA training flow to resume next; C.3.3 sanity gate follows; D.5 full automated coding remains on hold until the sanity gate passes.
 
 **Logged by:** JDMA
+
+## Entry 015 — 2026-07-10 — §7.4 functional bug-fix: export_codes_csv() dual-format restoration
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** `2026-07-10T01:00:00Z`
+**Type:** §7.4 functional bug-fix (portal export/rendering)
+**Affected files:** `portal_app/app.R` (function `export_codes_csv()`)
+**Affected scope:** CSV export rendering only (Download My Codes; Phase 1 submission export; PDF export)
+**PI written approval:** Emile Boullineau, email 2026-07-09/10 (§7.4 functional bug-fix pathway)
+
+### What happened
+
+"Download My Codes (CSV)" crashed in training/calibration mode, producing "Export error: arguments imply differing number of rows: 2, 1, 0" instead of data. Root cause: export_codes_csv() built the *_numeric columns by indexing a label-keyed vector (numeric_mappings) with the numeric code. Because save_current_codes() stores codes as numerics (-1, 0, 1), R interpreted the index positionally — [-1] returns 2 elements, [0] returns 0, [1] returns 1 — so data.frame() received columns of length 2, 1, 0 and aborted. Additionally, the text columns emitted raw numbers rather than the registered human-readable labels, violating the registered dual-format output contract.
+
+The fix adds two local helper functions inside export_codes_csv(): numeric_code() (returns the stored numeric value safely) and label_code() (maps the stored numeric value back to its registered label). Text columns now use label_code(); *_numeric columns use numeric_code(). Labels verified to match DIMENSIONS, UI choices, and in-app validation sets exactly.
+
+### Justification
+
+The runtime export was inconsistent with the registered dual-format output contract (Final Dataset Schema / Pre-Live checklist): text columns must carry human-readable labels, *_numeric columns the analysis values. The same function writes narrative_manual_PI.csv / narrative_manual_RA.csv in Phase 1, so the fix is required before live coding.
+
+### Impact assessment
+
+No change to saved coder codes, expected/gold-standard codes, scoring logic, item bank, column names, column order, schema files, mode gates, live behaviour, or flags. Only export rendering changed. Restores the registered dual-format output contract.
+
+### Verification result
+
+git diff confirmed changes confined to export_codes_csv(). Full dual-format export verification (text label ↔ numeric coherence per dimension; validate_exports.R) is pending against real data and will be completed during the C.2.1 Part B rerun, as calibration progress was unavailable following the redeploy incident (see preservation-rule entry).
+
+### Audit trail anchors
+
+- Pre-fix app.R SHA-256: `b90cfcd93f02ce088b0f7734a647b8911ffbba67ea2ea7a34ec9803a8c7d9f0f`
+- Post-fix app.R SHA-256: `82a2e88c0341c3e4965ee5b2cbcb29bea7f7d1eca93cdfeb3d9408ea520a1650`
+- Pre-fix backup: `_backups/appR_pre_export_fix_2026-07-09/` (SHA matches pre-fix)
+- Deployed bundle: 12246757
+- PI authorisation: email 2026-07-09/10
+- MVC_Study_Log.txt entry: 2026-07-10 01:00 UTC
+
+### Post-entry state
+
+Export fix applied and deployed, pending dual-format verification during Part B rerun. C.2.1 not closed; phase1_training_complete.flag not written. See Entry 016 for the portal-preservation rule arising from the redeploy incident.
+
+**Logged by:** JDMA
+
+## Entry 016 — 2026-07-10 — Operational portal-preservation rule (shinyapps runtime non-persistent)
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** `2026-07-10T01:10:00Z`
+**Type:** Operational preservation rule (not a coding-criteria change)
+**Affected files:** none (procedural rule); arises from portal_app runtime storage behaviour
+**Affected scope:** deploy/preservation workflow for calibration, Phase 1, and Auditor coding
+**PI written approval:** Emile Boullineau, email 2026-07-10
+
+### What happened
+
+During the C.2.1 Part B calibration, a redeploy (to apply the approved export fix) resulted in the server-side coder progress no longer being available: the portal writes progress, backups, activity_log.csv, and exports into shinyapps.io runtime storage, and a redeploy replaces the app bundle without preserving those runtime files. The item-level Part B codes for PI and RA were therefore not available afterward. Read-only verification confirmed there is no supported rsconnect or dashboard mechanism to access or download runtime files (only log and bundle-listing functions exist; no Files browser, no SSH).
+
+### Justification
+
+shinyapps.io runtime storage must be treated as non-persistent for audit purposes. It is not an acceptable sole record for calibration, Phase 1, or Auditor coding.
+
+### Impact assessment
+
+No change to coding criteria, scoring, gates, item banks, expected codes, or analysis. This is a technical preservation/workflow rule only.
+
+### Action taken / Rule established
+
+1. shinyapps runtime files are not accessible through supported dashboard/rsconnect interfaces; runtime storage is treated as non-persistent.
+2. No redeploy is permitted while any coder progress exists only in shinyapps runtime storage.
+3. After each coder completes a coding session (calibration Part B, Phase 1, Auditor), exports must be immediately downloaded, hashed (SHA-256), backed up outside shinyapps, and logged before any further redeploy.
+4. C.2.1 Part B will be rerun cleanly under this rule; the earlier attempt's screenshots are retained as superseded evidence only and are not used to close the gate.
+5. For Phase 1 and Auditor coding, the same rule applies: no redeploy during active coding unless all current progress has first been exported, hashed, backed up, and logged. If a redeploy becomes necessary, stop and report to the PI before proceeding.
+
+### Audit trail anchors
+
+- Read-only feasibility check: rsconnect exports (showLogs, getLogs, listBundleFiles, listDeploymentFiles) — no runtime-file download; shinyapps dashboard has no Files browser.
+- Superseded Part B attempt evidence: RA 43/50 (86%), PI 46/50 (92%) screenshots, retained as documentation only.
+- PI authorisation: email 2026-07-10.
+- MVC_Study_Log.txt entry: 2026-07-10 01:10 UTC.
+
+### Post-entry state
+
+C.2.1 not closed. phase1_training_complete.flag not written. Clean Part B rerun pending under the preservation rule. Export-fix audit record completed (Entry 015).
+
+**Logged by:** JDMA
