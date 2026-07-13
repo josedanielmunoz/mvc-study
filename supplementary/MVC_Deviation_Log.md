@@ -1544,3 +1544,80 @@ No change to coding criteria, scoring, gates, item banks, expected codes, or ana
 C.2.1 not closed. phase1_training_complete.flag not written. Clean Part B rerun pending under the preservation rule. Export-fix audit record completed (Entry 015).
 
 **Logged by:** JDMA
+
+## Entry 017 — Registered stability-gate exclusion of GPT-5.5: OSF Amendment 2 filing and interrupted-run provenance disclosure
+
+**Date:** 2026-07-14 (Europe/Malta; recorded 2026-07-13 in RA operational environment, America/Bogota)
+**Classification:** MAJOR deviation — formal OSF amendment required under Pre-Registration §7.4 ("model exclusion due to stability check failure")
+**Commit SHA:** Self-referential
+**Affected scope:** Confirmatory analysis model set (P1–P4); OSF Registration 6m3sk
+
+### Trigger
+
+The registered §3.3 stability gate was applied exactly as written (Pearson r > 0.80 across 14 matched scenario × persona cells). GPT-5.5 returned r = −0.1345 and failed the gate; it is therefore excluded from the confirmatory P1–P4 analysis and reported in supplementary materials. Claude Opus 4.7 (r = +0.8861), Gemini 3.1 Pro (r = +0.9281) and DeepSeek-V4-Flash (r = +0.9071) passed. Three of four models survived, satisfying the registered minimum-retained-model floor (F5a does not fire).
+
+Pre-Registration §7.4 enumerates "model exclusion due to stability check failure" among the major deviations requiring a formal OSF amendment filed before analysis proceeds. This entry records the discharge of that requirement. The exclusion is the registered rule operating as written; it is not discretionary.
+
+### Amendment 2 identity
+
+- **Title:** Amendment 2 — Stability-Gate Disclosure and Sensitivity Plan
+- **Registration:** 6m3sk (embargo 2027-05-15, unchanged)
+- **Amendment type:** Required §7.4 major-deviation filing, with additive non-confirmatory sensitivity plan
+- **Filed:** 2026-07-14 (Europe/Malta; OSF platform display may show 2026-07-13 depending on account/server time zone)
+- **Markdown:** `OSF_upload/00b_OSF_Amendment_2_Stability_Gate_Disclosure_and_Sensitivity_Plan.md` — SHA-256 `336ebcae88bb509a151607491f8f29e96f01c041010ea45ce129c47dcc6f9967`
+- **PDF:** `OSF_upload/00b_OSF_Amendment_2_Stability_Gate_Disclosure_and_Sensitivity_Plan.pdf` — SHA-256 `93effb33d4bdf5378d877405321ac45757dac60e5047825260ea3568e4e81510`
+
+### What Amendment 2 does and does not do
+
+Amendment 2 changes no registered rule. It does not alter the §3.3 stability criterion, does not re-include GPT-5.5 in the confirmatory analysis, does not exclude any model the registered rule retained, and does not modify any registered confirmatory test, prior, threshold, verdict-token criterion, or the minimum-retained-model floor. It discloses the operating characteristics of the registered gate, discloses a downstream consequence of the exclusion that was not anticipated at registration (§3.4: hardcoded model counts convert P3a from a 3-of-4 rule into a 3-of-3 rule), and pre-specifies four secondary, non-confirmatory sensitivity analyses (S1–S4). The canonical confirmatory analysis, computed under the registered exclusion, remains the primary result.
+
+### Analysis-status attestation and interrupted-run provenance
+
+On 2026-06-27 in the RA operational environment (America/Bogota), corresponding to the 2026-06-28 Europe/Malta file-package date, `05_Statistical_Analysis.R` was invoked once against the canonical dataset for the registered pre-fit stability gate. The invocation was interrupted by SIGINT during P4 sampling.
+
+Verified filesystem state of that run (timestamps in RA local environment):
+
+- 19:10:42 — `results/stability_check_results.csv` (SHA-256 `614ac71f7d61577e270748eaa3220921697a40451b13754257b74979aaf72347`), `results/stability_model_exclusion_decisions.csv` (SHA-256 `c55bc906484df534bf79f4db86aec5530b30b38b5c605e2105c44e1ce2f990e9`), and `results/confirmatory_model_retention_floor.csv` (SHA-256 `7e138872219b9ebc230d94130e8e7d0269c0b4ec3790a848e2a7c3f389264d43`)
+- 19:10:55 onward — partial P1 outputs, including `results/P1_bonferroni_sensitivity.csv`
+- 19:11:11–19:13:13 — partial P2 outputs
+- 19:13:15 — `results/P3a_variance_ratio_test.csv`
+- Interrupted (SIGINT) during P4 Bayesian sampling
+
+Classification of these outputs:
+
+- The designated stability-gate CSVs and `confirmatory_model_retention_floor.csv` are admissible for the registered §3.3 gate and the Amendment 2 timing disclosure. The retention-floor file is a gate/eligibility record, not a hypothesis result. Its contents are: `retained_model_count=3`, `minimum_retained_models=3`, `retained_models=claude-opus-4-7;deepseek-v4-flash;gemini-3.1-pro`, `stability_excluded_models=gpt-5.5`, `confirmatory_model_floor_pass=TRUE`, `decision=confirmatory_p1_p4_eligible`.
+- The partial P1–P3 files were emitted mechanically as the script continued past the pre-fit gate. They are preserved as provenance only and have not been substantively reviewed, interpreted, cited as results, or used for confirmatory decision-making. They are excluded from confirmatory interpretation.
+- Absent at filing time (verified): `hypothesis_verdict_summary.csv`, `competing_account_adjudication.csv`, any P4 output, and any P4 checkpoint directory.
+- Therefore no complete canonical P1–P4 verdict output existed at the time of the corrected Amendment 2 filing.
+
+Results-directory manifest at filing time: 34 files; manifest SHA-256 `8e8cf90b093b05e6cd711d16f82c761dc3c321cc6cb5e5485b965aa9240af362`. The manifest is the auditable record of both what exists and what does not.
+
+### Study Log correction
+
+The earlier `MVC_Study_Log.txt` entry for the 27 June run stated: "NOT a P1-P4 interpretive run — only the stability gate CSVs are valid from this interrupted run." That designation remains substantively correct, but the entry was incomplete: it was written without first verifying which files the script had already emitted, and could be read as implying that no other outputs were produced. A correcting entry has been appended to `MVC_Study_Log.txt` (2026-07-13) recording that the script did mechanically emit partial P1–P3 files before interruption, that those files are preserved as provenance only, and that they are excluded from interpretation. No file from the interrupted run has been deleted, overwritten, or reinterpreted.
+
+### §8 hash-locked supporting files (as listed in Amendment 2)
+
+| File | SHA-256 |
+| --- | --- |
+| `05_Statistical_Analysis.R` | `cce3a319ce943f6c2815d2750337dd71f96a9775077b01f616a479994cd6ac4b` |
+| `stability_gate_diagnostics.py` | `b8647c955ced47490bab2761994035734a2c491c00c961c154bc1424ff8c1895` |
+| `drift_decomposition.py` | `d4301af2830cb20d41faa6c7fdfa68b6147b3cbada03abdfa950358d08240180` |
+| `decomposition_oc.py` | `94730dcd583e5908203990a16abe8a85ba9d97c20683194df53469667ca3fe8d` |
+| `lambda_ci_and_conventions.py` | `f92e9aa5b1b0530ddae0a2ef486c222c68173aeb2a3d707f2963a5c4b651d006` |
+| `scenario_variance.py` | `ea579537056b0412997208eeeaedf70b694cf0845dfa69fb681c829eb1939981` |
+| `run_sensitivity.R` | `8545cd41d97ace4207e6bfe0e9d90f67a2042b21ead18ee4c66e6cd1b8ded626` |
+| `results/table1_four_models.csv` | `1ad307a838f2642fba27e8818b3923503e8a9f91e899f0acedb17a0b1be1a1c1` |
+| `results/decomposition_real_data.csv` | `40bfd437b24563e1a689774c31e8ffcf80206082447c9a0c086282e2d1b9d88b` |
+| `results/lambda_intervals.csv` | `77e815db4053fe1d2036360b57a06d34dee6a44b575191a3f5896737bb5567ee` |
+| `results/gate_convention_sensitivity.csv` | `e299244e2d54df7f48191d751b20512c292a09d13a8966d918ee663a725eaf31` |
+| `results/scenario_clustering.csv` | `b43482fb6c44280477dba663ddc9f45a3573a707c73da369adc1e784349bff20` |
+| `results/claude_drift_by_scenario.csv` | `6224d9d4673f89427240668a3f344eece98c9436b22985b48556ba375c6029de` |
+| `stability_check_results.csv` | `614ac71f7d61577e270748eaa3220921697a40451b13754257b74979aaf72347` |
+| `stability_model_exclusion_decisions.csv` | `c55bc906484df534bf79f4db86aec5530b30b38b5c605e2105c44e1ce2f990e9` |
+
+The canonical analysis script is unmodified: its digest `cce3a319…` is byte-for-byte the digest recorded in the registration's Appendix D.
+
+### Status
+
+Amendment 2 is published simultaneously with this entry and cross-references it. The registered confirmatory architecture is preserved. The completed canonical P1–P4 analysis is to be run after this filing, using the unpatched `05_Statistical_Analysis.R`. The 27 June interrupted invocation remains preserved as filesystem provenance, with only the stability and retention-floor gate outputs admissible for the present timing disclosure.
