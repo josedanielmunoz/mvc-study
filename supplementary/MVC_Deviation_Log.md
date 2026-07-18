@@ -1621,3 +1621,52 @@ The canonical analysis script is unmodified: its digest `cce3a319…` is byte-fo
 ### Status
 
 Amendment 2 is published simultaneously with this entry and cross-references it. The registered confirmatory architecture is preserved. The completed canonical P1–P4 analysis is to be run after this filing, using the unpatched `05_Statistical_Analysis.R`. The 27 June interrupted invocation remains preserved as filesystem provenance, with only the stability and retention-floor gate outputs admissible for the present timing disclosure.
+
+---
+
+## Entry 018 — Administrative cross-reference clarification for Amendment 1
+
+**Date:** 2026-07-17 (Europe/Malta)
+**Classification:** Administrative log correction / cross-reference clarification. Not an analytic deviation. Not a change to the pre-registered confirmatory plan.
+**Commit SHA:** Self-referential
+**Affected scope:** Amendment 1 audit trail; OSF Registration 6m3sk; Deviation Log cross-references only.
+
+**What this entry records:**
+- Amendment 1 was filed on OSF as the pre-main-collection secondary analysis plan under registration 6m3sk.
+- Amendment 1 remains valid and unchanged.
+- Amendment 1 does not modify P1, P2, P3a, P3b, P4, the §6.3 verdict tokens, the model panel, thresholds, prompts, scenarios, personas, or the confirmatory analysis rules.
+- Amendment 1 OSF revision ID: 6a16519f875b9d41cf32fb5c
+- Amendment 1 artefact hashes:
+  - Markdown SHA-256: 5e996bd081ca97fadeede3d0f70d8a5d92993a69b505e30fec2fc4c0b2f122e8
+  - PDF SHA-256: e5fbbf2d06a5a9a9b6c9aeb576ebcc4c8a817fa8f18c62b2b4939f27be5f2bb5
+- OSF registration: https://osf.io/6m3sk/
+- Companion OSF file object: https://osf.io/48v67/files/osfstorage/6a165cae86f436e3ebcc6ed6/
+- Amendment 1's references to Deviation Log Entries 008–011 reflect an intended publication/numbering plan that diverged from the final authoritative Deviation Log numbering. In the current authoritative Deviation Log, Entry 008 is Patch 008, Entry 009 is Patch 009, Entry 010 is Patch 010, and Entry 011 is Patch 011 — not the Amendment 1 cross-reference entries.
+- No historical entry is being edited or renumbered.
+- This entry corrects the audit trail by recording that Amendment 1 is documented through the OSF amendment/update record and the Study Log, and that this deviation-log entry is the formal clarification of the Amendment 1 cross-reference.
+- This correction has no effect on data, analysis, inference, or study decisions.
+
+**Entry ID:** DEV-2026-018
+**Logged by:** José (RA)
+
+---
+
+## Entry 019 — Administrative clarification: preregistration controls the milestone-deposit schedule
+
+**Date:** 2026-07-17 (Europe/Malta)
+**Classification:** Administrative clarification. Not an analytic deviation. Not a change to the pre-registered confirmatory plan.
+**Commit SHA:** Self-referential
+**Affected scope:** Deviation Log scaffold milestone-deposit wording; preregistration milestone triggers only.
+
+**What this entry records:**
+- The Deviation Log scaffold preserves an older milestone-hash deposit schedule (pre-test lock / main-collection start / coding lock / analysis lock).
+- The preregistration controls the final milestone-deposit triggers. The controlling milestone triggers are:
+  - M1: Phase 1 primary coding complete.
+  - M2: Phase 3 PI/RA consensus locked.
+  - M3: Phase 4 Auditor pass complete.
+  - M4: final manuscript submission.
+- The older scaffold text is not edited; this entry clarifies that the preregistration milestone schedule controls.
+- This clarification has no effect on data, analysis, inference, or study decisions.
+
+**Entry ID:** DEV-2026-019
+**Logged by:** José (RA)
