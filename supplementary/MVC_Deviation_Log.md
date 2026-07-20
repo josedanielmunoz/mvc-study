@@ -1670,3 +1670,26 @@ Amendment 2 is published simultaneously with this entry and cross-references it.
 
 **Entry ID:** DEV-2026-019
 **Logged by:** José (RA)
+
+## Entry 020 — §7.4 functional execution correction: automated-coder scenario-text lookup extended to the registered semantic-null reserve bank
+
+**Date:** 2026-07-20 (Europe/Malta)
+**Classification:** §7.4 functional execution correction. Not an analytic deviation; no change to the pre-registered confirmatory plan, coding specification, or interpretation.
+**Commit SHA:** Self-referential
+
+**Affected scope:** 07_mvc_automated_coder.py (scenario-text lookup construction only). Affected data stream: corrected semantic-null Stage 3 automated coding, beginning with claude-opus-4-7 and applying to all four semantic-null source-model datasets. Main Stage 3 automated coding is not reopened by this correction.
+
+**What this entry records:**
+- Cause: the registered §2.3 reserve-bank semantic-null items (semantic_null_reserve_001/002/003, substituted during data collection per Deviation Log Entry 012) are stored in 01_Scenario_Trigger_Bank.json under the nested semantic_null_reserve_bank key and were therefore not found by the coder's flat scenario-text lookup. During D.5 automated coding of the corrected semantic-null Stage 3 data (claude-opus-4-7) this produced "ValueError: scenario_text cannot be empty or None", which the run harness correctly halted fail-closed on.
+- Correction (PI-authorised, Emile 2026-07-19): the scenario-bank loader in 07_mvc_automated_coder.py now also materialises the semantic_null_reserve_bank entries into the active lookup by their id, matching the pattern used in 04_Data_Collection_Script.py. Change limited to scenario-text lookup construction (2 lines added, 0 removed).
+- Pre-fix SHA-256: 396d4663724df588f8e2c9781aa091fb994c0f7d47f572ab03afa5e40c6285ae
+- Post-fix SHA-256: a262315ba85532fee976356c4ce88d9a36e80bb9877fc3861de8d1a78b743cc6
+- Pre-fix backup: ~/MVC_Study/backups/coder_patch/07_mvc_automated_coder.py.pre_reservebank_20260720T195413Z
+- Not changed: collected input records; 01_Scenario_Trigger_Bank.json; coding prompt; coding manual (11_MVC_Human_Coder_Guide_v2.1.md); coding dimensions and labels; scoring rules; thresholds; model/provider (mistral-large-2512); output schema; input scope; interpretation.
+- Smoke test (offline, no API calls): (1) reserve IDs resolve to canonical texts; (2) no scenario_text empty/None; (3) generated prompt contains the correct reserve-bank text; (4) main-scenario lookup unchanged (30 pre-existing entries identical; lookup grew by exactly the 5 reserve entries). Result 4/4 PASS ("Ran 4 tests in 0.002s — OK").
+- Rerun plan: rerun the corrected semantic-null Stage 3 automated coder from scratch, per source model, into new output paths (results/d5/<model>_semantic_null_v2/), preserving prior failed/partial outputs as provenance. Target per model: 700 unique Stage-3 call_ids, no duplicate rows. Final per-model output paths, row counts and unique call_id counts are recorded in MVC_Study_Log.txt at each subset closure.
+- Superseded provenance: the halted claude-opus-4-7 semantic-null partial (280/700; chunk_00029 validation_failed) is retained unmodified as provenance and excluded from analytic outputs.
+- No effect on data already produced, on analysis, inference, or study decisions for the main Stage 3 stream.
+
+**Entry ID:** DEV-2026-020
+**Logged by:** José (RA)
