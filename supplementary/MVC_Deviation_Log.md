@@ -1693,3 +1693,90 @@ Amendment 2 is published simultaneously with this entry and cross-references it.
 
 **Entry ID:** DEV-2026-020
 **Logged by:** José (RA)
+
+## Entry 021 — 2026-07-23 — §7.4 portal-startup and audit-hardening patch: durable C.3.3 live-unlock gate artefact + duplicate-token startup fix
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** `2026-07-23 19:41`
+**Type:** §7.4 functional portal-startup and audit-hardening patch (no-deviation procedural clarification)
+**Affected files:** `portal_app/app.R`; new artefact `portal_app/data/c33_structured_review/c33_live_unlock_gate.json`
+**Affected scope:** live-mode startup gate validation; duplicate access-token startup check
+**PI written approval:** Emile Boullineau, email 2026-07-23 (§7.4 pathway; artefact specification and values supplied by the PI)
+
+### What happened
+
+Two linked findings were identified by read-only inspection while preparing Phase 1 live coding.
+
+First, the live-mode startup gate recognised the sanity-check pass only through `data/mode_progression.rds`, a runtime file written by the portal itself. Under the runtime-persistence issue already recorded as Entry 016, shinyapps.io runtime storage is not durable across redeploys, and switching to live requires a redeploy (`MVC_APP_MODE` is read from `.Renviron` only at startup). A gate written in one runtime therefore could not be relied upon to survive into the live deployment. Separately, C.3.3 passed through the registered structured-review route rather than the portal's own runtime evaluation, so the portal's raw runtime computation would not have reproduced the registered pass.
+
+Second, the duplicate access-token startup check was located after `.app_blocked` and `.app_block_messages` had already been computed. It appended to `.startup_errors` but did not recompute the blocked state, so a duplicate access token would not have blocked startup. This sits in the Phase 1 access-token path and was flagged to the PI before any change.
+
+### Justification
+
+The registered live-unlock criterion is unchanged. The patch changes only how the portal recognises the already-completed C.3.3 decision: from an ephemeral runtime file to a durable, auditable, hash-locked certification artefact specified and authorised by the PI. The duplicate-token fix restores the intended behaviour of an existing security check.
+
+### Action taken
+
+A durable JSON certification artefact was written to `portal_app/data/c33_structured_review/c33_live_unlock_gate.json`, using the values supplied by the PI. It records the gate basis (reviewed PI/facilitator reference), per-dimension conservative minimum matches, automated coverage, unresolved PI/RA cell counts, the three PI-adjudicated structured-review substitutions, source-file provenance hashes, the C.3.4 dim5 disagreement flag, and the PI's pass statement verbatim. Unresolved PI/RA disagreement cells are preserved as unresolved; they are not completed, inferred or imputed, and exact match counts are not asserted for dimensions carrying them.
+
+`app.R` was patched to add a testable helper, `validate_c33_live_unlock_gate()`, which live startup calls. The helper recomputes the SHA-256 of the artefact, validates its schema and required field values, and validates that the source-file SHA-256 strings recorded inside the artefact match the authorised hashes held as constants in `app.R`. The original C.3.3 source files are not bundled into the portal; their hashes are provenance metadata only. The sole source file already present in the bundle is `data/sanity_check_items.json`.
+
+**Removal of the previous unlock path (declared explicitly).** The patch removes the code path in `compute_sanity_check_agreement()` that called `mark_mode_completed("sanity_check")` and wrote `mode_progression.rds` from the portal's own runtime evaluation. This is required by the PI's instruction that `sanity_check_completed` be set only from successful validation of the artefact. The operational consequence is that re-running the sanity check inside the portal no longer unlocks live mode; the durable artefact is now the sole unlock path. `mode_progression.rds` is retained as runtime state reconstructed from the artefact, not as evidence of the gate decision.
+
+The duplicate access-token check was moved ahead of the computation of `.app_blocked` and `.app_block_messages` (the smaller of the two options considered), so duplicate tokens now block startup.
+
+### Impact assessment
+
+No change to any registered threshold, coding item, item bank, model, prompt, gate basis, expected bank, automated output, human code, C.3.3 pass/fail outcome, session config, coder guide, attention-check handling, blinding rule, portal-output contract, or primary analysis rule. No emergency bypass or override path was introduced. `sanity_check_completed = TRUE` is set from one location only, inside the branch reached after successful artefact validation.
+
+### Verification result
+
+Helper-level fixtures — 12 run, 12 passed:
+
+    1.  intended passing lower-bound artefact ......... PASS (passed = TRUE)
+    2.  artefact missing ............................... PASS (fails closed)
+    3.  artefact malformed JSON ....................... PASS (fails closed)
+    4.  artefact SHA-256 mismatch ..................... PASS (fails closed)
+    5.  automated_available = 19 ...................... PASS (fails closed)
+    6.  conservative_min_matches = 15 ................. PASS (fails closed)
+    7.  expected_bank_used_as_gate = true ............. PASS (fails closed)
+    8.  dim5 absent ................................... PASS (fails closed)
+    9.  wrong authorised source hash .................. PASS (fails closed)
+    10. duplicated authorised role .................... PASS (fails closed)
+    11. missing authorised role ...................... PASS (fails closed)
+    12. basis != reviewed_PI_facilitator_reference .... PASS (fails closed)
+
+    Message emitted for fixture 12: [C.3.3 LIVE GATE] Top-level basis is not authorised.
+
+Duplicate-token fixture — 1 run, 1 passed: duplicate access tokens produce `app_blocked = TRUE` with the message present in `.app_block_messages`.
+
+    [SECURITY GATE] Cannot start live mode with duplicate access tokens. Each MVC_*_TOKEN value must be unique after trimming and uppercasing.
+
+Semantic fixtures were run with each fixture's own recomputed SHA-256 passed to the helper, so field validation was exercised rather than short-circuiting on hash mismatch. Fixtures were created outside the project directory and none remain within it. `app.R`, the artefact, `.Renviron` and `mode_progression.rds` were unmodified by the test run.
+
+**Scope limitation (declared).** These fixtures validate the helper in isolation and the duplicate-token blocking behaviour. A full live-mode startup has not been exercised end-to-end, because switching `MVC_APP_MODE` to live is not authorised until this checkpoint is approved. Startup-level integration will be confirmed at the live-mode switch and reported in the launch checkpoint.
+
+### Audit trail anchors
+
+- Pre-fix `app.R` SHA-256: `82a2e88c0341c3e4965ee5b2cbcb29bea7f7d1eca93cdfeb3d9408ea520a1650`
+- Post-fix `app.R` SHA-256: `8d00f4667e6585df5aacbad09a2e57afed1f9b02468a62e71a0ad78332373ca4`
+- Pre-fix backup: `_backups/appR_pre_c33gate_2026-07-23/app.R.pre_fix_82a2e88c….R` (SHA-256 matches pre-fix exactly)
+- Artefact path: `portal_app/data/c33_structured_review/c33_live_unlock_gate.json`
+- Artefact SHA-256: `85e86912e532c71534696299dc72c81554d234030376e24ad12c00e7ea812aa4`
+- Artefact generated (UTC): `2026-07-23T19:41:36Z`
+- Diff: 317 lines; 1 file changed, 267 insertions(+), 11 deletions(-); diff SHA-256 `3a7daa4d03ce0da5be80c13042facee5bbd7e960ae58a30e3dca6af645d22a69`
+- Authorised source hashes recorded in the artefact:
+    post-review report ......... `5adaee76bab78e3e412474e56a2152b04dabe8a5072181729647a2fe14e59034`
+    annotated review delta ..... `053ef240ab1bfb12da645b8885fc6d5a068e32f4f109fa1455eb6e90d61fba1e`
+    automated cycle-1 codes .... `7f7c57cbd222139d255db74e2cf0f34b54a598dafc01ad219eaacceb9cbe53da`
+    hash-locked sanity bank .... `2c9f19da55a20723f05bf45824502af587d4002f6c30d554d4f67bee465f04a4`
+- Certified conservative minimum matches: dim1 = 17, dim2 = 19, dim3 = 16, dim4 = 19, dim5 = 16 (all ≥ 16/20; automated coverage 20/20 per dimension)
+- C.3.4 disagreement flag: dim5, 5 of 20 unresolved PI/RA cells, above the registered 3-of-20 threshold (TEP C.3.4 point 5). Audit diagnostic only; does not alter the C.3.3 live-unlock gate.
+- Directory-name distinction: the pipeline-side `data/c33_structured_review/` holds the C.3.3 source materials; the portal-side `portal_app/data/c33_structured_review/` holds only the live-unlock certification artefact used by `app.R`.
+- Cross-reference: Entry 016 (runtime-persistence rule).
+
+### Post-entry state
+
+Portal remains in `sanity_check` mode. No redeploy, no mode change, no live coding. `mode_progression.rds` not written. Patch and artefact staged pending PI checkpoint approval before commit and before any live-mode switch.
+
+**Logged by:** JDMA
