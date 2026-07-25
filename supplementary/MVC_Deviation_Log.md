@@ -1789,3 +1789,68 @@ Semantic fixtures were run with each fixture's own recomputed SHA-256 passed to 
 Portal remains in `sanity_check` mode. No redeploy, no mode change, no live coding. `mode_progression.rds` not written. Patch and artefact staged pending PI checkpoint approval before commit and before any live-mode switch.
 
 **Logged by:** JDMA
+
+## Entry 022 — 2026-07-25 — §7.4 portal-display correction: scenario_text resolution from the registered scenario bank (fail-closed)
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** `2026-07-25 03:30`
+**Type:** §7.4 functional portal-display correction
+**Affected files:** `portal_app/app.R`; scenario bank added to bundle `portal_app/data/01_Scenario_Trigger_Bank.json`
+**Affected scope:** live-mode scenario-text rendering; live-startup validation of the scenario bank
+**PI written approval:** Emile Boullineau, email 2026-07-24 (portal-display fix authority, provided the scenario text is present in the authoritative source and only surfacing is required)
+
+### What happened
+
+At the start of Phase 1 live coding, the PI observed that the Scenario panel rendered as "(no scenario text)" while the AI model response displayed normally (first observed 2026-07-25T02:37:37Z, live item 33). Phase 1 was paused before any item was coded. Read-only triage established that the deployed manual_validation_sample.json (SHA-256 13fb3e40…, matching the registered sample) carries scenario_id for every record but no scenario_text field, and that app.R read scenario_text directly from the sample, producing an empty value and the placeholder. All 112 of 112 records were affected.
+
+The registered design (TEP §5.4, line 1073) specifies that the portal loads item_id, scenario_text and response_text into the session payload — i.e. the portal is the component that resolves scenario_id to scenario text. The registered upstream pipeline correctly carries only scenario_id (the sampler and session-config generator are hash-locked and were not changed). The scenario text is authoritative and unchanged in the registered scenario bank, 01_Scenario_Trigger_Bank.json (SHA-256 69286a35…, Appendix D hash-locked), under the field "text" keyed by scenario_id (scenario_001 length 305, scenario_002 length 349). The gap was therefore on the portal side: the bank was not in the bundle and app.R did not perform the scenario_id → text join required by the registered contract.
+
+### Justification
+
+This restores the registered portal-display behaviour specified in TEP §5.4. The scenario text is authoritative registered content that is surfaced, not modified. No registered material is changed.
+
+### Action taken
+
+1. The registered scenario bank 01_Scenario_Trigger_Bank.json (SHA-256 69286a35…) was copied unmodified into the portal bundle at data/.
+2. app.R was patched to add two testable helpers: load_scenario_bank() (recomputes the bank SHA-256 against the authorised constant, parses the JSON, and returns a scenario_id → text lookup using only the "text" field, ignoring the canonical_harms_reference branch) and resolve_scenario_text() (returns the scenario text for a scenario_id, fail-closed if the id is absent or the text is empty). The live response-loading path now resolves scenario_text via this lookup instead of reading it directly from the sample.
+3. Startup fails closed: if the bank is missing, hash-inconsistent or malformed, or if any scenario_id in the sample does not resolve to non-empty text, the errors are added to .startup_errors and the portal is blocked (.app_blocked), so live mode cannot start showing placeholders. The C.3.3 live-unlock gate and the scenario-bank check both feed the same error accumulator; neither bypasses the other.
+
+### Impact assessment
+
+No change to item order, item selection, response text, coding options, attention checks, expected codes, blinding, the validation sample, the automated outputs, or any analytic file. The coder payload remains exactly item_id, scenario_text, response_text — verified that scenario_id, response_id, model, persona, prompt_order, codes, numeric_codes, stage1_classification, coder_confidence, ambiguity_notes and coding_status do not reach the UI. Scenario text is surfaced from the authoritative bank, not altered. This is a portal-display correction implementing the registered TEP §5.4 contract.
+
+### Verification result
+
+Helper-level fixtures — 7 run, 7 passed:
+
+    1. authorised bank intact — scenario_001 (305) and scenario_002 (349) resolve ... PASS
+    2. bank with wrong SHA-256 ....................................... PASS (fails closed)
+    3. malformed bank JSON .......................................... PASS (fails closed)
+    4. scenario_id absent from bank ................................. PASS (fails closed, no empty string)
+    5. scenario_id with empty text ................................. PASS (fails closed)
+    6. all 112 sample scenario_ids resolve to non-empty text ....... PASS (112/112; only scenario_001/002 present)
+    7. coder payload columns = item_id, scenario_text, response_text  PASS (0 prohibited columns)
+
+Fixtures were run in isolation from /tmp; no full source() of app.R was performed (which would write mode_progression.rds); no fixtures remained in the project. The C.3.3 artefact (85e86912…) and its authorised-SHA constant in app.R were confirmed unchanged by this patch.
+
+**Scope limitation (declared).** These validate the helpers in isolation. Full live-mode rendering will be confirmed by a post-fix visual smoke check across several items after the PI approves the restart and before Phase 1 resumes.
+
+**Restart authorisation.** The PI approved (email 2026-07-25) that if the post-redeploy visual smoke check and the logging/blinding check both pass, Phase 1 may restart without further approval. If any check fails, the diff expands beyond the display/binding fix, or a second redeploy is needed, work stops and returns to the PI.
+
+### Audit trail anchors
+
+- Pre-fix app.R SHA-256: `8d00f4667e6585df5aacbad09a2e57afed1f9b02468a62e71a0ad78332373ca4`
+- Post-fix app.R SHA-256: `fdb60c1dfbc4aa8a87b4f0d26619bc3c7d4e11dc0da663f0e5ea3b2cffe06396`
+- Pre-fix backup: `_backups/appR_pre_scenario_fix_2026-07-24/` (SHA matches pre-fix)
+- Scenario bank added: `portal_app/data/01_Scenario_Trigger_Bank.json`, SHA-256 `69286a3550a263909e273494cfb74f5408224525dbda8e156f715a5e70fe6446`
+- Deployed sample (unchanged): `13fb3e406161552a1386d800f2056d22eb144f02d92f2294448db96e60842be4`
+- Portal commit SHA: `f84101c`
+- No-coding confirmation: portal showed "Item 1 of 115 | 0 coded (0%)"; shinyapps logs from live startup (2026-07-24T06:15:11Z, bundle 12313519) show zero save/submit/Save-&-Continue/progress-write/submit-flag events for either coder; ra_final_submitted.flag and pi_final_submitted.flag absent. No live coding began before this patch.
+- Live-startup incident record: MVC_Study_Log.txt, incident logged 2026-07-25T02:37:37Z (scenario_text absent; no-patch pending diagnosis; superseded by this entry)
+- Cross-reference: Entry 021 (portal live-startup gate), Entry 016 (runtime-persistence rule)
+
+### Post-entry state
+
+Phase 1 remains held pending redeploy and the required post-fix visual smoke check and logging/blinding check. No redeploy performed; the patch and bank are committed to the portal repo but not yet deployed. If both checks pass, the PI has authorised Phase 1 to restart without further approval.
+
+**Logged by:** JDMA
