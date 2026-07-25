@@ -1854,3 +1854,71 @@ Fixtures were run in isolation from /tmp; no full source() of app.R was performe
 Phase 1 remains held pending redeploy and the required post-fix visual smoke check and logging/blinding check. No redeploy performed; the patch and bank are committed to the portal repo but not yet deployed. If both checks pass, the PI has authorised Phase 1 to restart without further approval.
 
 **Logged by:** JDMA
+
+## Entry 023 — 2026-07-25 — §7.4 functional runtime correction: session-config fallback fix (length-safe guard in get_item_order())
+
+**Commit SHA (portal):** 6db17bd
+**Entry timestamp (UTC):** `2026-07-25 21:33`
+**Type:** §7.4 functional runtime correction (portal session-config application path)
+**Affected files:** `portal_app/app.R` (function `get_item_order()`)
+**Affected scope:** live-mode application of the registered per-role session configuration
+**PI written approval:** Emile Boullineau, email 2026-07-25 (corrected diagnosis; one-line guard fix)
+
+### What happened
+
+At the post-redeploy smoke check for the scenario-text fix (Entry 022), the startup log emitted "Session config could not be applied; falling back to deterministic in-app order." Read-only forensic investigation established that the original diagnosis (a `jsonlite::fromJSON` simplification issue requiring `simplifyVector = FALSE`) was incorrect: that argument was already present on the correct line (`get_item_order()`), present since the repository baseline, and untouched by the scenario patch. Parsed in isolation, `cfg$items` returns a list of 115 records for both roles.
+
+The actual cause is on a different line inside `get_item_order()`:
+
+    cfg_items <- cfg$items %||% list()
+
+The `%||%` helper is defined for scalars (`if (!is.null(a) && !is.na(a) && a != "") a else b`), but `cfg$items` is a 115-element list. Evaluating `is.na(a)` over the list yields a length-115 logical vector, which fails inside the scalar `if()` with `'length = 115' in coercion to 'logical(1)'`. The surrounding `tryCatch(error = function(e) NULL)` swallowed that error and returned NULL, triggering the deterministic fallback. The error was reproduced locally for both session configs by temporarily surfacing it in a working copy (the deployed `app.R` was not modified in that step).
+
+### Justification
+
+The registered design applies the per-role session configuration to set item order and attention-check placement. The scalar-guard bug prevented that application, causing the portal to substitute its own deterministic order. The one-line fix restores the registered session-config path. It is a functional runtime correction, not a design or analytical change.
+
+### Action taken
+
+One line changed in `get_item_order()`:
+
+    - cfg_items <- cfg$items %||% list()
+    + cfg_items <- if (is.null(cfg$items)) list() else cfg$items
+
+This changes only how a NULL/empty `items` field is guarded; it uses no scalar coercion over the list.
+
+### Impact assessment
+
+Magnitude assessment is not applicable to coder data because Phase 1 coding had not begun (portal showed 0 coded; remote logs showed 0 save/submit/progress/final events; no submit flags present). No registered Tier 1 analytical, data, or design file changed: no item bank, session config, schema, threshold, blinding rule, output contract, validation sample, attention checks, expected codes, response text, or analysis script. No config files changed. No analytic outputs or coder-data files changed. Only `portal_app/app.R` changed, by one line.
+
+### Verification result
+
+Isolated (pre-redeploy), count-based, no order/ID/position exposed:
+- `get_item_order()` returns a valid order for RA and PI (not NULL); no fallback warning emitted; config applied successfully.
+- 115 items per role; 0 unmatched, 0 duplicate, 0 blank IDs.
+- 3 sentinels present, compliant with the registered quartile-window rule; no fourth-quartile sentinel introduced.
+- `parse()` OK.
+Post-redeploy checks (scenario smoke, session-config application, logging/blinding) recorded separately below once the single redeploy is performed.
+
+### Deployment identity
+
+The patched deployment is recorded as **`v2.0 + approved app.R hotfix`**, not hash-identical to the original portal bundle.
+- Original bundle identifier: shinyapps.io bundle ID 12319649
+- Bundle checksum note: no bundle-level checksum was available in the local rsconnect deployment metadata; this is recorded as a platform/metadata limitation, and no hash was inferred or invented.
+- Pre-patch `app.R` SHA-256: `fdb60c1dfbc4aa8a87b4f0d26619bc3c7d4e11dc0da663f0e5ea3b2cffe06396`
+- Post-patch `app.R` SHA-256: `d67a3f40d954a08ef0e0881f7d91cc3c37d40d7ddba553fc98f2d34d639946cf`
+- No other bundle files changed.
+
+### Audit trail anchors
+
+- Pre-fix backup: `_backups/appR_pre_sessionconfig_fix_2026-07-25/` (SHA matches pre-fix)
+- Session config hashes (unchanged): PI `daf0e99d71e226a8222e1f827d44f2e1b27f32512d3a2d477c1047430ae0ff3c`, RA `7984141c7678415ba50b7dcd5ef92a5b403d8f1ba7622c898fcc368c508ef47e`
+- No config files changed.
+- Redeploy timestamp, bundle identifier and operator: recorded at redeploy.
+- Cross-reference: Entry 022 (scenario fix), Entry 021 (live-startup gate), Entry 016 (runtime persistence).
+
+### Post-entry state
+
+Fix committed to the portal repo, validated in isolation. One redeploy pending. Phase 1 remains held until the post-redeploy scenario / session-config / logging-blinding checks pass, after which Phase 1 may restart per the PI's authorisation.
+
+**Logged by:** JDMA
