@@ -1922,3 +1922,98 @@ The patched deployment is recorded as **`v2.0 + approved app.R hotfix`**, not ha
 Fix committed to the portal repo, validated in isolation. One redeploy pending. Phase 1 remains held until the post-redeploy scenario / session-config / logging-blinding checks pass, after which Phase 1 may restart per the PI's authorisation.
 
 **Logged by:** JDMA
+
+## Entry 024 — 2026-07-27 — NOT-A-DEVIATION (§7.4 manual-delivery contingency + functional recovery)
+
+**Entry ID (required):** DEV-2026-024
+
+**Entry timestamp (UTC):** `2026-07-27`
+
+**Commit SHA (this entry):** Self-referential; see the Git commit containing this Entry.
+
+**Category:** manual coding portal fallback / functional recovery (Phase 1 submit-persistence incident + Phase 3 discrepancy-generation recovery); Phase 2 comparison-integrity audit as verification record
+
+**Affected scope:** Phase 1 PI/RA validation coding (112 responses); Phase 3 discrepancy generation; portal progress objects; Phase 2 reliability verification
+
+**What happened:**
+During Phase 1 live coding of the 112 validation responses on the remote portal, two portal faults occurred: on Submit the portal disconnected from the server (no server-side Submit completed; no submit flags or server-side progress objects written), and session progress did not persist across an explicit Log Out. Because server-side submit/persistence failed, the authoritative Phase 1 coder outputs are the per-coder CSV exports downloaded by each coder and archived off-platform. Phase 3 discrepancy generation could not then proceed from the portal copy because the expected internal `progress_pi.rds` and `progress_ra.rds` objects were unavailable. A standalone recovery script reconstructed only the minimal `progress$codes` objects required by the existing Phase 3 discrepancy-generation implementation, reading only the frozen PI/RA CSV exports.
+
+**Justification:**
+§7.4 manual-delivery contingency: with server-side submit/persistence unavailable, per-coder CSV export is the registered recoverable record. The recovery step is a technical bridge to let the existing Phase 3 implementation run; it did not alter the PI/RA CSV exports, coding sample, coding dimensions, reliability thresholds, adjudication hierarchy, or downstream decision rules. The added `current_index` and timestamp fields are recovered/derived technical fields required solely to reconstruct portal state for the existing implementation; they are not original session metadata and were not used as analytic inputs.
+
+**Impact assessment:**
+No change to any reported posterior, p-value, point estimate, or CI bound. The Phase 2 comparison-integrity audit (verification record, below) confirms the frozen PI/RA CSVs mechanically support the Phase 2 outputs: the reliability result recomputes byte-identically from the frozen CSVs, and the discrepancy counts (175 cells / 93 responses) reproduce directly from the frozen CSVs. This audit confirms mechanical validity only; it does not change the substantive reliability result — all five narrative dimensions remain excluded under §5.4.4 because every lower CI is below 0.60. Magnitude boundary (§7.4, ≤1%): satisfied — recomputation is byte-identical (zero change).
+
+**Action taken:**
+Standalone recovery script created and preserved (read frozen CSVs only; validated PI/RA SHA-256, row counts, schema, response-ID uniqueness, the 112-response validation set, and allowed coding values before writing). Minimal `progress_pi.rds` / `progress_ra.rds` reconstructed; discrepancy ledger generated. Comparison-integrity audit run in an isolated sandbox recomputing Phase 2 from the frozen CSVs; eight checks passed; the earlier audit attempt that halted on a missing pipeline input was retained and marked SUPERSEDED. Provenance verified: re-running the recovery script on the frozen CSVs reproduces the 112 analytical code objects identically by response_id for both coders (112/112; 0 missing, 0 differing, 0 ordering differences).
+
+**PI written approval:** Emile Boullineau, email 2026-07-29 (approved the technical recovery as a §7.4 manual-delivery contingency, with the recovered current_index/timestamp fields recorded as derived technical fields, not analytic inputs; consolidated Phase 1/Phase 3 portal-recovery entry with the Phase 2 comparison-integrity audit as the verification record).
+
+**Audit trail anchors:**
+Recovery script SHA-256: `189886d6ecb08fdc7e0e8a9da9b1e97399d0fa4a18e2fe1f9326144b8d0eceff` (prior working versions retained as version history). Reconstructed objects: `progress_pi.rds` `0ba5334e3487476984d1d73441d0ccddeab4247fe594e690021eb97d490d1df0`, `progress_ra.rds` `20cd12960935501540089514152fca5ec50f8ea8e447192d17eaf9af21b512af`. Frozen inputs: PI `e20d0bfad46ebedcd444ca3692e86b18c13d71507856893d2835db1d5b42b3c7`, RA `7281448d5faa6022e0d8c69221c44d2e79b72494f2f66ec53a7d8d7d15719d8c`; locked validation sample `13fb3e406161552a1386d800f2056d22eb144f02d92f2294448db96e60842be4`. Phase 2 output: `reliability_report.csv` `fb41c523a779999e9a4d963cbf0fe2092bf46889d4442fb52bf0d22433687729`.
+
+Discrepancy log — working file vs final Phase 3 resolved file:
+- Working file (interim, pre-adjudication ledger; 175 rows PENDING_PHASE3_ADJUDICATION): path `phase3_adjudication_working/discrepancy_log_resolved.csv`, SHA-256 `1cfa12044e7a4a5a74ce4efc842606a52d351c5d5b40f9e61f9ed249ad65e346`. This is a working-file hash only. It is not the final Phase 3 resolved file and is not locked consensus.
+- Final Phase 3 resolved file (accepted, consumed by the finalizer via `--resolved`): path `phase3_consensus_lock_run/discrepancy_log_resolved.csv`, SHA-256 `8ea6face720e5aa3afc027b6bbeb208fa01ade99ca34dd6bc2e6463dd29edb1b`, file timestamp 2026-07-29 21:01:17 -0500. This is the exact file consumed by the Phase 3 finalizer to produce the locked consensus.
+
+Audit evidence (backups/phase2_comparison_integrity_audit_v2_20260728/): recomputed reliability byte-identical `fb41c523…`; independent discrepancy reconstruction `86fb5e3efaf32a4b7d257973ddc66b875111184bc51858360faf958ce249afc8`; console log `05c5d13e…`; command record `6e11aa23…`; manifest `ff0f3d5e…`. Study Log chronology: entries dated 2026-07-27 / 2026-07-28.
+
+**Post-fix SHA-256 (§7.4 functional recovery):**
+- File: recovery script (standalone) `189886d6ecb08fdc7e0e8a9da9b1e97399d0fa4a18e2fe1f9326144b8d0eceff`
+- Pre-fix SHA-256: not applicable (new standalone recovery script; no canonical analysis file modified)
+- Magnitude check: byte-identical recomputation of `reliability_report.csv` from frozen CSVs (zero change); §5.4.4 exclusions unchanged
+
+**Logged by:** JDMA
+
+## Entry 025 — 2026-07-28 — MINOR operational sequencing deviation plus §7.4 intent-preserving functional correction: pre-consensus Phase 4 training access; no analytic rule/specification change
+
+**Entry ID (required):** DEV-2026-025
+
+**Entry timestamp (UTC):** `2026-07-28 12:00`
+
+**Commit SHA (this entry):** Self-referential; see the Git commit containing this Entry.
+
+**Category:** MINOR operational sequencing deviation (pre-consensus Phase 4 training access) plus §7.4 intent-preserving functional correction (portal gate); no analytic rule/specification change
+
+**Affected scope:** `portal_app/app.R` (Phase 4 Auditor training-mode gate + `%||%` helper); External Auditor training/calibration session (remote portal, training mode)
+
+**What happened:**
+To enable a fixed-schedule External Auditor training/calibration session before the Phase 3 consensus lock, the portal Phase 4 training-mode gate was adjusted so that training-mode access no longer requires `consensus_locked.flag` on the training path only. The gate condition changed from
+`if (!identical(TRAINING_PHASE, "phase4") || !file.exists(consensus_flag))`
+to
+`if (!identical(TRAINING_PHASE, "phase4"))`,
+within the existing training-mode branch. The same commit hardened the `%||%` helper to handle NULL, zero-length, and scalar NA/empty inputs. Scope was `portal_app/app.R` only (one file; `git show --name-only` confirms). The live Auditor coding gate was not touched and continues to require both `consensus_locked.flag` and `phase4_training_complete.flag`.
+
+The External Auditor (Vanessa Leo) then completed a training/calibration session on the remote portal on 2026-07-28, starting 14:00 Europe/Malta (12:00 UTC), running approximately 4.5 hours, with the remote portal deployed in training mode (`MVC_APP_MODE=training`, phase4, calibration). Calibration outcome: Vanessa completed calibration at 37/50 = 74%; this is within the registered 70–79% caveated-pass band; the registered 80% target was not met; Inferred Intent was 50%; and a targeted Inferred Intent refresher is required before live Auditor coding opens.
+
+**Justification:**
+The portal code change is treated under the §7.4 functional-correction clause: it is a bounded, intent-preserving enabling of training-mode access, and it does not alter the coding sample, dimensions, reliability thresholds, adjudication hierarchy, output schema, or analysis rules. The timing of Auditor training before `consensus_locked.flag` existed is a bounded procedural sequencing deviation from the registered Phase 4 order, and is stated plainly here: training occurred before consensus lock, for scheduling and project-continuity reasons (the Auditor session was fixed and could not be rescheduled). The functional correction preserves analytic/blinding intent, but does not retroactively convert the sequencing departure into full procedural compliance. This is not a substantive analytic deviation.
+
+**§7.4 Functional-Equivalence Declaration:**
+Functional equivalence is claimed for live Auditor coding, blinding, materials, outputs, and analysis rules — NOT for the timing of training-mode access itself, which is the bounded sequencing deviation recorded here. Specifically, the following did not change:
+- no live 112 validation items were exposed to the Auditor;
+- no PI codes, RA codes, locked consensus, discrepancy materials, reliability results, model labels, persona labels, MVC theory, or predicted directionality were exposed;
+- No `phase4_training_complete.flag` was written before `consensus_locked.flag` existed. The flag will be written only after `consensus_locked.flag` exists and after PI confirmation that the pre-lock training/calibration evidence remains admissible under the recorded blinding conditions;
+- no `narrative_manual_auditor.csv` was exported, generated, consumed, or used before the live Auditor coding gates were satisfied;
+- live Auditor coding still requires both `consensus_locked.flag` and `phase4_training_complete.flag`;
+- no change was made to the coding sample, dimensions, thresholds, adjudication hierarchy, output schema, or analysis rules;
+- Auditor coding remains diagnostic/audit evidence only and cannot reverse the §5.4.4 exclusions.
+
+**Impact assessment:**
+No effect on any reported posterior, p-value, point estimate, or CI bound (the change is to portal access control, not to analysis). The §5.4.4 dimension exclusions stand unchanged. The bounded timing exception has no analytic consequence because Auditor live coding remained blocked throughout and the Auditor was not exposed to any blinded material. Magnitude boundary (§7.4, ≤1%): not applicable — no analytic quantity is affected.
+
+**Action taken:**
+Gate change committed to the portal repository (portal commit `2223389`); training-mode deployment used for the Auditor session; the sequencing was logged in the Study Log. No `phase4_training_complete.flag` was written before `consensus_locked.flag` existed; the flag will be written only after `consensus_locked.flag` exists and after PI confirmation that the pre-lock training/calibration evidence remains admissible under the recorded blinding conditions. A targeted Inferred Intent refresher (registered Auditor materials only) is required before live Auditor coding opens.
+
+**PI written approval:** Emile Boullineau, email 2026-07-29 (approved documenting portal commit 2223389 as a §7.4 functional correction, subject to this Functional-Equivalence Declaration and PI review of the drafted entry before publication).
+
+**Audit trail anchors:**
+Portal commit: `2223389`. Pre-change `app.R` SHA-256: `d67a3f40d954a08ef0e0881f7d91cc3c37d40d7ddba553fc98f2d34d639946cf`. Post-change `app.R` SHA-256: `4a1df2a16583806fbe06f6922ce6bf5a2da5b4c6003a5b608cf876ba94592c17`. Training-item source: `training_items.json` (37 training items) plus 10 calibration items. C.3.3 live-unlock artefact unchanged: `c33_live_unlock_gate.json` SHA-256 `85e86912e532c71534696299dc72c81554d234030376e24ad12c00e7ea812aa4`. Confirmation: live Auditor coding remained blocked until both required flags existed (neither existed at the time of this entry). Study Log chronology: entry dated 2026-07-28.
+
+**Post-fix SHA-256 (§7.4 functional correction):**
+- File: `portal_app/app.R`
+- Post-fix SHA-256: `4a1df2a16583806fbe06f6922ce6bf5a2da5b4c6003a5b608cf876ba94592c17`
+- Pre-fix SHA-256 (for the record): `d67a3f40d954a08ef0e0881f7d91cc3c37d40d7ddba553fc98f2d34d639946cf`
+- Magnitude check: not applicable (portal access-control change; no analytic quantity affected)
+
+**Logged by:** JDMA
