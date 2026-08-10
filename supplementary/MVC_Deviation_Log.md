@@ -2017,3 +2017,55 @@ Portal commit: `2223389`. Pre-change `app.R` SHA-256: `d67a3f40d954a08ef0e0881f7
 - Magnitude check: not applicable (portal access-control change; no analytic quantity affected)
 
 **Logged by:** JDMA
+
+
+## Entry 026 — 2026-08-10 — Portal final-submit failure (ephemeral hosting-state loss): Phase 4 Auditor artefact recovered via validated export
+
+**Commit SHA (this entry):** _(recorded on commit)_
+**Entry timestamp (UTC):** `2026-08-10 _(HH:MM at commit)_`
+**Type:** portal fallback / final-submit failure; operational recovery of a completed coding artefact (no registered role, coding-rule, threshold, blinding, sample, or analysis-plan change)
+**Affected files:** auditor export artefact `results/narrative_manual_auditor.csv` (derived); no Tier 1 analytical, data, design, or script file changed
+**Affected scope:** Phase 4 External Auditor final submission and the auditor analytical export
+**PI written approval:** Emile Boullineau, email thread 2026-08-10 (approved treating the auditor's emailed export as the authoritative recovered Phase 4 source, subject to the validation checks below)
+
+### What happened
+The External Auditor (Vanessa Leo) completed Phase 4 audit coding. The MVC Coding Portal runs on shinyapps.io, whose per-coder in-progress state is held on the container's local (ephemeral) filesystem (`data/progress_auditor.rds`) and is reset when the container restarts after inactivity. A container restart occurred during the auditor's work — read-only `rsconnect::showLogs` shows a fresh `[STARTUP]` at 2026-08-10T09:49 UTC and a later restart — which prevented a reliable portal Submit Final. The auditor instead used the portal's own export to obtain her codes and sent them to the facilitator by email as an XLSX file (`narrative_manual_auditor (6).xlsx`). The emailed export contains all 112 registered validation items, fully coded across the five dimensions, including the two items whose model responses were truncated at generation (max_tokens) and coded on the text as it stands.
+
+### Justification
+The registered Phase 4 design requires the External Auditor to independently code the 112 validation items and Submit Final in the portal, which would have written `results/narrative_manual_auditor.csv` and an `auditor_final_submitted.flag`. The ephemeral-storage restart prevented that final-submit step from completing reliably. Because the audit coding itself was complete and the exported data is equivalent to what a Submit Final would have written, the PI approved recovering the artefact from the auditor's emailed export, subject to validation. This is an operational recovery of a completed artefact, not a change to the registered role, coding rules, thresholds, blinding, sample, or analysis plan.
+
+### Action taken
+Per PI written direction (email thread 2026-08-10):
+1. The original XLSX was preserved exactly as received (filename, receipt channel/time, size, SHA-256 recorded under Audit trail anchors).
+2. It was converted mechanically to the registered downstream file `results/narrative_manual_auditor.csv` using the exact registered auditor schema and column order, with no added or missing columns and no recoding or manual alteration of the auditor's codes (read all-as-string; `*_numeric` columns normalised only in representation, e.g. "1.0"→"1"; categorical codes untouched).
+3. The converted CSV was validated (see Verification result).
+4. Both files were hashed and preserved.
+No `auditor_final_submitted.flag` was written, and none has been created or backfilled. This is expressly **not** described as a normal portal final submission. The correct characterisation is: **completed auditor coding recovered through a validated export after hosting/runtime-state loss.**
+
+### Impact assessment
+No registered Tier 1 analytical, data, or design file changed: no item bank, session config, schema, threshold, blinding rule, output contract, validation sample, attention checks, expected codes, response text, or analysis script. The auditor's 112 validation codes are intact and validated. The only consequential loss is the auditor `ATTENTION_CHECK_SUMMARY`, which lived in the same ephemeral `progress_auditor.rds` state cleared by the restart and is unrecoverable; the attention-check result is therefore recorded as **unavailable**, and is expressly **not** inferred as passed. Phase 5 proceeds using the locked `narrative_manual_consensus.csv` and the validated `narrative_manual_auditor.csv`.
+
+### Verification result
+Validation of the derived `results/narrative_manual_auditor.csv` (all checks passed):
+- exactly 112 unique registered validation `response_id`s, matching the registered auditor validation set in `session_config_auditor.json` (and the PI/RA validation set);
+- no attention-check/sentinel rows in the analytical export (0 ATTN rows);
+- exact auditor schema and column order (16 columns, identical to the registered schema);
+- numeric mirror columns agree with the categorical codes (0 mismatches across all five dimensions);
+- no persona labels, PI codes, RA codes, consensus codes, model labels, or disagreement information present.
+Prior structural verification of the source XLSX confirmed the 112 IDs and schema/column-order match before conversion.
+
+### Deployment identity
+No deployment, redeploy, or portal change was performed as part of this recovery. The live portal was not modified. All portal inspection was read-only (`rsconnect::showLogs`; auditor-mode state observation). The container restart evidenced here is a platform-level event, not an operator action.
+
+### Audit trail anchors
+- Original auditor export (as received): `narrative_manual_auditor (6).xlsx`, received by email from the External Auditor on 2026-08-10; size 20,057 bytes; SHA-256 `51807048f1b27de2ddf1497f98d05345c15360ebed2467dc2e18b633ec2077d8`. Preserved copy: `MVC_Coding_Evidence/External_Auditor/vanessa_audit_final_112items_20260810.xlsx` (byte-identical, same SHA-256).
+- Derived analytical file: `results/narrative_manual_auditor.csv`, SHA-256 `7466b6c0dd7302cbf7b208ca10629880cae0e7d6eacc34057290b9ad991b2969`. Preserved copy: `MVC_Coding_Evidence/External_Auditor/narrative_manual_auditor_CONVERTED_20260810.csv` (byte-identical, same SHA-256).
+- Server-log evidence of container restart: shinyapps logs, `[STARTUP]` 2026-08-10T09:49 UTC (read-only `rsconnect::showLogs`).
+- PI approval: email thread, Emile Boullineau, 2026-08-10.
+- Study Log reference: corresponding Study Log entry of 2026-08-10 (auditor recovery).
+- Cross-reference: Entry 025 (Phase 4 training-gate + pre-consensus Auditor sequencing), Entry 016 (runtime persistence).
+
+### Post-entry state
+Original XLSX and derived CSV preserved and hashed; the auditor analytical file `results/narrative_manual_auditor.csv` is validated and ready for Phase 5. The attention-check result is recorded as unavailable (not inferred). No `auditor_final_submitted.flag` exists. Phase 5 (auditor-vs-consensus) may proceed using the locked `narrative_manual_consensus.csv` and the validated `narrative_manual_auditor.csv`, per PI authorisation.
+
+**Logged by:** JDMA
