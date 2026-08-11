@@ -2069,3 +2069,85 @@ No deployment, redeploy, or portal change was performed as part of this recovery
 Original XLSX and derived CSV preserved and hashed; the auditor analytical file `results/narrative_manual_auditor.csv` is validated and ready for Phase 5. The attention-check result is recorded as unavailable (not inferred). No `auditor_final_submitted.flag` exists. Phase 5 (auditor-vs-consensus) may proceed using the locked `narrative_manual_consensus.csv` and the validated `narrative_manual_auditor.csv`, per PI authorisation.
 
 **Logged by:** JDMA
+
+
+## Entry 027 — 2026-08-11 — §7.4 functional execution correction: 09_narrative_coding_analysis.R empty-dataframe / p_value reporting guard
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-08-11T21:25:00Z
+**Type:** §7.4 functional execution correction + validation record
+**Affected files:** 09_narrative_coding_analysis.R
+**Affected scope:** Phase 5 narrative coding analysis reporting path (empty persona-effects summary); no registered analytical outcome
+**PI written approval:** Emile Boullineau, email 2026-08-11, approving application of the attached empty-dataframe / p_value reporting guard as a §7.4 functional execution correction, limited to that guard, conditional on the applied script hashing to `bae611dd…`.
+
+### Trigger
+
+When 09_narrative_coding_analysis.R is run on the current data, all five narrative dimensions are excluded by the registered §5.4.4 PI/RA lower-CI reliability gate (reliability_report.csv; every dimension's bootstrap lower CI below the 0.60 minimum). With zero included dimensions, the section-(3) persona-effects loop adds no rows, and `persona_effects` — initialised as an empty, zero-column `data.frame()` — reaches the COMBINED SUMMARY, where `persona_effects %>% filter(p_value < 0.05)` aborts with `object 'p_value' not found`. The script terminated (Execution halted) while attempting to summarise a legitimately empty persona-effects table. Per pre-registration, narrative persona effects (P3b) are registered as descriptive characterisation, and "no significant effects" / "all dimensions excluded" is a reportable outcome, not an error state; the script must report that registered outcome rather than abort.
+
+### PI written approval
+
+Email from Emile Boullineau dated 2026-08-11 approving canonical application of the attached patch as a §7.4 functional execution correction, limited to the empty-dataframe / p_value reporting guard, with a hard stop condition: if the applied script did not hash to `bae611dd51429da5059bd42c0e68092205ee9e2d8ad6f9f4414b7b895ff12332`, or if anything changed beyond the zero-row reporting path described in the Functional-Equivalence Declaration, the operator was to stop and send the diagnostic before treating the run as canonical.
+
+### File hashes
+
+| File | Pre-fix SHA-256 | Post-fix SHA-256 |
+|---|---|---|
+| 09_narrative_coding_analysis.R | ec937e9116d72f470f5f6dd9468db0a96544bceefe5e8fad02930aa21bd65e17 | bae611dd51429da5059bd42c0e68092205ee9e2d8ad6f9f4414b7b895ff12332 |
+| 09_pvalue_guard.diff (reviewed patch) | — | ba5fc74dec773166364a726f496a462335c53bac9ae6621d4631a2e44964fcab |
+
+### Sub-changes applied to 09_narrative_coding_analysis.R
+
+**Sub-change 1 — Typed zero-row schema for `dim_summary`.** `dim_summary <- data.frame()` is replaced by an explicitly typed zero-row data frame (persona, n, mean_val, sd_val, dimension, label), so `narrative_dimension_summary.csv` emits its header row even when no dimension is included.
+
+**Sub-change 2 — Typed zero-row schema for `persona_effects`.** `persona_effects <- data.frame()` is replaced by an explicitly typed zero-row data frame carrying the same columns the section-(3) `bind_rows` produce (dimension, loaded_persona, test_type, statistic, p_value, odds_ratio, mean_loaded, mean_neutral, n_loaded, n_neutral), so the `p_value` column exists even with zero rows.
+
+**Sub-change 3 — COMBINED SUMMARY guard.** Before the significance filter, a guard is added: when all dimensions are excluded, an explicit line is printed ("All narrative dimensions excluded under the PI/RA reliability gate; no persona-effect tests were run."); and when `persona_effects` has zero rows or lacks the `p_value` column, `sig_effects` is set to an empty slice instead of running the filter. The existing "No significant persona effects detected." message is preserved.
+
+### §7.4 Functional-Equivalence Declaration
+
+**(1) WHAT CHANGED:** three empty-dataframe guards, all of one kind — typed zero-row schemas for `dim_summary` and `persona_effects`, and a COMBINED SUMMARY guard that reports the all-dimensions-excluded / zero-persona-effects state instead of aborting on `filter(p_value < 0.05)`.
+
+**(2) WHAT DID NOT CHANGE:** no threshold, no hypothesis, no κ gate, no dimension-exclusion logic, no statistical test, no Stage 1 / classification handling, no semantic-null handling, no row ordering, and no reliability result. On the normal (non-empty) path the outputs are unchanged. The only behaviour that changes is the zero-row path: from runtime abort to a clean report of the registered outcome.
+
+**(3) ROOT-CAUSE LINEAGE:** empty-dataframe robustness gap in the Phase 5 reporting path, surfaced when the registered §5.4.4 reliability gate excluded all five dimensions and left `persona_effects` empty. Same class of §7.4 functional execution correction as Entry 011 (parser-robustness), different script and stage. First robustness correction on 09_narrative_coding_analysis.R. Does not approach any registered inconclusive / stability-failure pathway under the kind-not-count §7.4 rule.
+
+**(4) PI WRITTEN SIGN-OFF:** Email from Emile Boullineau dated 2026-08-11 signing off the patch package (09_pvalue_guard.diff, proposed post-patch SHA-256 bae611dd…, §7.4 Functional-Equivalence Declaration, and the syntax / empty-case / normal-path functional-equivalence / full-pipeline sandbox rehearsal evidence) and approving canonical application limited to the described guard.
+
+### Pre-commit verification
+
+- Pre-patch canonical hash matched the registered baseline ec937e91… before application.
+- Post-application hash verified equal to the approved bae611dd… (Emile's hard stop condition not triggered; no rollback required).
+- Static syntax check on the applied canonical script: `parse()` OK.
+- Rollback snapshot of the pre-patch canonical preserved at ~/MVC_Study_operational/rollback_09_20260811T212258Z.
+
+### Test evidence
+
+- **Syntax:** PASS (exit 0).
+- **Empty case:** no abort; narrative_persona_effects.csv emits the exact 10-column header with 0 data rows; narrative_dimension_summary.csv emits the exact 6-column header with 0 data rows; the all-dimensions-excluded message prints exactly once; the existing no-significant-effects message prints exactly once.
+- **Normal-path functional equivalence:** on a deterministic fixture with at least one included dimension, patched outputs are byte-identical to canonical (narrative_persona_effects.csv and narrative_dimension_summary.csv: 0-byte diffs, identical SHA-256).
+- **Full-pipeline sandbox rehearsal:** the patched script was run end-to-end in an isolated sandbox over copies of all real Phase 5 inputs; it completed cleanly (exit 0) through every section, with no further halt.
+
+### Verification result (production rerun)
+
+The applied canonical 09 (bae611dd…) was re-run on production Phase 5 inputs and completed with exit 0, reaching "End of Narrative Coding Analysis". The COMBINED SUMMARY printed the registered outcome: "All narrative dimensions excluded under the PI/RA reliability gate; no persona-effect tests were run." Outputs written: narrative_IRR.csv / reliability_report.csv (5 rows), narrative_dimension_summary.csv (0 rows, header present), narrative_persona_effects.csv (0 rows, header present), narrative_moral_entry_criterion_status.csv (1 row), dimension5_auditor_sensitivity.csv (decision CONSENSUS_DIM5_STANDS; auditor Dim-5 disagreement 5.4%; F7/F7a not triggered), step3_prevalence_trigger.csv (6 rows), auditor_vs_consensus_report.csv (5 rows), auditor_vs_consensus_discrepancies.csv (186 rows). human_vs_machine_kappa.csv is not emitted by the current canonical script (the TEP §E.5.1 output list is broader than the implemented script); no change was made to produce it.
+
+### Impact assessment
+
+No registered Tier 1 analytical, data, or design artefact changed: no item bank, thresholds, κ gate, exclusion rule, statistical test, Stage 1 / classification logic, semantic-null handling, validation sample, or reliability result. The §5.4.4 outcome (five dimensions excluded on PI/RA lower-CI reliability) is unchanged and is now reported cleanly. Full-sample P1–P4 confirmatory analysis is unaffected. The correction affects only the Phase 5 reporting path.
+
+### Audit trail anchors
+
+- Reviewed patch: 09_pvalue_guard.diff, SHA-256 ba5fc74dec773166364a726f496a462335c53bac9ae6621d4631a2e44964fcab.
+- Functional-Equivalence Declaration: FED_09_pvalue_guard.md.
+- Patch sandbox: ~/MVC_Study_operational/patch_09_pvalue_guard_20260811T091231Z/.
+- Rollback snapshot: ~/MVC_Study_operational/rollback_09_20260811T212258Z/.
+- Production rerun log: ~/MVC_Study_operational/phase5_FINAL_run_20260811T212859Z.txt.
+- PI approval: email thread, Emile Boullineau, 2026-08-11.
+- Study Log reference: corresponding Study Log entry of 2026-08-11 (§7.4 patch application).
+- Cross-reference: Entry 011 (§7.4 functional execution correction precedent).
+
+### Post-patch state
+
+09_narrative_coding_analysis.R canonical SHA-256 = bae611dd51429da5059bd42c0e68092205ee9e2d8ad6f9f4414b7b895ff12332. Phase 5 re-run completed cleanly and reports the registered §5.4.4 outcome. Pending PI sign-off on the Stage 5 Narrative Coding Checkpoint before Part F. No further change to 09 is implied by this Entry.
+
+**Logged by:** JDMA
