@@ -2175,9 +2175,17 @@ This activation was not recorded contemporaneously under its own Deviation Log e
 The fallback is a registered contingency, not a new analytic choice: it was pre-specified in §C.1.1 with a defined trigger and priority ranking, and its activation was evaluated against the registered criterion. Interpretation remains governed by the asymmetric inference rule — a null P4 is reported as inconclusive, not as evidence against MVC. The registered confirmatory plan ran as designed; the contingency analytic plan does not replace the registered confirmatory tests. The methods paper independently discloses the fallback activation, so that disclosure stands on its own regardless of how this log record resolves.
 
 ### Audit trail anchors
-Registered fallback specification: OSF Pre-Registration §C.1.1 / §2.4 (Option 3 priority ranking). Amendment 00a: fallback trigger criterion (b) met (line 47), fallback invoked (line 48). The cross-references currently pointing at "Entry 008" in Amendment 00a and the Reviewer Guide are to be corrected to point at this entry (Entry 028), under separate PI direction on method given the Reviewer Guide's hash-locked status.
+Registered fallback specification: OSF Pre-Registration §C.1.1 / §2.4 (Option 3 priority ranking). Amendment 00a: fallback trigger criterion (b) met (line 47), fallback invoked (line 48). The cross-references currently pointing at "Entry 008" in Amendment 00a and the Reviewer Guide are clarified in the section below, per PI direction (Emile, email 2026-08-19), as an append-only clarification rather than an in-place edit of the hash-locked materials.
+
+### Stale cross-references to Entry 008, clarified by this entry
+Per PI direction (Emile Boullineau, email 2026-08-19), the following are stale cross-references to "Entry 008" and should be read as referring to this entry (Entry 028) for the grand-mean fallback / Option 3 activation. Live Entry 008 remains the 2026-05-28 Gemini Stage 2 schema fix and is not rewritten; this is an append-only clarification, not an in-place correction of the referenced materials.
+
+- OSF Amendment 00a: lines 48, 242, 265, 342.
+- analysis_secondary/REVIEWER_GUIDE.md: lines 136, 148, 309, 320.
+
+The Reviewer Guide is hash-locked (registered SHA-256 beginning 04ade646) and is deliberately not edited in place, as editing it would break the registered hash and create a worse audit problem than the stale reference. Amendment 00a is likewise not corrected by any local-only edit, since that would not change the OSF-deposited copy; unless a separate, explicit decision is later made to upload a corrected dated version, the 00a references are handled through this clarification. In all eight locations, "Entry 008" in the context of the grand-mean fallback / Option 3 activation should be read as Entry 028.
 
 ### Post-entry state
-The grand-mean fallback activation is now recorded under a dedicated Deviation Log entry (Entry 028) as a late disclosure. Live Entry 008 is unchanged and continues to record the Gemini Stage 2 schema fix. Correction of the cross-references in Amendment 00a and the Reviewer Guide is pending PI confirmation of method (see the 2026-08-19 escalation).
+The grand-mean fallback activation is now recorded under a dedicated Deviation Log entry (Entry 028) as a late disclosure. Live Entry 008 is unchanged and continues to record the Gemini Stage 2 schema fix. The eight stale cross-references to Entry 008 in Amendment 00a and the Reviewer Guide are clarified within this entry (see the section above), per PI direction, as an append-only clarification that preserves the hash-locked materials.
 
 **Logged by:** JDMA
