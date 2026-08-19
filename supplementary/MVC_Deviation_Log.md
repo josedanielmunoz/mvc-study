@@ -2151,3 +2151,33 @@ No registered Tier 1 analytical, data, or design artefact changed: no item bank,
 09_narrative_coding_analysis.R canonical SHA-256 = bae611dd51429da5059bd42c0e68092205ee9e2d8ad6f9f4414b7b895ff12332. Phase 5 re-run completed cleanly and reports the registered §5.4.4 outcome. Pending PI sign-off on the Stage 5 Narrative Coding Checkpoint before Part F. No further change to 09 is implied by this Entry.
 
 **Logged by:** JDMA
+
+
+## Entry 028 — 2026-08-19 — Late disclosure: registered grand-mean fallback (Option 3, §C.1.1) activation at pre-test stage
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-08-19T18:32:05Z
+**Type:** Late disclosure of a registered contingency activation (documentation-only; no analytic rule/specification change)
+**Affected files:** None (documentation record). Cross-referenced by OSF Amendment 00a and analysis_secondary/REVIEWER_GUIDE.md.
+**Affected scope:** §C.1.1 ambiguity pre-test fallback; interpretation of null P4 under the asymmetric inference rule. No change to the registered confirmatory plan.
+**PI written approval:** Emile Boullineau, email 2026-08-19 (directing creation of this entry at the next free number, dated today, as a late disclosure).
+
+### Trigger
+Amendment 00a (lines 48, 242, 265, 342) and analysis_secondary/REVIEWER_GUIDE.md cite "Deviation Log Entry 008" for the registered grand-mean fallback (Option 3) invocation. Live Deviation Log Entry 008 is a different record (the 2026-05-28 Gemini Stage 2 schema runtime fix). The fallback activation those documents refer to was never recorded under its own entry in the live Deviation Log. This entry supplies that record.
+
+### What happened
+During the §C.1.1 ambiguity pre-test, fallback trigger criterion (b) was met: 8 of 10 scenarios fell outside the [5%, 95%] band, producing a stronger ceiling/floor pattern than anticipated. The registered grand-mean fallback (Option 3, per the §2.4 priority ranking) was therefore invoked. Option 3 operates on main-collection data and reduces the density of ambiguous cells relative to the original design. This activation occurred at the pre-test stage, before the main collection began and before any main-collection data existed.
+
+### Disclosure timing
+This activation was not recorded contemporaneously under its own Deviation Log entry. It is disclosed here, dated the date of this entry, as a late disclosure. The registered rule provided that a fallback invocation would be a disclosed deviation rather than a silent switch; the invocation happened as the rule provided, but the dedicated log record is late. This entry states that plainly rather than presenting the disclosure as contemporaneous. The entry is not backdated and no existing entry has been renumbered.
+
+### Impact assessment
+The fallback is a registered contingency, not a new analytic choice: it was pre-specified in §C.1.1 with a defined trigger and priority ranking, and its activation was evaluated against the registered criterion. Interpretation remains governed by the asymmetric inference rule — a null P4 is reported as inconclusive, not as evidence against MVC. The registered confirmatory plan ran as designed; the contingency analytic plan does not replace the registered confirmatory tests. The methods paper independently discloses the fallback activation, so that disclosure stands on its own regardless of how this log record resolves.
+
+### Audit trail anchors
+Registered fallback specification: OSF Pre-Registration §C.1.1 / §2.4 (Option 3 priority ranking). Amendment 00a: fallback trigger criterion (b) met (line 47), fallback invoked (line 48). The cross-references currently pointing at "Entry 008" in Amendment 00a and the Reviewer Guide are to be corrected to point at this entry (Entry 028), under separate PI direction on method given the Reviewer Guide's hash-locked status.
+
+### Post-entry state
+The grand-mean fallback activation is now recorded under a dedicated Deviation Log entry (Entry 028) as a late disclosure. Live Entry 008 is unchanged and continues to record the Gemini Stage 2 schema fix. Correction of the cross-references in Amendment 00a and the Reviewer Guide is pending PI confirmation of method (see the 2026-08-19 escalation).
+
+**Logged by:** JDMA
