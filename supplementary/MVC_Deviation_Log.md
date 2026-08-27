@@ -2189,3 +2189,42 @@ The Reviewer Guide is hash-locked (registered SHA-256 beginning 04ade646) and is
 The grand-mean fallback activation is now recorded under a dedicated Deviation Log entry (Entry 028) as a late disclosure. Live Entry 008 is unchanged and continues to record the Gemini Stage 2 schema fix. The eight stale cross-references to Entry 008 in Amendment 00a and the Reviewer Guide are clarified within this entry (see the section above), per PI direction, as an append-only clarification that preserves the hash-locked materials.
 
 **Logged by:** JDMA
+
+
+## Entry 029 — 2026-08-27 — Semantic-null analysis-input provenance inconsistency: certified Adjudicative Test 3 consumed eight IDs including the three superseded 7-June originals, whereas Entry 012 defines the corrected D.2 set as five IDs
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-08-27T03:59:25Z
+**Type:** Analysis-input provenance inconsistency (discovered and recorded). Documentary record — no correction had been made at discovery; a PI-authorised targeted correction is proceeding separately under Entry 012 / §7.4 conformance.
+**Affected files:** None modified by this entry. Implicated (read-only): validated_trials.csv; 05_Statistical_Analysis.R; certified semantic_null_classification.csv and downstream semantic-null outputs. Cross-references Deviation Log Entry 012.
+**Affected scope:** Certified semantic-null control analysis (Adjudicative Test 3, construction-vs-priming semantic-null arm). No change to the registered confirmatory plan; no analytic rule changed by this entry.
+**PI written approval:** Emile Boullineau, email 2026-08-26 (directed logging of the discovery) and email 2026-08-27 (authorised the documented correction path and directed committing this entry at the next free number).
+
+### What happened
+During a PI-requested read-only semantic-null provenance verification, the certified semantic-null analysis (Adjudicative Test 3) was found to consume eight item IDs, whereas Deviation Log Entry 012 defines the corrected D.2 analysis-ready set as five IDs. The three extra IDs — semantic_null_003, semantic_null_004, semantic_null_005 — are the superseded 7-June originals that Entry 012 declares were substituted by the reserve items and preserved but excluded from the corrected D.2 analysis dataset.
+
+### Evidence (read-only)
+- Expected corrected D.2 set (Entry 012, five IDs): semantic_null_001, semantic_null_002, semantic_null_reserve_001, semantic_null_reserve_002, semantic_null_reserve_003.
+- Observed certified state (eight IDs): certified semantic_null_classification.csv (SHA-256 267c375f381363514bbdb41381182c1ce2d035726f4ca6c5978434ab6660b8f7) contains the five plus semantic_null_003, _004, _005.
+- Source of the three extra IDs confirmed at filesystem level as the superseded 7-June originals: present in data/semantic_null/<model>/2026-06-07/calls.jsonl for all four models; absent from the corrected D.2 dry-run (2026-06-11) and corrected live D.2 (2026-06-14). In validated_trials.csv (SHA-256 3ec7817986ac69a300a402ee106dc01346cff179bd59eb8461c31670702ed3b3) each carries 2,280 rows (120 semantic_null_pretest + 2,160 semantic_null), 570 per model across four models.
+- Source chain: superseded 7-June collection -> validated_trials.csv -> semantic_null_raw (canonical 05 filter mode==semantic_null OR main rows scenario_id ^semantic_null_) -> control_data -> control_stage1 -> control_brms_data -> Adjudicative Test 3 (n_yes | trials(n_total) ~ is_loaded + (1 | scenario_id) + (1 | model), binomial logit). No later filter removes _003/_004/_005.
+
+### Propagation to certified reporting
+The eight-ID scope propagated into certified manuscript-facing outputs: MVC_Analysis_Report.txt reports Test 3 as "MVC supported" with "Semantic-null controls: 8 scenarios tested"; the certified posterior in semantic_null_bayesian_model.txt is P(persona_effect > 0) = 0.9978 against the pre-registered 0.90 threshold, adjudicative verdict MVC. Dependent certified outputs include semantic_null_classification.csv, semantic_null_bayesian_model.txt, semantic_null_vs_neutral.csv, semantic_null_severity.csv, semantic_null_pretest_baseline.csv, and adjudicative_integration_summary.txt/.csv.
+
+### Scope of this record (what it does and does not assert)
+This entry records a demonstrated analysis-input provenance inconsistency: the certified Test 3 used eight IDs where Entry 012 defines five, and this reached certified reporting. It does NOT assert that the Test 3 verdict is incorrect or that any reported value changes; that is the question the PI-authorised targeted five-ID recomputation will answer. The corrected D.2 collection itself is not treated as invalid; the issue is downstream consumption of the superseded IDs.
+
+### Integrity — state at discovery
+No correction had been made at discovery. No certified outputs, scripts, manifests, logs, or data files were modified; no recomputation, filtering, repair, manifest regeneration, or bundle replacement was performed. The RA stopped and escalated on discovery. The existing certified eight-ID semantic-null outputs remain preserved and are frozen from interpretation.
+
+### Authorised correction (proceeding separately)
+Per PI email 2026-08-27, a targeted corrected recomputation of the semantic-null Test 3 is authorised using only the five Entry 012 corrected D.2 IDs (five-ID allowlist applied before control_data / control_stage1 / control_brms_data), same registered model, threshold, priors, seed, and verdict logic, written to a new timestamped correction bundle, not over the certified bundle. Both the discovered eight-ID certified result and the authorised five-ID corrected result are to be preserved; the PI will classify manuscript/OSF implications after seeing the comparison. This entry records the inconsistency only; it does not itself perform or certify the correction.
+
+### Audit trail anchors
+Deviation Log Entry 012 (registered §2.3 reserve-bank substitution). Study Log entry 2026-08-27 02:09 UTC (discovery record). Read-only diagnostic package MVC_Study_operational/semantic_null_diagnostic_20260827T021158Z/ (row counts, hashes, source statement, dependent-output list, MANIFEST_diagnostic.sha256; ZIP SHA-256 4b1b18526f59a2fba1929f87c342a28197491422b883b8e83d6489fe08142702). PI emails 2026-08-26 and 2026-08-27.
+
+### Post-entry state
+The semantic-null analysis-input provenance inconsistency is recorded. The certified eight-ID outputs remain preserved and frozen from interpretation. The PI-authorised targeted five-ID correction proceeds separately as an Entry 012 / §7.4 conformance correction, to a new correction bundle, with both results preserved pending PI classification.
+
+**Logged by:** JDMA
