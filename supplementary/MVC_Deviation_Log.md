@@ -2228,3 +2228,33 @@ Deviation Log Entry 012 (registered §2.3 reserve-bank substitution). Study Log 
 The semantic-null analysis-input provenance inconsistency is recorded. The certified eight-ID outputs remain preserved and frozen from interpretation. The PI-authorised targeted five-ID correction proceeds separately as an Entry 012 / §7.4 conformance correction, to a new correction bundle, with both results preserved pending PI classification.
 
 **Logged by:** JDMA
+
+
+## Entry 030 — 2026-08-27 — Semantic-null Test 3 corrected recomputation (five-ID allowlist): §7.4 magnitude-triggered correction, verdict unchanged
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-08-27T20:47:08Z
+**Type:** Entry 012 / §7.4 conformance correction (performed and PI-classified). Corrected recomputation of the certified semantic-null Adjudicative Test 3 using the five-ID corrected-D.2 allowlist. §7.4 magnitude boundary triggered (coefficient and CI bounds); verdict unchanged.
+**Affected files:** None of the canonical/certified set modified. New correction bundle created: MVC_Study_operational/semantic_null_correction_20260827T151708Z/ (ZIP SHA-256 e46add48a9d4c8469ad6cfe97cbc2fa4bcb4ec3834fe9d295b4b0f0f6b9427d5; bundle-level manifest SHA-256 5214c181e6eb21337e1ceef2f3c988341599312579ca583a421a83e7e1ab4af7; derived script SHA-256 31fd18e9e8e05b4da383fed312aa8884f7b211d68a175f4c365dc2b90bc5752b).
+**Affected scope:** Semantic-null Adjudicative Test 3 reported values (Paper 1). Does NOT alter P1–P4, registered model-retention/exclusion decisions, or the main analysis framework.
+**PI written approval:** Emile Boullineau, email 2026-08-27 (authorised the targeted five-ID correction; classified the result as a §7.4 magnitude-triggered correction with corrected values replacing the eight-ID values in manuscript/OSF reporting once logged).
+
+### Cross-references
+Deviation Log Entry 012 (registered §2.3 reserve-bank substitution defining the five-ID corrected-D.2 set). Deviation Log Entry 029 (semantic-null analysis-input provenance inconsistency — discovery record). Study Log entries 2026-08-27 02:09 UTC (discovery) and this correction.
+
+### What was done
+Per PI authorisation, the certified semantic-null Test 3 was recomputed using only the five Entry 012 corrected-D.2 IDs (semantic_null_001, semantic_null_002, semantic_null_reserve_001, semantic_null_reserve_002, semantic_null_reserve_003), excluding the three superseded 7-June originals (semantic_null_003/004/005). A derived script replicated the canonical Test 3 chain verbatim (helpers incl. fit_brm and its diagnostic/retry helpers, constants, priors, seed 20260101, sampler control, formula, factor coding, threshold, verdict rule). The single functional change was an input-scope allowlist applied after semantic_null_raw is built and before control_data: filter(scenario_id %in% corrected_d2_allowlist). See DIFF_vs_canonical.txt in the bundle.
+
+### Canonical files untouched
+canonical 05 (SHA-256 cce3a319...), validated_trials.csv (SHA-256 3ec78179...), the certified bundle and MANIFEST_certified.sha256 (SHA-256 0c795659...), canonical results/, Amendment 2, and the Coding Portal were not modified; pre-run and post-run hashes were identical. RESULTS_DIR was redirected to the correction bundle so no canonical results/ file was written.
+
+### Corrected-versus-certified comparison
+Fit converged cleanly (max Rhat 1.001, 0 divergences, status ok), 40 aggregated rows over 5 scenario_id levels (certified: 64 rows over 8), 4 models. Verdict: MVC (unchanged). Posterior P(persona_effect>0): 1.0000 vs certified 0.9978 (abs diff 0.0022, within 1%). is_loadedloaded coefficient: 1.2379 vs certified 0.56 (>1%). Posterior median 1.2298 vs 0.557 (>1%). 80% CI [0.871, 1.604] vs [0.313, 0.806] (bounds >1%). 90% CI [0.776, 1.715] vs [0.242, 0.883] (bounds >1%). Therefore the §7.4 magnitude boundary is triggered for the coefficient and CI bounds; the verdict and posterior probability are not.
+
+### PI classification and manuscript/OSF handling
+PI classified this as a §7.4 magnitude-triggered correction. The corrected five-ID values replace the eight-ID values in manuscript-facing and OSF-facing reporting once this entry is logged. The certified eight-ID output is preserved as the discovered certified state and marked superseded for Test 3 interpretation; the certified bundle is not overwritten. Both results are retained. This does not alter P1–P4, the registered model-retention/exclusion decisions, or the main analysis framework.
+
+### Post-entry state
+Correction logged. Corrected five-ID Test 3 values are the final semantic-null result for Paper 1; the eight-ID certified result is disclosed as a superseded provenance output caused by analysis ingestion of preserved-but-excluded IDs. No further rerun indicated (logging check found no hash/manifest/transcript inconsistency).
+
+**Logged by:** JDMA
