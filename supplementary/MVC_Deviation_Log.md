@@ -2258,3 +2258,72 @@ PI classified this as a §7.4 magnitude-triggered correction. The corrected five
 Correction logged. Corrected five-ID Test 3 values are the final semantic-null result for Paper 1; the eight-ID certified result is disclosed as a superseded provenance output caused by analysis ingestion of preserved-but-excluded IDs. No further rerun indicated (logging check found no hash/manifest/transcript inconsistency).
 
 **Logged by:** JDMA
+
+
+## Entry 031 — 2026-09-18 — C.3.3 live-unlock reference correction reclassified as a retrospectively recognised pre-registration deviation (§5.4.1): operational reference revised through an outcome-informed review
+
+**Event:** 13 to 15 July 2026. Cycle 0 and Cycle 1 on 13 July, the PI ruling on 14 July, the structured review and the PASS on 15 July.
+**Original classification:** 15 July 2026, in the Study Log, as a registered structured review and not a deviation, on the PI's 14 July 2026 16:29:51 instruction quoted in this entry; Entry 021 cross-referenced.
+**Reclassification settled:** 27 August 2026 (PI email), with the five-cell correction on 16 September 2026 and drafting authorised on 14 September 2026, all cited in this entry.
+**Filed:** 2026-09-18 (the commit date; this is also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-09-18T17:49:04Z (set at commit time)
+**Type:** Retrospectively recognised pre-registration deviation affecting the C.3.3 live-unlock basis (§7.4). The contemporaneous July record is preserved unchanged; this entry reclassifies, it does not rewrite.
+**Affected files:** None modified by this entry. Read-only references: the C.3.3 annotated post-review reference (`data/c33_structured_review/c33_reviewed_reference_annotated_20260714.csv`, SHA-256 `053ef240ab1bfb12da645b8885fc6d5a068e32f4f109fa1455eb6e90d61fba1e`); Study Log 13–15 July chronology; Deviation Log Entry 021.
+**Affected scope:** The C.3.3 automated-coder sanity certification and its live-unlock decision for D.5. It does not alter any registered verdict, the certified canonical bundle, the stability gate, data, code, or any Paper 1–4 result. Downstream: Paper 4 reports the C.3.3 clearance; see Post-entry state.
+**PI written approval:** Emile Boullineau — email 2026-08-27 (classification as a retrospectively recognised deviation, authorising this drafting), email 2026-09-16 (five-cell correction), and email 2026-09-18 (approval of the entry text and authorisation to file).
+**Review basis (at filing):** Drafted by the RA and approved by the PI who issued the July ruling that this entry reclassifies. No independent review at filing. Any later review is to be recorded as a separate entry, not as an edit to this one.
+
+### The contemporaneous July ruling (quoted, preserved, not overturned)
+At the time, the PI ruled in writing that the correction was a registered structured review requiring no Deviation Log entry. From the PI email of 2026-07-14 16:29:51: "Please log this in MVC_Study_Log.txt as C.3.3 structured review. No deviation-log entry is needed unless a registered file, rule, or live-unlock condition is changed." That ruling and the Study Log chronology remain unchanged as the contemporaneous record. This entry does not assert the July record was wrong to exist as it does; it records a later reclassification of the event's status.
+
+### 13–15 July chronology (preserved)
+- **2026-07-13, C.3.3 Cycle 0:** NOT PASSED against the registered gate (automated vs PI/RA consensus, ≥16/20 per dimension). dim1 15/20 FAIL; dim2–dim5 PASS. D.5 remained locked. The hash-locked `sanity_check_items.json` was unchanged.
+- **2026-07-13, Cycle 1 (PI-authorised prompt revision, §5.4.5):** a narrow clarification to the dim1 instruction. Cycle 1 vs consensus: dim1 15/20 FAIL, dim5 15–16/20 FAIL, dim2–dim4 PASS → STILL NOT PASSED; D.5 locked; 1 of 3 revision cycles used. A discrepancy table for SC_04/SC_05/SC_06 was prepared and escalated to the PI, not resolved locally.
+- **2026-07-14, PI ruling:** Cycle 1 classified as a failed live-unlock gate; expected-code agreement is diagnostic only; if discrepancy review showed a clear human-consensus calibration error, the reference consensus would be corrected explicitly and logged.
+- **2026-07-15, structured review:** the PI ruled the disputed cells a human-consensus calibration matter, not an automated-coder failure. The reference consensus was corrected in three cells, in an annotated post-review reference file only.
+
+### The three corrected cells (contemporaneous event)
+Corrected 2026-07-15 in the annotated post-review reference (`c33_reviewed_reference_annotated_20260714.csv`, SHA-256 `053ef240...`), the hash-locked bank left unchanged:
+- SC_05 dim1: 0 → −1
+- SC_06 dim1: 0 → +1
+- SC_04 dim5: 0 → 1
+
+These three are the discrepancy-table cells sent for PI review and corrected. They are **not** described here as selected from a five-cell pool known or enumerated in July; no such enumeration existed at the time.
+
+### Distinguishing three separate sets (per PI email 2026-09-16)
+To prevent conflation, three distinct sets are recorded, and only the second is the contemporaneous July event:
+1. **Cycle 0 automated-vs-consensus dim1 mismatches:** SC_05, SC_08, SC_14, SC_16, SC_17 — the five dim1 mismatches explaining Cycle 0's dim1 15/20. Not an eligibility pool for the later review.
+2. **Cycle 1 discrepancy-table / structured-review corrections (the July event):** SC_05 dim1, SC_06 dim1, SC_04 dim5 — the three cells reviewed and corrected.
+3. **Later retrospectively reconstructed five-cell eligibility set (all dimensions):** SC_04 dim5, SC_05 dim1, SC_06 dim1, SC_06 dim3, SC_14 dim5. Criterion: both primary coders agreed with each other, both differed from the hash-locked expected code, and the deployed Cycle 1 coder matched the expected code. This reconstruction is **later and retrospective**, not a July enumeration. Of the five, the first three were corrected; SC_06 dim3 and SC_14 dim5 were not.
+
+**Source of set 3 (locally verified):** `paper4_methods/open_deposit_v2.0_2026-08-12/predeployment_screen/predeployment_reference_correction_ledger.csv`, SHA-256 `ef9e3a8c2cbba974bfefd895d3a00c66bf6b4fef86699a3fb23ff2bd6bfa82ec`. The PI verified this SHA-256 on 17 September 2026 and supplied the file; it is now independently held and locally verified in the RA custody at `~/MVC_coding_paper3/calibration_exchange/verified_from_PI/` (custody manifest `MANIFEST_PI_files_locally_verified.sha256`), matching the PI's value exactly. The five-cell set is also derivable, per the PI, from the preserved hash-locked expected-code bank, the PI and RA screen files, and `automated_sanity_codes_cycle1.csv`.
+
+The ledger's 11 columns (item_id, dimension, pi_code, ra_code, original_reference_code, hash_locked_expected_code, deployed_automated_code, final_reference_code, review_context, public_rationale, eligible_not_corrected) record, for all five cells: pi_code 0, ra_code 0, original_reference_code 0, and hash_locked_expected_code equal to deployed_automated_code. The distinction between the three corrected and the two eligible-but-not-corrected cells is in final_reference_code: for SC_04 dim5 (→1), SC_05 dim1 (→−1), SC_06 dim1 (→1) the final reference was aligned to the hash-locked expected code (eligible_not_corrected=FALSE); for SC_06 dim3 and SC_14 dim5 the final_reference_code remained 0 (eligible_not_corrected=TRUE), so no reference change was made. The ledger's review_context for the latter states verbatim: "Eligible under the same criterion as the corrected cells, both primary coders departing from the hash-locked expected code and the deployed build matching it, but not corrected during the structured review. Listed so the complete eligible set is auditable."
+
+### Why the other two retrospectively eligible cells were not corrected, and the outcome-dependent stopping (per Paper 4 account)
+- **SC_06 dim3:** on a dimension that was already passing, so its correction was not needed to move the gate.
+- **SC_14 dim5:** became surplus once SC_04 dim5 alone returned dim5 to threshold.
+- **No written rule fixed the stopping point at three of five in advance.** The step is therefore outcome-dependent: the review stopped once the gate passed, not at a prespecified count. This is preserved as recorded and is not presented as a prespecified stopping rule.
+
+### Before-and-after per-dimension agreement, and the gate change
+- **Before (FAIL, against the original operational reference), Cycle 1 vs consensus:** dim1 15/20, dim2 19–20/20, dim3 16–17/20, dim4 19/20, dim5 15–16/20 → C.3.3 NOT PASSED, D.5 locked.
+- **After (PASS, against the reviewed reference):** dim1 17/20 (85%), dim2 19–20/20, dim3 16–17/20, dim4 19/20, dim5 16–17/20 → C.3.3 PASSED, D.5 unlocked. (dim3 and dim5 pass at the exact 16/20 = 80% lower bound, no margin.)
+- The gate changed from **FAIL against the original operational reference to PASS against the reviewed reference.**
+
+### What was not altered
+The hash-locked expected-code bank (`sanity_check_items.json`, SHA-256 `2c9f19da55a20723f05bf45824502af587d4002f6c30d554d4f67bee465f04a4`), the original PI and RA screen CSVs, both automated cycles (Cycle 0 and Cycle 1 outputs), the registered numerical threshold (≥16/20 per dimension), the coder outputs, the Cycle 1 coder prompt/config, the coding scale, dimension definitions, D.5 procedure, and downstream analysis rules were all unaltered. The correction was made solely to an annotated post-review reference. Revision cycles used remained 1 of 3.
+
+### Second procedural departure: the required post-correction rerun was not run
+The 14 July PI ruling recorded that any reference correction or prompt revision had to be followed by a **full 20-item sanity rerun across all five dimensions**. The 15 July record shows this did not happen. Instead, the gate changed from FAIL to PASS by **rescoring the existing Cycle-1 automated output against the corrected reference**; no additional post-correction automated run is recorded. This is a separate procedural departure from the 14 July ruling's own stated requirement. Its consequence for the live-unlock basis: the PASS that unlocked D.5 rests on a rescoring of prior output against a revised reference, not on a fresh automated coder run under the corrected conditions, so the live-unlock decision was never tested against a post-correction automated pass.
+
+### The basis for reclassification (§5.4.1 scope)
+Section 5.4.1 authorised structured review and prompt revision or re-run. It did **not** authorise revising the PI/facilitator consensus reference after the coder failed and then determining PASS against the revised reference. The hash-locked expected-code bank and the numerical threshold remained unchanged, but **the operational reference used for live unlock changed through an outcome-informed review.** That is the departure this entry records.
+
+### Audit trail anchors
+Deviation Log Entry 021 (portal startup/enforcement patch; historical description preserved, its classification superseded only by this dated entry). Study Log 13–15 July chronology and the 2026-07-15 structured-review classification. PI emails 2026-07-14 (three timestamps), 2026-07-15, 2026-08-27, and 2026-09-16. Annotated reference `c33_reviewed_reference_annotated_20260714.csv` (SHA-256 `053ef240...`). Source ledger for set 3, `predeployment_reference_correction_ledger.csv` (SHA-256 `ef9e3a8c...`, PI-verified 17 Sep 2026 and now locally held/verified in RA custody).
+
+### Post-entry state
+The C.3.3 live-unlock reference correction is reclassified as a retrospectively recognised §5.4.1 deviation. The contemporaneous July ruling and Study Log chronology stand unchanged; the discovered state is preserved in place and not overwritten. Entry 021's historical description is preserved; its classification is superseded only by this entry. Downstream scope: Paper 4 reports the C.3.3 clearance and the current manuscript treatment of that reference correction; no historical artefact, data, code, certified output, or verdict is altered by this entry. Filing, pushing, any rerun, and any manuscript edit remain outside this entry's authorisation and await separate PI direction.
+
+**Logged by:** JDMA
