@@ -2563,3 +2563,33 @@ Registration 6m3sk (date_registered 2026-05-16T13:24:18Z; platform embargo_end_d
 Registration public by 2026-09-27 19:45 UTC. §7.2 and VCI conditions unchanged. M4 open.
 
 **Logged by:** JDMA
+## Entry 037 — 2026-10-03 — Paper 4 four-row display table (Table 8 in the PI's emails of 6 and 23 September; Table 6 in the renumbered Paper 4) and auditor naming: registered aggregate reporting departed from by printing item-level codes and naming the audit coder, with consent recorded
+
+**Filed:** 2026-10-03 (the commit date; this is also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-10-03T20:24:45Z (set at commit time)
+**Type:** MINOR deviation (§7.4). The registration provides that manuscripts report coder performance "in aggregate unless a registered deviation requires otherwise", and the auditor by role (§8). Paper 4's published version prints item-level codes for four example responses and names the audit coder. The audit coder's and the RA's consents are recorded. No data, analysis, threshold or verdict is changed.
+**Affected scope:** Paper 4's four-row display table (Table 8 in the PI's emails of 6 and 23 September; Table 6 in the renumbered Paper 4) and the auditor naming; and the Results passage for response d1e5541f (response identifier d1e5541f-9040-48db-97a7-33334b2018e8, not a SHA-256) on inferred intent. Not any registered analysis, verdict, or the certified bundle.
+**PI written approval:** Emile Boullineau, emails 2026-09-06 17:02 UTC (the three corrections below), 2026-09-23 22:30 UTC (the display-table terms, the decision to print, and this drafting), 2026-09-25 21:55 UTC (item 9a), 2026-09-27 20:32 UTC (approval with corrections), 2026-09-27 22:06 UTC (class, corrections and approval) and 2026-10-02 18:30 UTC (filing).
+
+### The registered commitment and the departure
+The registration provides that manuscripts report coder performance "in aggregate unless a registered deviation requires otherwise" (§8). The departure is twofold, both authorised by the PI's 2026-09-23 decision:
+- **The four-row display table (Table 8 in the PI's emails of 6 and 23 September; Table 6 in the renumbered Paper 4), published version only.** A four-row display of example coded responses: for each, the quoted response text and, beside it, the audit coder's code, the PI's code, the RA's code, the consensus the PI and RA agreed, and the automated code. The automated-code column is headed "Automated code", with the note "Not validated. Screen clearance was withdrawn on 23 September 2026." (Paper 4 does not define C.3.3, so this replaces the C.3.3 heading in the PI's email of 2026-09-23 22:30 UTC; recorded here.) Under §7.2 the quoted rationales are embargoed provider text, so during review the full eight-row table goes to editors and reviewers by the controlled-access route; only the four-row display is in the published version.
+- **Auditor naming.** Paper 4's published version names the audit coder (the form she gave in August), with her consent recorded below. This log refers to her by role, as the External Auditor, because her consent does not extend to naming in the log.
+
+### The three corrections (PI email 2026-09-06)
+- The PI and RA coding files are role-identifiable: registration section 8 states that because the PI and RA are named study authors, their coding files are effectively role-identifiable. Registration section 8 also provides that the external auditor is reported only by role; that limb is cited for the naming.
+- The d1e5541f Results passage is on inferred intent: the Results passage naming response d1e5541f (response identifier d1e5541f-9040-48db-97a7-33334b2018e8, not a SHA-256; in the manuscript, not the RA checkout) concerns one response on inferred intent: the lead coder entered neutral, the research assistant benign, and the locked consensus malicious.
+- The four-row reduction was specified after the eight-row table existed: the reduction from eight rows to four was specified on 6 September 2026, after the eight-row table already existed, not declared in advance.
+
+### Consents recorded
+- **Audit coder.** The PI's request to the External Auditor of 2026-09-23 22:31 UTC (copied to the RA) stated she may withdraw before publication and that declining changes nothing about her role or honorarium. She confirmed by email on 2026-09-24 05:47 UTC, agreeing to two points: (1) her codes on the four responses being printed in Paper 4, in the published version only; (2) being named as the audit coder in Paper 4. Both emails are cited by date and UTC time. The confirmation covers naming in Paper 4, not in this log; this log therefore refers to her by role.
+- **RA.** The RA (JDMA) consented on 2026-09-23 22:01 UTC to the RA's codes appearing against the PI's on the disputed items, including the d1e5541f inferred-intent passage. The consent is voluntary; the RA may withdraw it before publication, and declining would not affect the RA's role or authorship.
+
+### Audit trail anchors
+Registration §8 (coder performance reported in aggregate). Registration section 8 (PI and RA role-identifiable as named authors; external auditor reported by role). The d1e5541f Results passage on inferred intent (PI-cited; manuscript, not the RA checkout). The eight-row controlled-access table and the four-row published display. The PI's request to the External Auditor 2026-09-23 22:31 UTC and her email confirmation 2026-09-24 05:47 UTC (her two points recorded). RA consent 2026-09-23 22:01 UTC. PI emails 2026-09-06 17:02 UTC, 2026-09-23 22:30 UTC, 2026-09-25 21:55 UTC (item 9a), 2026-09-27 20:32 UTC (approval with corrections), 2026-09-27 22:06 UTC (class, corrections and approval) and 2026-10-02 18:30 UTC (filing).
+
+### Post-entry state
+The departure from aggregate reporting is recorded, with the four-row published display, the eight-row controlled-access route during review, the automated-code column labelled as not validated, and both consents. No data, analysis, threshold, or verdict is changed.
+
+**Logged by:** JDMA
