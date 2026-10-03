@@ -2593,3 +2593,30 @@ Registration §8 (coder performance reported in aggregate). Registration section
 The departure from aggregate reporting is recorded, with the four-row published display, the eight-row controlled-access route during review, the automated-code column labelled as not validated, and both consents. No data, analysis, threshold, or verdict is changed.
 
 **Logged by:** JDMA
+## Entry 038 — 2026-10-03 — semantic_null_reserve_003 neutral-condition rate: registered-assumption finding, NOT-A-DEVIATION as to the draw, MINOR as to the logging time, with the PI's dated decision not to replace it with reserve_004 or reserve_005
+
+**Filed:** 2026-10-03 (the commit date; this is also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-10-03T20:24:48Z (set at commit time)
+**Type:** NOT-A-DEVIATION as to the draw. MINOR deviation (§7.4) as to the logging time. A registered-assumption finding and a dated PI decision. No registered rule, threshold, data, analysis, or verdict is changed. The registered draw order (§2.3) was followed; this entry records a finding about a substitute item's rate and the PI's decision on it.
+**Affected scope:** The reporting of semantic_null_reserve_003's per-item neutral-condition rate. Not the certified Test 3 verdict, not the corrected five-ID scope (Entry 012/030), not any registered threshold.
+**PI written approval:** Emile Boullineau, emails 2026-09-06 17:02 UTC (raising the item), 2026-09-23 02:20 UTC (items 5g/5m), 2026-09-23 23:57 UTC (the dated decision below), 2026-09-25 21:55 UTC (item 9b), 2026-09-27 20:32 UTC (approval with corrections), 2026-09-27 22:06 UTC (class, corrections and approval) and 2026-10-02 18:30 UTC (filing).
+
+### The finding
+semantic_null_reserve_003 was drawn as a registered substitute under §2.3 (Entry 012, NOT-A-DEVIATION). Its DeepSeek neutral-condition classification rate is 10 of 20. reserve_003 does not appear in the certified pretest output (875a4d79). Its 10 of 20 comes from the D.2 collection. This was present in the corrected D.2 output of 14 June 2026 but was not examined per item until 6 September 2026, after the certified Test 3 result and the Entry 030 recomputation had been seen. Entry 012 logged the substitution on 2026-06-14, after main collection had begun on 2026-06-05. The draw followed the registered order and is not a deviation. The late logging is a MINOR deviation (§7.4) from §2.3.
+
+### Two PI readings, recorded
+The PI's email of 2026-09-06 17:02 UTC called reserve_004 and reserve_005 the available registered remedy and said the PI was choosing not to use it. The PI's reason of 2026-09-23 23:57 UTC (verbatim below) instead reads §2.3 as not providing for a replacement at all. Both are recorded; the second is the PI's reading of §2.3 as of 2026-09-23.
+
+### The PI's dated decision (verbatim)
+The following is the PI's written reason, dated 2026-09-23 23:57 UTC, entered verbatim as a dated PI decision:
+
+"I decided not to replace semantic_null_reserve_003 with reserve_004 or reserve_005, for three reasons. First, the registered rule does not provide for it. As I read §2.3, it gates the primary items at pretest, draws substitutes in registered alphabetical order, and requires the swap to be logged before main collection begins. It sets no second gate over substitutes and no substitution after main collection. reserve_003 was drawn by that rule, and Entry 012 records the substitution as NOT-A-DEVIATION. A replacement now would itself be an unregistered departure. Second, it would be outcome-informed. reserve_003's DeepSeek neutral-condition rate of 10 of 20 was present in the corrected D.2 output of 14 June 2026 but was not examined per item until 6 September 2026, after the certified Test 3 result and the Entry 030 recomputation had been seen. Choosing items after seeing their effect on a result is what the fixed-order rule exists to prevent. Third, it would need new collection. reserve_004 and reserve_005 have no data. Collecting them now means new calls to provider endpoints months after the June collection window, and they are themselves unpretested, so the gap in the rule would remain. The remedy is disclosure. Paper 1 reports the per-item rates, the comparison with the 15 per cent criterion, and that two registered reserve items were never drawn."
+
+### Audit trail anchors
+Registration §2.3 (semantic-null pretest, >15% replacement criterion, substitution in registered alphabetical order, logged before main collection, and the 10%/20% supplementary sensitivity). Entry 012 (the NOT-A-DEVIATION substitution). The corrected D.2 output of 14 June 2026. Entry 030 (the corrected five-ID Test 3). Study Log (main collection start 2026-06-05 17:15:07 UTC; Entry 012 substitution log 2026-06-14). PI emails 2026-09-06 17:02 UTC, 2026-09-23 02:20 UTC, 2026-09-23 23:57 UTC, 2026-09-25 21:55 UTC (item 9b), 2026-09-27 20:32 UTC (approval with corrections), 2026-09-27 22:06 UTC (class, corrections and approval) and 2026-10-02 18:30 UTC (filing).
+
+### Post-entry state
+The finding is recorded and the PI's decision not to replace reserve_003 is on the record, dated, with the three reasons verbatim. No registered rule, threshold, data, analysis, or verdict is changed. The remedy is disclosure in Paper 1 (per-item rates, the 15 per cent comparison, and that two registered reserve items were never drawn).
+
+**Logged by:** JDMA
