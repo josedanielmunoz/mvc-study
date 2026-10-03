@@ -2519,3 +2519,47 @@ Registered document (cancellation-diagnostic definition and reading rule). Canon
 The per-persona descriptive contrasts were not produced at certification. The PI directed on 24 September 2026 that they be produced late, with their form fixed after the certified P1 results were seen. The registered label is not applied. No registered rule, deposited artefact, data, code, certified output or verdict is changed.
 
 **Logged by:** JDMA
+## Entry 036 — 2026-10-03 — Registration embargo: §7.1(a) limb engaged on 17 July 2026; registration public by 27 September 2026
+
+**Filed:** 2026-10-03 (the commit date; this is also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-10-03T20:24:42Z (set at commit time)
+**Type:** MINOR deviation (§7.4). A registered public-access commitment (§7.1(a)) was not executed when its trigger occurred. No view-only link giving editors and reviewers the access §7.2 registers was found in the files of two of the four qualifying submissions. No data, analysis, threshold or inference is affected.
+**Affected scope:** Public availability of registration 6m3sk, and editor and reviewer access (§7.2) for the Collabra and Meta-Psychology submissions. Not the §7.2 raw API call logs, not the VCI code.
+**PI written approval:** Emile Boullineau, emails 2026-09-23 23:57 UTC (ruling and classification), 2026-09-27 20:32 UTC (approval with corrections), 2026-09-27 22:06 UTC (class, corrections and approval) and 2026-10-02 18:30 UTC (corrected lines and filing).
+
+### Registered commitment
+§7.1: "The registration is embargoed during data collection; the embargo will lift automatically upon the earlier of (a) manuscript submission to a peer-reviewed journal, or (b) twelve months from the date of registration, whichever comes first." §7.2 restates the rule for the materials. (Locally verified: the pre-registration, README and VCI availability notice carry this embargo rule.)
+
+### Discovery
+After the PI's email of 2026-09-23 20:52 UTC, the PI ruled that the Meta-Psychology submission of The Cell, Not the Call engaged limb (a). A check of the PI's submission emails then found the earlier submissions below. Until then the stated position was that no submission had occurred (Paper 1 section 2.9, including the Zenodo preprint of 20 September 2026).
+
+### What happened
+The PI has ruled that limb (a) is engaged by the journal submission of any manuscript that uses data or outputs from the registered study, including secondary, methods and tutorial manuscripts. Qualifying submissions, from the PI's submission emails (PI-cited; not independently verified in the RA checkout):
+- 2026-07-17: No Variance, No Verdict, Advances in Methods and Practices in Psychological Science, AMPPS-26-0199 (confirmation 13:55 UTC). The trigger. Desk rejected 2026-08-05.
+- 2026-08-08: No Variance, No Verdict (resubmission), TMLR submission 11186 (acknowledgement 00:08 UTC). Rejected 2026-08-10.
+- 2026-08-10: No Variance, No Verdict (resubmission), Collabra: Psychology (confirmation 21:58 UTC). Desk rejected 2026-08-26.
+- 2026-09-19: The Cell, Not the Call, Meta-Psychology (acknowledgement 09:00:51 UTC). Decision pending.
+Not qualifying: the 2026-08-28 NeurIPS TAE workshop submission (non-archival, not a journal) and preprints.
+Editor access: the AMPPS and TMLR cover letters gave a view-only link to the registration. No such link was found in the Collabra or Meta-Psychology submission files. For the Collabra and Meta-Psychology submissions, on the evidence found, this also departs from §7.2, which gives editors and reviewers access to the registered materials throughout review.
+OSF does not lift an embargo on a journal submission; an admin must request it. No request was made, and the registration kept its platform embargo end date of 2027-05-15 (Entry 032).
+
+### Cause
+The registered wording assumed an automatic lift. Submissions were not tracked against §7.1(a). The PI made the submissions and did not request the lift.
+
+### Correction
+Early end requested by the PI on OSF at 2026-09-24 00:02:42 UTC (OSF admin notification "Pending Embargo Termination"); no OSF approval time on record; registration public by 2026-09-27 19:45 UTC (OSF API: public, not embargoed, no termination pending).
+
+### Consequences
+- Entry 032 stands as the record of the 15/16 May 2027 discrepancy. The twelve-month limb no longer governs; no date change is sought.
+- Milestone M4 ("final manuscript submission", §7.4): read by the PI as submission of the registered study's own report, since M4 follows M1 to M3 and is qualified "final", while §7.1(a) is not. Not engaged; not filed.
+- Manuscripts. Paper 1 (sections 2.9 and S3.1) stated that no submission had occurred and that the twelve-month limb applied; Paper 4 (Declarations and S7.3) gave 15 May 2027. Both are unsubmitted and have been corrected by the PI. The Paper 1 Zenodo preprint of 20 September 2026 (10.5281/zenodo.22851337) carries the statement that no submission had occurred, which was inaccurate when posted; it stands until the next version. The Cell, Not the Call, as submitted, states the rule and makes no claim about whether it had been engaged; unchanged.
+- Unchanged: under §7.2 the raw API call logs remain embargoed from public access until publication; the VCI code remains under its registered condition. The registration's files predate data collection and contain no call logs or collected data.
+
+### Audit trail anchors
+Registration 6m3sk (date_registered 2026-05-16T13:24:18Z; platform embargo_end_date 2027-05-15, ended early). The registration is public, and the RA read its OSF record without authentication on 2026-10-03T20:24:42Z (response SHA-256 ad262939f798a32f3f7acce36ae142a64eb064d00bb15e37de77d514ad4db46c). Submission emails (PI-cited): AMPPS 2026-07-17 13:55 UTC; TMLR 2026-08-08 00:08 UTC; Collabra 2026-08-10 21:58 UTC; Meta-Psychology 2026-09-19 09:00:51 UTC. Entry 032 (locally verified as filed). PI emails 2026-09-23 20:52 UTC, 2026-09-23 23:57 UTC (ruling and classification), 2026-09-27 20:32 UTC (approval with corrections), 2026-09-27 22:06 UTC (class, corrections and approval) and 2026-10-02 18:30 UTC (corrected lines and filing).
+
+### Post-entry state
+Registration public by 2026-09-27 19:45 UTC. §7.2 and VCI conditions unchanged. M4 open.
+
+**Logged by:** JDMA
