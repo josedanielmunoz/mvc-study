@@ -2421,3 +2421,67 @@ Registered document §5.1.5 (holdout specification, lines 803-810, 814, 2032, pe
 The registered §5.1.5 fifth-model holdout has no evidence of administration in the searched artefacts, and the cross-model validation check skipped in all four Amendment 2 sensitivity sets in consequence. No registered rule, deposited artefact, data, code, certified output, or verdict is changed by this entry. The PI has classified this as an unexecuted registered component on the evidence searched (email 2026-09-19 21:58 UTC); the §5.1.5 gate is unavailable and cannot be described as passed.
 
 **Logged by:** JDMA
+## Entry 034 — 2026-10-03 — C.3.3 symmetric analysis (run 2026-09-22, report mtime 19:03:24 UTC; reached PI 19:10 UTC) and D.5 clearance withdrawal: the July structured-review correction does not survive the symmetric (all-H) reference, and D.5 with every claim citing the C.3.3 clearance is withdrawn
+
+**Event:** The C.3.3 structured review of 13-15 July 2026 (Entry 031) and its D.5 unlock. The symmetric analysis directed 18 September 2026 and run 2026-09-22: its report and H_partition carry mtime 2026-09-22 19:03:24 UTC (there is no run-transcript record of an internal run time, so this file modification time is given as the run time); the report (SHA-256 59df3612...) reached the PI on 2026-09-22 19:10 UTC. The executed script (1e329807...) and the (d) note carry mtime 2026-09-23 21:07:21 UTC from being placed in the custody bundle on 23 September; the script is byte-identical to the executed version and the report and H_partition were not regenerated on 23 September (their 22 September mtimes and hashes are unchanged), so there was no re-execution.
+**Decisions fixed:** 2026-09-18 11:24 UTC (PI email): Decision 1, the 20-item post-correction rerun to be run; Decision 2, D.5 and downstream claims provisional, with the lift and withdrawal reading rules fixed before any result existed.
+**Cycle and benchmark settled:** 2026-09-19 (RA email 19:50 UTC reporting the first validation fail; PI email 21:58 UTC), and 2026-09-23 02:20 UTC (PI, item 3).
+**Filed:** 2026-10-03 (the commit date; this is also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-10-03T20:06:31Z (set at commit time)
+**Type:** Corrective record for Entry 031 (§7.4), not a separate deviation. It records a directed read-only analysis and withdraws a clearance. It alters, deletes or recomputes no file.
+**Affected files:** None modified. The symmetric-analysis package (executed script SHA-256 `1e32980767e4ed39b3cbca6b52088d68884bd8e52d2cdaaadf2cab23dce63452`, as-run report `59df3612f694f2d8af61a56c03a2096967d9b2bb62a28eb9228f75c5d1cd62bf`, H_partition, (d) note `ff888450bc7eb346f016bb22fd38dc86f3c00b0740df2e0008f9813ba166cf7e`, SHA256SUMS, INPUTS_JULY_SHA256), package ZIP `17eec5a54eb3595d03c9e5484fa112000ed5f23af639861e0dc377bc71dfb18e`. Read-only July inputs: hash-locked bank `2c9f19da`, PI codes `855f4f10`, RA codes `864ee925`, deployed Cycle 1 `7f7c57cb`.
+**Affected scope:** D.5 and every downstream claim citing the C.3.3 clearance. Cross-references Entry 031 (the reclassified structured review) and Study Log lines 157-161 and the 2026-09-23 D.5-withdrawal line.
+**PI written approval:** Emile Boullineau, emails 2026-09-18 11:24 UTC (decisions and reading rules), 2026-09-19 21:58 UTC (cycle and benchmark), 2026-09-23 02:20 UTC (item 3, directing this entry), 2026-09-23 20:52 UTC (the Entry 031 residue sentence), 2026-09-23 22:30 UTC (approval with corrections), 2026-09-24 21:31 UTC (changes i to v), 2026-09-27 20:32 UTC (approval with corrections), and 2026-09-27 22:06 UTC (approval and filing).
+
+### The two decisions of 18 September, with their reading rules
+Fixed by the PI on 2026-09-18 11:24 UTC, before any result existed:
+- **Decision 1.** The 20-item, five-dimension post-correction sanity rerun that the July ruling required (Study Log line 158, PI email 2026-07-13 23:34:56 UTC, 14 July 01:34 Malta) and that was not run is to be run, scoped in a written note before execution. It is reported beside the July figures, validates nothing under any branch, and its post-hoc minimum is evaluated and recorded. The PI's structured-review instruction of 2026-07-14 16:29:51 UTC asked only for a recomputation against the reviewed reference, and no rerun followed (Entry 031).
+- **Decision 2.** D.5 and every downstream claim citing the C.3.3 clearance are provisional from 18 September. Provisional lifts only if BOTH hold: the post-hoc minimum meets 16/20 on every dimension against the corrected reference, AND either H- is empty or the gate passes under the all-H reference. It goes to withdrawn if the post-hoc minimum fails any dimension OR the gate fails under all-H. Fixed before the result so the reading could not depend on the outcome.
+
+### The symmetric analysis (run 2026-09-22, report mtime 19:03:24 UTC as a file modification time, read-only, Cycle 1)
+Directed under the 18 September specification. Run on the Cycle 1 automated-coder output (the output used in the structured review and rescored to unlock D.5). PI-reference and RA-reference counts kept separate; the gate judged on the lower of the two.
+
+**Cycle choice and benchmark change.** The analysis runs on Cycle 1, because the structured review operated on Cycle 1, the annotated reference records the Cycle 1 code, and the unlock was Cycle 1 rescored. The validation benchmark was first set to the 13 July Cycle 0 report; a fail-closed validation stopped the run on a dim5 mismatch (RA email 2026-09-19 19:50 UTC), and the benchmark was changed to Study Log line 157, the Cycle 1 record, on which the reconstruction then validated exactly on all five dimensions (PI email 2026-09-19 21:58 UTC confirming Cycle 1). The change of benchmark was made before any H partition or counterfactual-reference figure had been reported to the PI: the 19 September email reporting the fail states that the fail-closed validation stopped the run, and no H-partition or four-reference figure had been computed at that point; only the five per-dimension validation pairs had been.
+
+**Validation note.** Study Log line 157 carries the Cycle 1 per-dimension counts without PI or RA attribution, so the validation compared unordered count pairs: the reconstructed {lower, upper} pair against line 157's pair per dimension. All five matched exactly (dim1 15-15, dim2 19-20, dim3 16-17, dim4 19-19, dim5 15-16).
+
+**H and its partition.** H (both humans agree, differ from the hash-locked expected code, regardless of the coder) has 10 cells: H+ 5, H- 5, H0 0. H+: SC_04 dim5, SC_05 dim1, SC_06 dim1, SC_06 dim3, SC_14 dim5. H-: SC_01 dim2, SC_07 dim2, SC_09 dim3, SC_15 dim2, SC_15 dim3. The three July-corrected cells (SC_05 dim1, SC_06 dim1, SC_04 dim5) are a proper subset of H+; the two H+ cells not corrected are SC_06 dim3 and SC_14 dim5.
+
+**Four-reference gate (PI / RA; gate on the lower; threshold 16/20).**
+- Original human consensus: dim1 15/15 FAIL, dim2 20/19 PASS, dim3 17/16 PASS, dim4 19/19 PASS, dim5 16/15 FAIL.
+- Three cells corrected (July): dim1 17/17, dim2 20/19, dim3 17/16, dim4 19/19, dim5 17/16, all PASS. The reference that unlocked D.5.
+- All H+ corrected: dim1 17/17, dim2 20/19, dim3 18/17, dim4 19/19, dim5 18/17, all PASS.
+- All H corrected (moves H- to expected too): dim1 17/17, dim2 17/16, dim3 16/15 FAIL, dim4 19/19, dim5 18/17. dim3 fails: correcting H- lowers agreement where the coder matched the humans.
+
+**Date-of-record note.** Study Log line 657 dates the analysis 2026-09-23 and says "on the lower bound", and the (d) note (ff888450...) says "the report of 2026-09-23"; neither can be edited (append-only log; the note is a fixed artefact in the package). This entry records, citing both, that the report was in fact produced on 2026-09-22 (report/H_partition mtime 19:03:24 UTC) and that the gate is judged on the lower of the two coders' counts, not an interval lower bound.
+
+**Item (d), timestamps.** The three corrections precede the gate recomputation at the artefact level: the 2026-07-15T09:18:58Z and 09:19:31Z times are file modification times, not independent timestamps; the reviewed reference carrying all three (mtime 09:18:58Z) precedes the post-review gate report (mtime 09:19:31Z) by 33 seconds, and the Study Log ordering (lines 158, 159, 161) is consistent. No separate intra-day timestamps exist for the three cells individually; the (d) note states all three were incorporated before the gate report and assigns no distinct time to each cell.
+
+### Correction of the PI's 19 September figures (item 3.2)
+The PI's 2026-09-19 email gave dim3 and dim5 as 17/20 PI and 16/20 RA "in each case". That is right for dim3 original (17/16) and corresponds, for dim5, to the three-cell-corrected reference (17/16), not the original. Against the original reference dim5 is 16/15, as the report computes. The as-run report's section (c) note repeats the PI's unscoped sentence; the report is left as run (SHA-256 `59df3612...`) and this entry records the correction.
+
+### The five-cell counterfactual, withdrawn
+The five-cell counterfactual proposed in the PI's earlier email is withdrawn (PI emails 2026-09-18 11:24 UTC and 2026-09-19 21:58 UTC), because it cannot answer the question it was meant to: the eligibility criterion admits a cell only where the coder matched the expected code, so correcting an eligible cell raises agreement by construction, and correcting the two uncorrected cells (SC_06 dim3, SC_14 dim5) would give dim3 +1 and dim5 +1 and nothing else, saying nothing about whether the three corrected cells were chosen for their effect on the gate. The symmetric (all-H) analysis replaces it.
+
+### Margin statement
+16 of 20 is the pre-registered threshold; the design has no margin by construction; dim3 and dim5 passed at the threshold on the lower of the two coders' counts (16/20) against the three-cell-corrected reference; exact (Clopper-Pearson) 95 per cent interval 0.563 to 0.943.
+
+### Model version string
+The metadata endpoint returned id and name "mistral-large-2512", created 1790179953, alias "mistral-large-latest", and no explicit version or build field (GET 2026-09-23T16:12:33Z, HTTP 200, response SHA-256 `b3c7d54a...`). Recorded as returned; the model field recorded at run time remains the record of what ran.
+
+### The D.5 determination
+Result: H- has five cells (not empty), and under the all-H reference dim3 is 15/20 on the lower of the two coders' counts (16/20 PI, 15/20 RA), one below threshold. The withdrawal condition of Decision 2 is met (gate fails under all-H). Therefore **D.5, and every downstream claim citing the C.3.3 clearance, is withdrawn as of 2026-09-23.**
+
+"Withdrawn" was defined by the PI after the result, because the 18 September text did not define it: no claim may rest on the C.3.3 clearance, or on D.5 codes as validated by it. No file is altered or deleted; the D.5 outputs stay in the record as run, preserved and labelled withdrawn. The withdrawal fires on either condition, so the rerun (Decision 1) cannot reverse it; Decision 1 stands, the rerun runs as specified with its post-hoc minimum evaluated and recorded, reported beside the July figures without validating anything.
+
+### Audit trail anchors
+Entry 031 (the reclassified structured review). Study Log lines 157, 158 (July ruling requiring the rerun, PI email 2026-07-13 23:34:56 UTC, 14 July 01:34 Malta), 159, 161, and the 2026-09-23 D.5-withdrawal line. The symmetric-analysis package (ZIP `17eec5a5...`, SHA256SUMS 4/4, INPUTS_JULY_SHA256). The (d) note (`ff888450...`). The mistral metadata response (`b3c7d54a...`). PI emails 2026-09-18 11:24 UTC, 2026-09-19 21:58 UTC, 2026-09-23 02:20 UTC, 2026-09-23 20:52 UTC, 2026-09-23 22:30 UTC, 2026-09-24 21:31 UTC (changes i to v), 2026-09-27 20:32 UTC (approval with corrections), and 2026-09-27 22:06 UTC (approval and filing). RA email 2026-09-19 19:50 UTC (first validation fail).
+
+### Entry 031 residue note
+In Entry 031's Post-entry state, "Filing, pushing" is a residue of the draft: 031 was filed on the PI's authorisation in the email of 2026-09-18 11:24 UTC. Its rerun and manuscript-edit limits still hold. The log is append-only, so Entry 031 is not edited; this note records the residue.
+
+### Post-entry state
+D.5 and every downstream claim citing the C.3.3 clearance are withdrawn as of 2026-09-23, on the reading rules fixed before the result. No file is altered, deleted, or recomputed; the D.5 outputs and the symmetric-analysis package stay in the record as run, preserved and labelled. The rerun (Decision 1) runs as specified under a separate written scoping note, validates nothing, and cannot reverse the withdrawal. The manuscript treatment of the C.3.3 clearance and D.5, and the Paper 4 disclosure, are the PI's and are handled separately.
+
+**Logged by:** JDMA
