@@ -2620,3 +2620,91 @@ Registration §2.3 (semantic-null pretest, >15% replacement criterion, substitut
 The finding is recorded and the PI's decision not to replace reserve_003 is on the record, dated, with the three reasons verbatim. No registered rule, threshold, data, analysis, or verdict is changed. The remedy is disclosure in Paper 1 (per-item rates, the 15 per cent comparison, and that two registered reserve items were never drawn).
 
 **Logged by:** JDMA
+## Entry 039 — 2026-10-03 — Registered §5.9 exploratory slate: five items not produced ((n), (f), (g), (i), (k)) and part of a sixth ((j) Stage-3 scan); the fourteen items' status
+
+**Filed:** 2026-10-03 (the commit date; this is also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-10-03T20:24:52Z (set at commit time)
+**Type:** MINOR deviation (§7.4). Five of the fourteen registered exploratory analyses (§5.9) were not produced: (n), (f), (g), (i) and (k). A sixth, (j), was produced in part, without its Stage-3 meta-commentary scan. Registration §3.4 calls item (n) a mandatory sensitivity analysis. §5.9 analyses carry no confirmatory weight. No registered rule, threshold, data, analysis or verdict is changed.
+**Affected scope:** The registered §5.9 exploratory slate (fourteen items, a to n). Five items not produced ((n), (f), (g), (i), (k)) and part of a sixth (the (j) Stage-3 meta-commentary scan). The other nine are produced (a-e, h, j, l, m), (j) except its Stage-3 scan. Not any registered P1-P4 verdict, the certified bundle, or Amendment 2.
+**PI written approval:** Emile Boullineau, emails 2026-09-26 00:10 UTC (item 4), 2026-09-26 00:55 UTC (item 4), 2026-09-26 01:40 UTC, 2026-09-27 20:32 UTC (corrections), 2026-09-27 22:06 UTC (class and corrections) and 2026-10-02 18:30 UTC (wording of (f) and (g), approval and filing).
+
+### Item (n), first half — temperature re-run, not produced
+Item (n) temperature sensitivity is registered at §5.9 item (n), and §3.4 calls it a mandatory sensitivity analysis; canonical 05 implements it at 05_Statistical_Analysis.R §11.1n. It has two halves. The re-run at temperatures 0.3 and 1.0 has no provision in the registered call plan or scripts: the collection plan allocates item (n) no calls at extra temperatures; the canonical collection script fixes TEMPERATURE = 0.7; and 05 §11.1n looks for a temperature column the collection never produces. The certified run log records the skip at lines 9601-9607 ("Only one temperature setting available in robustness data. Temperature sensitivity requires multi-temperature collection"). No multi-temperature collection was planned or made.
+
+### Item (n), second half — within-cell variance comparison, not produced late
+The second half, comparing Claude's within-cell variance with the other models' at 0.7, needs no new collection. It is not produced late, for three reasons (PI). First, "markedly lower" was never quantified, and any threshold would be set with its inputs already on file: the within-cell variance means are in the certified P3_variance_analysis.csv (SHA-256 `a2d6de17c9729863cdb2cebc00a01daf51a94a9571ece6b4b6e5efe4d44420f2`) and P3a_variance_ratio_test.csv (SHA-256 `8548e68e11a265891a086567774c9176128b0ed8266da8cd95511e0a4109f84e`), and GPT-5.5's in the Amendment 2 S1 and S3 P3_variance_analysis.csv (SHA-256 `b9152cc4c2021c67fa8fc92992b5bb619ed237e2b6fa245c6d9aaaf5ebb1e28a` and `43e7a4923e48c397fb268dafd0c1af8593578510137238d0b221b0e2f9012e86`). Second, the outcome is binary, so a cell's variance across 20 repetitions is set by its rate (registration §5.4), and lower variance for Claude could not separate near-deterministic decoding from baseline position. Third, the registration does not say what the exclusion sensitivity reruns.
+
+The registered analysis script has no code for the comparison, but its P3 section (05_Statistical_Analysis.R lines 3461-3575) computes the input, each cell's variance across the 20 repetitions; the four files named above are the record of within-cell variance, with no reading about decoding drawn from them. Amendment 2's S2 and S3 omit Claude (run_sensitivity.R, SHA-256 `8545cd41d97ace4207e6bfe0e9d90f67a2042b21ead18ee4c66e6cd1b8ded626`, lines 152-166: S3 re-admits GPT-5.5 and sets aside Claude as the model the decomposition flags as drifting; S2 leaves Claude out), because Amendment 2's decomposition flags Claude as drifting; these are not the item (n) sensitivity. No values are opened from those files for this entry.
+
+### The other §5.9 items not produced in whole or part
+Run-log excerpts below are reproduced verbatim from the certified run log.
+
+**(f) technology-centric stratification.** Registration §5.9 item (f) specifies a persona-effect comparison between technology-centric scenarios ('those involving digital systems, algorithms, or AI') and non-technology scenarios. Canonical 05 (05_Statistical_Analysis.R §11.1f) reads no dedicated technology-centric field. It assigns the stratum by keyword matching on the domain field, which is filled in all 20 scenarios. No scenario matched, so the step was skipped. Certified run log, lines 9516-9521:
+> 11.1f Technology-centric vs non-technology scenario stratification
+> Classifying scenarios and comparing persona effects...
+> Technology-centric scenarios: 0
+> Non-technology scenarios: 8400
+> SKIPPED: Insufficient data in one or both strata
+
+The run log reports none in that stratum. Whether any of the 20 scenarios meets the §5.9 definition was not assessed.
+
+**(g) contamination-risk stratification.** Registration §5.9 item (g) specifies a persona-effect comparison between scenarios with high training-data contamination risk ('those closely resembling canonical ethical dilemmas widely discussed in public and academic discourse') and lower-contamination scenarios. Canonical 05 (05_Statistical_Analysis.R §11.1g) reads no dedicated contamination-risk field. It assigns the strata by keyword matching on the domain and act_type fields, which are filled in all 20 scenarios. No scenario matched as high risk, so the step was skipped. Certified run log, lines 9522-9526:
+> 11.1g Training-data contamination risk stratified analysis
+> Classifying by contamination heuristic and comparing effects...
+> High contamination risk scenarios: 0
+> Low contamination risk scenarios: 8400
+> SKIPPED: Insufficient data in one or both risk strata
+
+The run log reports none in that stratum. Whether any of the 20 scenarios meets the §5.9 definition was not assessed.
+
+**(i) mechanism-coding analysis.** Registration §5.9 item (i) specifies a base-rate vs moral-character language analysis; canonical 05 (§11.1i) reads narrative_coded.csv. That input does not exist, so the step is skipped; producing it would need the Stage 3 free-text human coding. Certified run log, lines 9539-9543:
+> 11.1i Mechanism-coding analysis (base-rate vs moral-character language)
+> Checking for narrative_coded.csv and analyzing language patterns...
+> NOTE: narrative_coded.csv not found — skipping mechanism coding.
+> This analysis requires Stage 3 free-text response coding.
+> Will be available after human coding completion.
+
+**(j) Stage-3 meta-commentary scan.** Registration §5.9 item (j) has two components; the variance-by-persona component is produced (see the status list below), and the Stage-3 meta-commentary scan is a placeholder needing human review of Stage 3 free-text. Certified run log, lines 9563-9565:
+> Stage 3 free-text meta-commentary:
+> (Placeholder for narrative analysis of Stage 3 responses)
+> This requires human review of Stage 3 free-text data.
+
+**(k) system-prompt robustness.** Registration §5.9 item (k) specifies a persona-effect comparison across a neutral vs impartial-evaluator system prompt; canonical 05 (§11.1k) errored on the certified run. Like item (n)'s temperature re-run, (k)'s re-run under a neutral system prompt has no provision in the registered call plan or collection script: the call plan (§3.2) allocates it no calls, and the templates and the collection script carry one system prompt (02_Prompt_Templates.json; 04_Data_Collection_Script.py lines 148-151, the impartial-evaluator prompt), which §2.5 states is identical across all calls. Certified run log, lines 9568-9573:
+> 11.1k System prompt robustness check (neutral vs impartial-evaluator prompt)
+> Comparing persona effects across system prompt conditions...
+> ERROR: Error in `filter()`:
+> ℹ In argument: `!is.na(is_violation)`.
+> Caused by error:
+> ! object 'is_violation' not found
+
+No neutral-system-prompt collection was planned or made.
+
+None of these six unproduced parts (item (n) both halves, (f), (g), (i), (k), and the (j) Stage-3 scan) will be produced late (PI emails 2026-09-26 00:55 UTC (item 4) and 01:40 UTC).
+
+### The fourteen items by status (produced items' outputs by SHA-256, per the certified manifest)
+Nine items are produced in whole or part, listed with their certified outputs (no values opened):
+- (a) exploratory_a_threeway_interaction_coef.csv `e9e9052cb4b67da10f9c0a57f5a941591c152c20fd310e7f6e082856d5f63016`, exploratory_a_threeway_interaction_terms.csv `8804e361e4d96492cb7a31f80e7d2c8fb0a8bcd434434ef3f71422c44f319e10`
+- (b) exploratory_b_early_late_comparison.csv `9503bce7f5fd98132b61d48f690596dbbdf4836d29bb85585f66d3c44f7b31d8`, exploratory_b_temporal_stability_coef.csv `24b1e54132589de9003ee222fe347fdf6c4d4303746a0ac25fbb949b5a914d69`
+- (c) exploratory_c_effect_size_summary.csv `66325a89677659fc0b6598590382dc04653d74006c5447a04fc8bcd01e8018d3`, exploratory_c_model_specific_persona_effects.csv `d10b4436ee486559fd2cb1ad600f902d758e6a7f7816b3ca62d1d99989e86224`
+- (d) exploratory_d_severity_distribution_metrics.csv `e80739401ca2d87eef6c8a1ef1d8b0682c501d229444a7304b12664bcdf9384f`, exploratory_d_severity_ks_tests.csv `15c5cdbccce0e059065196fbf7fe8cd3c373852ef6bfee871920f596037c9477`
+- (e) exploratory_e_persona_ranking_stability.csv `ac5579743845046de344c936d9578992c170ba9e20ba00ab1429ebc54f89052a`
+- (h) exploratory_h_agent_type_interaction_full.csv `2ed3f57bca65a482b54c99b0c202b3b716045c701a627cf3bffb6ed8ea716e20`, exploratory_h_agent_type_interaction_terms.csv `0dcffd1ed969e4e36afff8a28cefe3438f2dccaf2c61a362299c283c29e4d26a`
+- (j) exploratory_j_variance_by_persona.csv `85be657e8fe8b5203b4ad2daf05c9e8cf667d0a7cbce8d6fe1217a4e60bff190` (the variance-by-persona component; the Stage-3 scan is the placeholder above)
+- (l) exploratory_l_prompt_order_interaction_full.csv `914bab120939f2e1532120bc51fbe55a3144d7c9d3de6d77f52a166993d6c2fb`, exploratory_l_prompt_order_interaction_terms.csv `9f9d90fe9d55ed2119d64fb9555c39c5185180a7a3f7beabc9bb18786aedbd4e`
+- (m) exploratory_m_within_cell_variance.csv `ecc38b15d90cd4bd124fef9c3670ae3794f3886bc91536afd62918d8cc6e3ef0`
+
+Five are not produced: (n), (f), (g), (i) and (k). Within (j), the Stage-3 meta-commentary scan is not produced. Paper 1 lists all fourteen by status.
+
+### What this entry states, and its limit
+On the evidence searched (the collection plan and script, the analysis script, the certified run log and manifest, and the named variance and sensitivity files), the items above were not produced, and the others were produced as listed. It computes nothing and opens no values.
+
+Registration §5.9 sets the reporting standard: "All 14 registered exploratory analyses (items a–n) are reported in the manuscript supplement with effect sizes and 95% CIs regardless of statistical significance." §3.4 calls item (n) a mandatory sensitivity analysis. §5.9 analyses carry no confirmatory weight.
+
+### Audit trail anchors
+Registration §5.9 items (n), (f), (g), (i), (j) and (k), and §3.4 (item (n) mandatory). The collection plan (no extra-temperature and no neutral-system-prompt calls). Canonical 04_Data_Collection_Script.py (TEMPERATURE = 0.7; single impartial-evaluator system prompt, lines 148-151). Analysis script 05_Statistical_Analysis.R §11.1f, §11.1g, §11.1i, §11.1j, §11.1k, §11.1n. Certified run log lines 9516-9526 (f, g), 9539-9543 (i), 9563-9565 (j scan), 9568-9573 (k), 9601-9607 (n skip). Certified manifest (the 15 produced-item outputs above). Named variance and sensitivity files (P3_variance_analysis.csv, P3a_variance_ratio_test.csv, Amendment 2 S1 and S3 P3_variance_analysis.csv, run_sensitivity.R). PI emails 2026-09-26 00:10 UTC (item 4), 2026-09-26 00:55 UTC (item 4), 2026-09-26 01:40 UTC, 2026-09-27 20:32 UTC, 2026-09-27 22:06 UTC and 2026-10-02 18:30 UTC. Entry 033 precedent.
+
+### Post-entry state
+Five of the fourteen registered §5.9 analyses were not produced: (n), (f), (g), (i) and (k). The Stage-3 meta-commentary scan within (j) was not produced. No registered rule, threshold, data, analysis, certified output or verdict is changed.
+
+**Logged by:** JDMA
