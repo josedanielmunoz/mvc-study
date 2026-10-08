@@ -2708,3 +2708,29 @@ Registration §5.9 items (n), (f), (g), (i), (j) and (k), and §3.4 (item (n) ma
 Five of the fourteen registered §5.9 analyses were not produced: (n), (f), (g), (i) and (k). The Stage-3 meta-commentary scan within (j) was not produced. No registered rule, threshold, data, analysis, certified output or verdict is changed.
 
 **Logged by:** JDMA
+
+
+## Entry 040 — 2026-10-08 — §3.3 training-data-cutoff record: provider cutoff query not evidenced; no cutoff recorded in the Deviation Log
+
+**Event:** §3.3 requires the collection script, at the start of main collection, to query each provider's reported training-data cutoff and record it in the Deviation Log beside the model version string, feeding the two-tier flag.
+**Filed:** 2026-10-08 (the commit date; this is also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-10-08 14:09 UTC (set at commit time)
+**Type:** MINOR deviation (§7.4). The registered §3.3 query of each provider's training-data cutoff at the start of main collection, and its record in this log beside the model version string, are not evidenced, and no cutoff is recorded for any model. The first tier, exclusion of a model whose authoritative cutoff post-dates the OSF deposit, could not apply: each of the four locked models was available from its provider when the registration of record named it by its API identifier on 16 May 2026 (registration Table 5), and a model's training data precede its availability. Every API call sent the identifier Table 5 names. Provider-returned version metadata is recorded only for Gemini, and it did not change during main collection. For the other three models the recorded version string is derived locally, so the record cannot show that the model served under each identifier was unchanged during main collection. The second tier governs interpretation only. No model is excluded, and no registered rule, certified verdict, deposited artefact, data or code is changed.
+**Affected files:** None modified. Read-only references: 04_Data_Collection_Script.py (SHA-256 `e6d936f427cfbab0aca119bdb160510821e3280150b5d3dd496527f166af1aa9`, the cutoff env-var mechanism); results/model_cutoff_disclosure.csv and results/training_cutoff_model_exclusion_decisions.csv (byte-identical, SHA-256 `3876c2ab74e0e0ca8b787dd40f5d95cc7ee92e05995f051af3b3766791d59510`).
+**Affected scope:** The §3.3 training-cutoff disclosure for the four primary models. It does not affect P1 to P4, any registered verdict or the certified bundle.
+**PI written approval:** Emile Boullineau, emails 2026-10-01 14:50 UTC (item 4, directing this drafting), 2026-10-02 20:32 UTC (class, approval and filing), 2026-10-06 03:50 UTC (filing record) and 2026-10-07 23:23 UTC (version-metadata wording).
+
+### What was found
+training_data_cutoff_date is set in 04_Data_Collection_Script.py from the per-model MVC_TRAINING_CUTOFF_* environment variables. The disclosure outputs record reported_training_data_cutoff_date = NA, training_cutoff_verified = FALSE and training_cutoff_post_deposit = FALSE for all four models, each classed unflagged, so the §3.3 two-tier check had nothing to evaluate. On the evidence searched (04_Data_Collection_Script.py, the call metadata, results/, the Study Log and this log), there is no record that the registered provider-cutoff query was executed, and no cutoff is recorded beside the model version string in either log.
+
+### Consequence for the record
+The §3.3 provider-cutoff query is not evidenced as having run, and no cutoff value is recorded for any model, so neither tier was exercised. The first tier could not have excluded any of the four models as available on 16 May 2026, and for three models the record cannot show that the model served was unchanged (Type line). The PI revises Paper 1 to state that no cutoff query is evidenced and no cutoff was recorded, and to apply the second-tier leakage caveat to all four models. That manuscript revision is separate from this entry. Entry 032 records that the comparison date written into the call records (2026-05-14) precedes the registration. With no cutoff recorded, that date entered no comparison. No P1 to P4 result, certified output or verdict is changed.
+
+### Filing record of Entries 034 to 039
+Entries 034 to 039 were filed on the PI's authorisation in his email of 2026-10-02 20:32 UTC. Entries 035 to 039 give that email's time as 18:30 UTC, and Entry 034 does not list it. The log is append-only, so no entry is edited. This note records the time.
+
+### Post-entry state
+No cutoff is recorded for any model, and no model is excluded. No registered rule, data, code, certified output or verdict is changed.
+
+**Logged by:** JDMA
