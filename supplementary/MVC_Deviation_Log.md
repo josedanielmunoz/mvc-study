@@ -2734,3 +2734,36 @@ Entries 034 to 039 were filed on the PI's authorisation in his email of 2026-10-
 No cutoff is recorded for any model, and no model is excluded. No registered rule, data, code, certified output or verdict is changed.
 
 **Logged by:** JDMA
+
+## Entry 041 — 2026-10-15 — §7.4 classification of Entries 030 to 033
+
+**Filed:** 2026-10-15 (the commit date; this is also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-10-15T22:39:57Z
+**Type:** Classification record, not a separate deviation. It assigns Entries 030 to 033 their §7.4 class. The filed entries are not edited. Where a filed entry states a different class or none, the class recorded here governs.
+**Affected files:** None modified.
+**Affected scope:** The §7.4 class of Entries 030, 031, 032 and 033. No data, code, certified output or verdict.
+**PI written approval:** Emile Boullineau, emails of 1 October 2026 14:50 UTC (classification) and 2026-10-07 23:23 UTC (approval of the text and authorisation to file).
+
+### The §7.4 classes
+§7.4 classes deviations as minor, which are logged and reported, or major, which require a formal OSF amendment before analysis proceeds. Any change the registration lists as requiring a deviation amendment follows the major-deviation protocol. A correction that crosses into analytical territory, or that alters a reported posterior probability, p-value, point estimate or interval bound "by more than 1% in absolute terms", is major.
+
+### Entry 030: MAJOR
+The certified test 3 run included three items that Entry 012 had replaced under §2.3, as Entry 029 records. The five-item recomputation moved the coefficient from 0.56 to 1.24 and every 80 and 90 per cent interval bound by more than 1 per cent in absolute terms, which §7.4 treats as major whatever the purpose of the correction. Restricting test 3 to the item set fixed by the §2.3 substitution also changes which data enter the test, a correction that "crosses into analytical territory". The verdict is unchanged.
+
+### Entry 031: MAJOR
+§5.4.1 registers the live-mode unlock rule with "no exceptions": each dimension must reach 16 of 20 against the PI and facilitator consensus, and 70 to 79 per cent permits structured review and prompt revision or re-run only. The rule feeds failure condition F6 and decides whether automated codes enter the analysis. On 15 July 2026 the consensus was revised after the coder had failed the gate, and the coder's existing Cycle 1 output was rescored against it to a pass. That changed the operation of that rule. §7.4 treats a change to failure conditions or exclusion criteria as major. D.5 proceeded without an amendment. The withdrawal covers the D.5 codes, narrative_coded.csv in every version and semantic_null_narrative_coded.csv (bc666f0e20dd4bcb0995534456e87015a9ff1ec50f8d139e1cd924fd378bd8bb), and the Stage 3 linkage outputs that read them, moral_entry_stage3_linkage_by_cell.csv (e8a13be9e6e38c44d65a7932fd0f46b0437358b90e3c4468dfc5f30c15bd9bad), moral_entry_stage3_linkage_by_dimension.csv (0191d7ade847f271e777f1997e7d724c2cec9cf7cba9034d697983c940a27ed8) and moral_entry_stage3_linkage_by_cell_dimension.csv (be1ad85bd935c8d88993aa6560f40ce48458690d7dd6402cb41fb715542cde15). None of the linkage outputs is in the certified bundle. No output in the certified bundle reads D.5 codes, because the certified run did not find narrative_coded.csv. Entry 034 records the withdrawal of D.5 and every claim citing the C.3.3 clearance. For those claims, it supersedes Entry 031's statement that no Paper 1 to 4 result is altered.
+
+### Entry 032: MINOR
+Entry 032 discloses two recorded dates: the osf_deposit_date fallback in the call records and the registration's embargo_end_date. Neither changes a trial, prediction, failure condition or statistical specification. The osf_deposit_date feeds only the §3.3 training-cutoff rule. results/model_cutoff_disclosure.csv records no cutoff for any of the four models, so the date entered no comparison and changed no tier. Had a cutoff been recorded, the earlier date could have flagged more models, never fewer. Entry 040 classes the cutoff record as a minor deviation.
+
+### Entry 033: MAJOR
+§5.1.5 registers a fifth-model holdout of 1,120 Stage 1 trials as "a necessary condition for the moral-entry interpretation". Entry 033 found no evidence that any of the 1,120 trials was collected. A later search by the RA, reported on 29 September 2026, found no record of a fifth model locked before data collection, and the certified run did not produce the registered cross-model validation outputs. The nearest §7.4 category is data loss exceeding 5 per cent of a model's trials, which is major, and on that evidence the loss is total. Under §5.1.5, convergence in at least three of four primary models "is required for the moral-entry interpretation to proceed". The convergence test has no data, so the moral-entry interpretation does not proceed. No classification is described as a confirmed moral-entry classification, and Stage 1 classifications are reported as concern-detection outcomes. P1 to P4 verdicts and estimates are unchanged, because §5.1.5 keeps the fifth-model data out of P1 to P4 and the registration treats the check as "a moral-entry external check, not a P1–P4 confirmatory channel".
+
+### Amendment
+OSF Amendment 3 (6ac7cc53076f17f4e8e88a7f, approved 13 October 2026, https://osf.io/6m3sk/), filed after the analyses these entries concern, records Entries 030, 031 and 033 as major deviations. No registered rule is changed.
+
+### Post-entry state
+Entries 030, 031 and 033 are major deviations and Entry 032 is minor. All four are reported by class in the Deviations from Pre-Registration section of Paper 1, and Entry 031 also in Paper 4.
+
+**Logged by:** JDMA
