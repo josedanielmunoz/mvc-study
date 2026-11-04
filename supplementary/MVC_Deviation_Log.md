@@ -2780,3 +2780,23 @@ Entries 030, 031 and 033 are major deviations and Entry 032 is minor. All four a
 **PI written approval:** Emile Boullineau, email of 2026-10-22 (item 5(c), proposing the additional licence) and email of 2026-11-04 (item 1, directing this entry on the author's agreement). The author (José Daniel Muñoz Arciniegas) agreed on 2026-11-04.
 
 **Logged by:** JDMA
+
+## Entry 043 — 2026-11-04 — Paper 4 persona-leakage reporting: registered per-dimension and per-persona rate reported per persona only
+
+**Event:** Registration section 1 and codebook v2.1 commit the manuscript to a persona-leakage rate reported per dimension and per persona. Paper 4 reports the rate per persona only, in Table S1.
+**Filed:** 2026-11-04 (the commit date; this is also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-11-04 15:41 UTC (set at commit time)
+**Type:** MINOR deviation (§7.4), as classified by the PI. No data, prediction, threshold, exclusion, model, persona definition, specification or verdict is changed.
+**Affected files:** None modified. The departure is in manuscript reporting; this entry records it.
+**Affected scope:** Paper 4 Declarations and Supplementary Material S1.
+
+### What was found
+Persona leakage occurs in 6,955 of the 9,600 returned responses under non-neutral personas (72.4%), counted from the raw call logs and therefore including 14 unparsed responses. A per-dimension rate is not well defined, because leakage belongs to the response text, not to a coding dimension; the manuscript therefore reports the rate per persona only.
+
+### Consequence for the record
+The registered per-dimension reporting is not provided; the per-persona rate in Table S1 is the reported figure. No analytical decision, estimate or verdict is affected.
+
+**PI written approval:** Emile Boullineau, email of 2026-11-01 09:12 UTC ("Paper 4 submitted, Deviation Log entries and your OSF name"), classifying this as a minor deviation under §7.4 and directing that the entry be filed in its own commit citing that email.
+
+**Logged by:** JDMA
