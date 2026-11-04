@@ -2850,3 +2850,39 @@ Registration §2.3 (the 15 per cent rule and the 10%/20% supplementary-sensitivi
 The registered §2.3 10%/20% replacement-threshold sensitivity was not produced at certification and is partially produced late by PI direction (2026-09-25 21:55 UTC), its form fixed 2026-09-26 00:55 UTC, reported in full with no reading, label or claim resting on it; Test 3 is not produced where a threshold does not give the certified five-ID set. No registered rule, threshold, data, analysis, certified output, or verdict is changed.
 
 **Logged by:** JDMA
+
+## Entry 045 — 2026-11-04 — Late OSF milestone deposits of the Deviation Log hash (M1 to M3), filed as Amendments 4 to 6
+
+**Event:** Registration §7.4 (tamper-evidence commitment, item 3) and Appendix D register OSF deposits of the SHA-256 of supplementary/MVC_Deviation_Log.md at milestones M1 to M4. The deposits for M1, M2 and M3 were not filed at their triggers; they were filed late as OSF Amendments 4, 5 and 6, from hashes reconstructed from the registered public git history.
+**Filed:** 2026-11-04 (the commit date; this is also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-11-04 16:46 UTC (set at commit time)
+**Type:** MINOR deviation (§7.4), as classified by the PI. No registered hypothesis, prediction, failure condition, threshold, gate, verdict rule, stimulus, code manifest, embargo date, data, analysis or estimate is changed. Contemporaneous tamper-evidence for M1 to M3 is weakened.
+**Affected files:** None modified. The entry records the late milestone deposits.
+**Affected scope:** The tamper-evidence milestone deposits (§7.4 item 3, Appendix D) for M1 to M3. M4 (final manuscript submission) has not been reached.
+
+### Milestone records
+**M1, Phase 1 primary coding complete.**
+- Trigger: 2026-07-27 (Study Log; date only, no exact time recorded).
+- OSF Amendment: 4 (registration update to OSF registration 6m3sk). OSF submission time (UTC): 2026-10-15 23:42 UTC.
+- Source commit: `8cf8ba44557e7b602deda6e4b6fcbe9e1b3586e8` (Deviation Log Entry 023; committer date 2026-07-25 21:34:11 UTC). No Deviation Log commit occurred between this commit and the M1 trigger.
+- Deposited SHA-256 of supplementary/MVC_Deviation_Log.md at that commit: `b9962040e676a11e8064eed4787870bc47094dfc7535ff83df2f54a81f12e984`.
+
+**M2, Phase 3 PI/RA consensus locked.**
+- Trigger: 2026-07-30 02:01:58 UTC (consensus lock; 2026-07-29 21:01:58 -05:00, the same instant).
+- OSF Amendment: 5 (registration update to OSF registration 6m3sk). OSF submission time (UTC): 2026-10-16 02:50 UTC.
+- Source commit: `8cf8ba44557e7b602deda6e4b6fcbe9e1b3586e8` (Deviation Log Entry 023; 2026-07-25 21:34:11 UTC). No Deviation Log commit occurred between Entry 023 and the M2 trigger, so M1 and M2 carry the same log state; the next commit (`619546e685f10bcbfd77b17cb3d2182906d7cbc2`, Entries 024 and 025, 2026-07-30 02:55:41 UTC) was made 54 minutes after the trigger and is not the M2 state.
+- Deposited SHA-256: `b9962040e676a11e8064eed4787870bc47094dfc7535ff83df2f54a81f12e984` (same as M1).
+
+**M3, Phase 4 Auditor pass complete.**
+- Trigger: 2026-08-10 (Study Log). The portal Submit Final was not achieved (ephemeral hosting-state loss); the auditor artefact was recovered via a validated emailed export under PI approval, logged as Deviation Log Entry 026. The M3 event spans the failed final-submit and the same-day recovery.
+- OSF Amendment: 6 (registration update to OSF registration 6m3sk). OSF submission time (UTC): 2026-10-16 03:40 UTC.
+- Source commit: `619546e685f10bcbfd77b17cb3d2182906d7cbc2` (Deviation Log Entries 024 and 025; committer date 2026-07-30 02:55:41 UTC). This is the log state at the M3 trigger; Deviation Log Entry 026 (`cdba9d84b56a33fc136ac3d2d73ca3ba326ffc3f`, 2026-08-10 19:46:19 UTC) records the M3 event but is not the M3 state.
+- Deposited SHA-256: `b3386c8553934ea7de435b621f99f3ca35bc98a452128fc8e71ca10102535df4`.
+
+### Consequence for the record
+All three deposited hashes are reconstructed from the registered public git history (`git show <commit>:supplementary/MVC_Deviation_Log.md`, SHA-256), not recorded contemporaneously. Contemporaneous tamper-evidence for M1 to M3 is therefore weakened. The deposits were filed late as OSF Amendments 4 to 6 on 15 and 16 October 2026 (UTC). The PI will cite this entry in Paper 4 at revision. No analytical decision, estimate or verdict is affected.
+
+**PI written approval:** Emile Boullineau, email 2026-11-01 09:12 UTC ("Paper 4 submitted, Deviation Log entries and your OSF name"), classifying this as a minor deviation under §7.4 and directing that it be filed in its own commit citing that email; reiterated 2026-11-04 05:10 UTC (item 6, directing filing with entry number and commit hash).
+
+**Logged by:** JDMA
