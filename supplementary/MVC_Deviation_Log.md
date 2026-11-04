@@ -2767,3 +2767,16 @@ OSF Amendment 3 (6ac7cc53076f17f4e8e88a7f, approved 13 October 2026, https://osf
 Entries 030, 031 and 033 are major deviations and Entry 032 is minor. All four are reported by class in the Deviations from Pre-Registration section of Paper 1, and Entry 031 also in Paper 4.
 
 **Logged by:** JDMA
+
+## Entry 042 — 2026-11-04 — Additional CC BY 4.0 licence for the behavioural data and the controlled analysis code
+
+**Event:** The registration releases the study's behavioural data and analysis code under CC BY-NC-SA 4.0. The authors add CC BY 4.0 for the behavioural data and the analysis code they control, alongside the registered CC BY-NC-SA 4.0.
+**Filed:** 2026-11-04 (the commit date; this is also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-11-04 15:22 UTC (set at commit time)
+**Type:** MINOR deviation (§7.4). It adds a release licence and changes nothing else. No data, prediction, threshold, exclusion, model, persona definition, specification, certified output or verdict is changed. The registered CC BY-NC-SA 4.0 licence remains on the registration record; CC BY 4.0 is added alongside it. The VCI implementation code and any third-party material are excluded.
+**Affected files:** None modified. The addition concerns the release terms of the behavioural data and the controlled analysis code only.
+**Affected scope:** Licensing of the behavioural data and the analysis code the authors control. It does not affect P1 to P4, any registered verdict or the certified bundle.
+**PI written approval:** Emile Boullineau, email of 2026-10-22 (item 5(c), proposing the additional licence) and email of 2026-11-04 (item 1, directing this entry on the author's agreement). The author (José Daniel Muñoz Arciniegas) agreed on 2026-11-04.
+
+**Logged by:** JDMA
