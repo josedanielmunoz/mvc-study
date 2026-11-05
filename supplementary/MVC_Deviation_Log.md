@@ -2886,3 +2886,29 @@ All three deposited hashes are reconstructed from the registered public git hist
 **PI written approval:** Emile Boullineau, email 2026-11-01 09:12 UTC ("Paper 4 submitted, Deviation Log entries and your OSF name"), classifying this as a minor deviation under §7.4 and directing that it be filed in its own commit citing that email; reiterated 2026-11-04 05:10 UTC (item 6, directing filing with entry number and commit hash).
 
 **Logged by:** JDMA
+
+## Entry 046 — 2026-11-05 — R4(b) Stage-4 unresolved count: parser-attribution correction (canonical 423, secondary 325)
+
+**Event:** The R4(b) Stage-4 reversal analysis script v4 (R4b_stage4_intervals_v4.R, SHA-256 bd8e9d08...) required the canonical parser extract_classification to reproduce 325 unresolved Gemini Stage-4 main records (312 MAX_TOKENS + 13 STOP). On 2026-10-20 two smoke (non-record) runs of v4 stopped at that section-2 guard, because extract_classification yields 423 (406 MAX_TOKENS + 17 STOP), not 325; 325 is the secondary parser (secondary_yes_no_from_text) count. The expectation had been attributed to the wrong parser. Corrected in v5 (R4b_stage4_intervals_v5.R, SHA-256 830d9c5f...).
+**Filed:** 2026-11-05 (the commit date; also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-11-05 17:18 UTC
+**Type:** MINOR deviation (§7.4), as classified by the PI (2026-11-05). The canonical parsing rule (extract_classification) is byte-identical in v4 and v5; the certified per-cell reversal numerators (n_reversal) and denominators (n_evals) are unchanged. No registered prediction, threshold, exclusion, model, specification, certified output or verdict is changed. The v4 runs that stopped were smoke (non-record), so no certified or registered result is altered.
+**Affected files:** New: R4b_stage4_intervals_v5.R (SHA-256 830d9c5fe81b9d8939bfed4c7a8ea76b7dae83fcac7d2a666e7b4bcc7426201f), R4b_note_v5.md (SHA-256 cff2af956e1b11e77a8f166d14b0f3697f81101d447ba436728ca3c39c7d587b), R4b_tests_v5.R (SHA-256 86a4b1328683c190986f7f2cf9a227a73d5b57fd127fa590b31c6bd2403e65d2). The v4 files are unchanged beside them. No certified or registered artefact is modified.
+**Affected scope:** The R4(b) Stage-4 unresolved-count parser attribution (Gemini Stage-4 main, Paper 1 revision). Does not affect the per-cell reversal rates or intervals, or P1 to P4.
+
+### The stopped check (v4 smoke runs of 2026-10-20)
+On 2026-10-20, v4 (bd8e9d08...) was run twice in smoke mode (non-record; R4B_SMOKE_TEST=1): folders R4b_smoke_non_record_v4_20261020T034735Z (03:47:35 UTC) and R4b_smoke_non_record_v4_20261020T034815Z (03:48:15 UTC) under ~/MVC_smoke_scratch. Both stopped at the script's section-2 guard, exit status 4: extract_classification gives 423 unresolved Gemini Stage-4 main records, not the 325 then asserted for that parser. Each wrote console_output.txt (SHA-256 eabed989... and 3b631223... respectively) and session_info.txt (SHA-256 54ea840c...), with no SHA256SUMS (stopped before the manifest). No run-of-record folder exists under ~/MVC_Study_operational; the author's email of 2026-10-20 23:12 UTC described this as "the run of record did not complete".
+
+### Read-only diagnosis
+Nothing was changed or substituted. The recorded 325 (312 MAX_TOKENS + 13 STOP) reproduces with secondary_yes_no_from_text; extract_classification gives 423 (406 MAX_TOKENS + 17 STOP). The 98-response difference are responses whose "yes" or "no" is not at the start (for example a Markdown "**No.**"), which the start-anchored extract_classification marks unclear but the secondary parser resolves; the secondary-unresolved set is a strict subset of the extract_classification-unresolved set.
+
+### Correction
+v5 introduces separately named canonical (CANON_*) and secondary (SEC_*) constants. The canonical section and per-cell annotations expect 423 (406 MAX_TOKENS + 17 STOP); the 3,360 / 373 reconciliation keeps the secondary 325 (312 MAX_TOKENS + 13 STOP) and now also reports its recorded-cause breakdown; both breakdowns are written to R4b_unresolved_by_cause.csv labelled by parser. Unit tests (R4b_tests_v5.R, 25 checks) confirm the two parsers' behaviour and the separated constants. The PI accepts the secondary cause block as it stands (2026-11-05).
+
+### Run of record and post-entry state
+v5 (SHA-256 830d9c5f..., approved by the PI 2026-11-05) was smoke-verified end-to-end, then run of record on 2026-11-05 17:14:16 UTC, exit 0, folder R4b_stage4_intervals_v5_20261105T171416Z under ~/MVC_Study_operational. Outputs with SHA-256: R4b_cell_intervals.csv 046b2d65..., R4b_unresolved_by_cause.csv 22ce3847..., R4b_3360_373_reconciliation.csv 80eb8b62..., console_output.txt d867e0ff..., session_info.txt 54ea840c...; SHA256SUMS over the five; inputs hash-matched before and after. The affected Paper 1 text and tables are to be checked against the canonical 423 figure.
+
+**PI written approval:** Emile Boullineau, email 2026-10-22 22:11 UTC (item 1, the R4(b) parser-attribution decision: canonical 423 = 406 MAX_TOKENS + 17 STOP; secondary 325 = 312 MAX_TOKENS + 13 STOP, kept for the reconciliation only), email 2026-11-04 05:10 UTC (item 2, directing that the stopped check and correction be logged with script, note, tests, diff and new hash, the certified reversal numerators and denominators kept unchanged, and confirmation of the new hash awaited before execution), and email 2026-11-05 (item 1, approving the v5 SHA-256 to run once the note and entry record the stopped run, classifying the entry as minor under section 7.4, and accepting the secondary cause block).
+
+**Logged by:** JDMA
