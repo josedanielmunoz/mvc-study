@@ -2912,3 +2912,32 @@ v5 (SHA-256 830d9c5f..., approved by the PI 2026-11-05) was smoke-verified end-t
 **PI written approval:** Emile Boullineau, email 2026-10-22 22:11 UTC (item 1, the R4(b) parser-attribution decision: canonical 423 = 406 MAX_TOKENS + 17 STOP; secondary 325 = 312 MAX_TOKENS + 13 STOP, kept for the reconciliation only), email 2026-11-04 05:10 UTC (item 2, directing that the stopped check and correction be logged with script, note, tests, diff and new hash, the certified reversal numerators and denominators kept unchanged, and confirmation of the new hash awaited before execution), and email 2026-11-05 (item 1, approving the v5 SHA-256 to run once the note and entry record the stopped run, classifying the entry as minor under section 7.4, and accepting the secondary cause block).
 
 **Logged by:** JDMA
+
+## Entry 047 — 2026-11-05 — Structural-zero P4 coding of Stage 1 "Yes" with missing or unparseable Stage 2 severity: within-model data loss above the §7.4 threshold for DeepSeek (MAJOR)
+
+**Event:** Registration line 1396 reserves the code 0 for a Stage 1 outcome of No, Refusal or Unclear ("severity undefined → structural zero"). In canonical 05_Statistical_Analysis.R (SHA-256 cce3a319...), the structural-zero build (lines 4118–4185) codes is.na(severity) ~ 0L, so a Stage 1 "Yes" trial whose Stage 2 severity is missing or unparseable is also coded 0 in the structural-zero P4 data. The implementation extends structural-zero coding beyond the category the Registration reserves for it.
+**Filed:** 2026-11-05 (the commit date; also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-11-05 17:30 UTC
+**Type:** MAJOR deviation (§7.4), as classified by the PI (2026-11-05). For DeepSeek the within-model data loss is 389 of 2,800 main trials (13.9%), above the 5% within-model data-loss threshold of §7.4; it is major even though P4 is exploratory. The deviation is recorded after analysis, not before as §7.4 requires. The effect on DeepSeek's structural-zero P4 estimates is unquantified.
+**Affected files:** None modified. Read-only references: canonical 05_Statistical_Analysis.R (cce3a319..., lines 4118–4185), validated_trials.csv (3ec78179...), the Registration (79c462bc..., line 1396), and 5B(d) authoritative_counts.csv (506b9bfd...).
+**Affected scope:** The structural-zero P4 coding of the concern outcome for Stage 1 "Yes" trials whose Stage 2 severity is missing or unparseable. DeepSeek only; Claude and Gemini are unaffected (0 each). P4 is exploratory.
+
+### The registered coding and the implementation
+Registration line 1396 reserves 0 for a Stage 1 outcome of No, Refusal or Unclear. The structural-zero build (p4_zero_data, canonical 05 lines 4118–4185) joins the Stage 1 classification trials (stage == 1, !is.na(is_violation)) to a lookup of parseable Stage 2 severity (stage == 2, !is.na(confidence)) and sets severity_struct_numeric = 0 when is_violation != 1 or when the joined severity is NA. A Stage 1 "Yes" trial whose Stage 2 severity did not parse (and so does not join) is therefore coded 0 by is.na(severity) ~ 0L, extending structural-zero coding beyond the reserved category.
+
+### The count (5B(d))
+The authoritative per-model count comes from 5B(d) (authoritative_counts.csv, SHA-256 506b9bfddf5c3649963a1cf6d01758ce0fc3833af0a4eb48e1d2b13617b3db57, run of record under the PI's SHA confirmation): 389 DeepSeek Stage 1 "Yes" main trials are coded 0 for missing or unparseable Stage 2 severity (0 with no Stage 2 record, 389 with an unparseable Stage 2 record), of 2,800 DeepSeek main trials, 13.9%. Claude and Gemini are 0 each. This supersedes the draft's earlier statement that the count was not materialised. The 2,775 of "389 of 2,775", and the relationship of this count to the raw Stage 2 severity-parsing diagnostic of 389 DeepSeek "NA (unparseable)" rows, are addressed separately; this entry cites 389 of 2,800 only.
+
+### Cross-reference to the DeepSeek Stage 2 lineage (Entries 008–010)
+The DeepSeek Stage 2 unparseability that produces these missing severities is the scenario-linked explanatory-preamble / token-budget pattern recorded in Entries 008 to 010 (the Patch 008 smoke, the DeepSeek Stage 2 operational diagnostic, and Patch 009). This entry records the downstream structural-zero coding of the affected Stage 1 "Yes" trials and its magnitude.
+
+### Why major, and the unquantified effect
+The within-model data loss for DeepSeek (13.9%) is above the 5% within-model data-loss threshold of §7.4, so the deviation is major. P4 is exploratory, but the threshold is a magnitude test that does not depend on a prediction's confirmatory status, so the classification is major regardless. The effect of the coding on DeepSeek's structural-zero P4 estimates (P4_structural_zero_ordinal_ame.csv and its sensitivity variants) is unquantified: the estimates exist as computed with the zeros, but how much they would differ if the 389 affected trials were excluded or coded otherwise is not estimated here. The deviation is recorded after the analysis, not before as §7.4 requires.
+
+### Post-entry state
+No registered rule, data, code, certified output or verdict is changed by this entry. A late OSF amendment recording this data-loss deviation is drafted for the PI to file. console.log is kept out of any public deposit (it holds fragments of raw responses); only SHA-256 values are cited.
+
+**PI written approval:** Emile Boullineau, email 2026-10-02 20:32 UTC (item 5B d, directing the read-only record) and email 2026-11-05 (item 7(a), classifying this as a major deviation under §7.4, directing the cross-reference to Entries 008–010, the statements that the P4 effect is unquantified, that the deviation is recorded after analysis, and that it is major even though P4 is exploratory, and the citation of 389 of 2,800).
+
+**Logged by:** JDMA
