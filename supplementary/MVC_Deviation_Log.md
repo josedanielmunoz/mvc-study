@@ -2941,3 +2941,37 @@ No registered rule, data, code, certified output or verdict is changed by this e
 **PI written approval:** Emile Boullineau, email 2026-10-02 20:32 UTC (item 5B d, directing the read-only record) and email 2026-11-05 (item 7(a), classifying this as a major deviation under §7.4, directing the cross-reference to Entries 008–010, the statements that the P4 effect is unquantified, that the deviation is recorded after analysis, and that it is major even though P4 is exploratory, and the citation of 389 of 2,800).
 
 **Logged by:** JDMA
+
+## Entry 048 — 2026-11-05 — Certified P4 structural-zero AME reports a posterior mean where §5.1 registers the posterior median for P4; R4(a) closed without refit
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-11-05 17:41 UTC
+**Type:** MINOR deviation (§7.4), as classified by the PI (2026-11-05); no refit. Documentary record of a statistic-choice finding on a certified P4 output. No number is recomputed, no file is edited, no fit is run.
+**Affected scope:** The certified P4 structural-zero AME output and the P4 statistic choice (mean vs median). Not the P4 verdict ratio (which uses the median, see below), not the registered verdict, not the certified bundle beyond the named output. P4 is exploratory.
+
+### What the registration specifies
+Registration §5.1 registers the posterior median for P4.
+
+### What the certified run does
+- The P4 F4 ratio limb is evaluated in the certified run: it computes P(|AME_class| > k × |AME_sev|) over posterior draws, including k = 1.5, 2.0 and 3.0. The continuous ratio abs(AME_class)/abs(AME_sev) is reported with its posterior median and a quantile interval (.025/.975). The P4 verdict ratio therefore uses the registered median, consistent with §5.1.
+- The certified output that reports a posterior mean is P4_structural_zero_ordinal_ame.csv (verified path canonical_05_certified_bundle_20260816T095941Z/results_snapshot/P4_structural_zero_ordinal_ame.csv, SHA-256 11d07edf...). Its header is persona, threshold, mean_ame, ci_low, ci_high, posterior_prob_positive, with six data rows. It reports mean_ame, a posterior mean, where §5.1 registers the median. On the evidence searched, this is the only P4 output found to report a mean in place of the registered median.
+- Producer: canonical 05_Statistical_Analysis.R (SHA-256 cce3a319...). The fitted object is p4_zero_model, severity_struct ~ persona * act_type + prompt_order + model + (1 | scenario_id), cumulative(link = "logit"). The AME compares P(severity_struct ≥ 7): for each non-neutral persona, loaded_struct_draws - neutral_struct_draws via structural_high_prob_mean() → posterior_epred(..., re_formula = NA); the summary sets mean_ame = mean(ame_draws), ci_low/ci_high = quantile(ame_draws, .025/.975), posterior_prob_positive = mean(ame_draws > 0).
+
+### Whether the reported interval excludes zero
+All six reported mean-based intervals in P4_structural_zero_ordinal_ame.csv exclude zero: every ci_high is below zero, so each persona's AME (at severity_struct ≥ 7) is credibly negative — hedge_fund_manager -0.044 (-0.074 to -0.014), kindergarten_teacher -0.189 (-0.225 to -0.152), climate_activist -0.249 (-0.295 to -0.201), military_general -0.176 (-0.210 to -0.138), crypto_founder -0.127 (-0.158 to -0.097), charity_organiser -0.106 (-0.136 to -0.077); posterior_prob_positive is 0.001875 for hedge_fund_manager and 0 for the other five. Because every interval excludes zero, the sign of each effect is not in question, and the conditional case (an interval that includes zero, where the cross-specification direction could change under a median) does not arise for these intervals.
+
+### The fit and draws were not saved
+Neither the p4_zero_model fit nor the P4 structural-zero AME draws are persisted anywhere searched (certified bundle, ~/MVC_Study, ~/MVC_Study_operational); 05_Statistical_Analysis.R contains no saveRDS/save for p4_zero_model, and the certified mean_ame was produced from ame_draws held in memory during the canonical run. (p4_sev_model.rds objects present are a different fit and are not substitutes.) The posterior median therefore cannot be obtained read-only; the PI directs no refit, so the median is not computed.
+
+### R4(a) closed without a refit
+R4(a) is closed without a refit. Limb 1 (naming the certified P4 output that reports the mean, and the statistic the verdict ratio uses) is disclosed through this entry: P4_structural_zero_ordinal_ame.csv reports the mean, and the verdict ratio uses the registered median. Limb 2 (naming the P4 "low-extreme" category by its value) lapses: no P4 low-extreme category is used by this AME in the code searched, so there is no value to name. The bracket is not run, because it is unregistered and P4 is exploratory and unsupported.
+
+### Audit trail anchors
+Registration §5.1 (posterior median for P4). Canonical 05_Statistical_Analysis.R (SHA cce3a319...; the F4 ratio limb and the 1.5/2.0/3.0 bands; p4_zero_model). Certified output P4_structural_zero_ordinal_ame.csv (SHA 11d07edf...; reports mean_ame, ci_low/ci_high; six rows). Entry 033 precedent.
+
+### Post-entry state
+Recorded: the P4 verdict ratio uses the posterior median; P4_structural_zero_ordinal_ame.csv reports a posterior mean where §5.1 registers the median; all six reported intervals exclude zero; no persisted fit or draws exist and no refit is done. R4(a) is closed. No registered rule, threshold, data, analysis, certified output or verdict is changed by this entry.
+
+**PI written approval:** Emile Boullineau, emails 2026-09-27 20:32 UTC (item 8b, directing this drafting) and 2026-09-27 22:06 UTC (item 9a, classification to be set on these facts), and email 2026-11-05 (item 7(b), classifying this as a minor deviation under §7.4 with no refit, directing the posterior-mean labelling, the statement that the verdict ratio uses the registered median, the record that the fit and draws were not saved, and the statement whether the reported interval excludes zero; item 7(c), directing that R4(a) be closed without a refit and the closure recorded in this entry).
+
+**Logged by:** JDMA
