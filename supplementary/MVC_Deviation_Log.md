@@ -2975,3 +2975,55 @@ Recorded: the P4 verdict ratio uses the posterior median; P4_structural_zero_ord
 **PI written approval:** Emile Boullineau, emails 2026-09-27 20:32 UTC (item 8b, directing this drafting) and 2026-09-27 22:06 UTC (item 9a, classification to be set on these facts), and email 2026-11-05 (item 7(b), classifying this as a minor deviation under §7.4 with no refit, directing the posterior-mean labelling, the statement that the verdict ratio uses the registered median, the record that the fit and draws were not saved, and the statement whether the reported interval excludes zero; item 7(c), directing that R4(a) be closed without a refit and the closure recorded in this entry).
 
 **Logged by:** JDMA
+
+## Entry 049 — 2026-11-05 — Provenance correction: the "8 of 10 scenarios outside [5%, 95%]" pre-test figure
+
+**Type:** Provenance correction (documentation-only). No change to any registered rule, threshold, pre-test design, data, analysis, certified output, or verdict.
+
+**Classification (§7.4):** Minor, documentation-only correction of a figure's provenance and label. Per PI direction, Amendment 00a and Entry 028 remain as filed and this entry does not trigger an OSF amendment.
+
+**PI written approval:** Emile Boullineau, email of 2026-10-25 ("Paper 1, item 5(b): where the '8 of 10' figure comes from") setting out this correcting entry, and the consolidated checklist of 2026-11-05 (item 4) directing its filing.
+
+**Affected files:** None modified. Amendment 00a and Entry 028 remain as filed. Entry 011 is not rewritten. The checkpoint artefacts below are cited as read-only audit anchors.
+
+**Affected scope:** The wording of the §C.1.1 fallback trigger criterion (b) evidence as carried in the 26 May 2026 Stage 1 Pre-Test Checkpoint record, in Amendment 00a (section 2, L47), and in Entry 028. No change to the registered confirmatory plan, the registered grand-mean fallback (Option 3), or the fallback verdict.
+
+### Trigger
+Amendment 00a (section 2, L47) and Entry 028 record that §C.1.1 fallback trigger criterion (b) was met, citing "8 of 10 scenarios outside [5%, 95%]". The figure first appears in the Research Associate's C.1.1 Stage 1 Pre-Test Checkpoint email of 26 May 2026, as "Eight of the 10 pre-test scenarios show at least one model-specific neutral-baseline classification rate outside the [5%, 95%] range", and was carried from there into the PI's decision record, Amendment 00a and Entry 028. On reconciliation the quoted [5%, 95%] definition does not yield 8 under the pre-test data.
+
+### What happened
+Under the quoted definition (a scenario shows at least one model-specific rate outside [5%, 95%]), all 10 pre-test scenarios qualify, because GPT-5.5 answered Yes on all 30 calls for every scenario in the pre-test data. The quoted definition therefore gives 10, not 8.
+
+The figure 8 is genuine but originates from a different computation: the Stage 1 ambiguity-band check (Metric 3) in the checkpoint script, which classifies each scenario by model cell using a 20% to 80% band, not a 5% to 95% band. Counting the pre-test scenarios that have no cell falling in the 20% to 80% ambiguous band gives 8 of 10, the two exceptions being scenario_002 and scenario_006. This count was recorded in the checkpoint email under the [5%, 95%] wording, conflating the 20% to 80% ambiguity-band metric with the [5%, 95%] fallback criterion.
+
+### Provenance (the calculation)
+- Producing script: compute_checkpoint_metrics.py
+- Location: ~/MVC_Study_operational/checkpoint_metrics/c11_third_rerun_2026-05-26/compute_checkpoint_metrics.py
+- SHA-256: 25924f3c38eac080703da0092b6d14a9f1eef42c1d198f8cd449dcb6dae4cd64
+- Computation: Metric 3, the Stage 1 ambiguity-band check (scenario by model), bands yes_rate < 0.20 (clear-benign), 0.20 to 0.80 inclusive (ambiguous), yes_rate > 0.80 (clear-violation).
+- Stored output: stage1_checkpoint_metrics.json, section ambiguity_band_check (total_cells 40; band_counts clear-benign 5, clear-violation 32, ambiguous 3), and ambiguity_band_cells.csv (40 scenario by model cells).
+- The script stores cell-level results only (the band_counts above and the 40-cell CSV); it does not itself emit the figure 8. The figure is obtained by aggregating ambiguity_band_cells.csv per scenario and counting the scenarios with no ambiguous cell.
+- Derived figure: 8 of 10 scenarios have zero ambiguous cells (scenario_001, 003, 004, 005, 008, 009, 012, 020); the two with at least one are scenario_002 (2) and scenario_006 (1), totalling 3 ambiguous cells, consistent with the stored band_counts.
+- The script implements 20% to 80% thresholds only. No script applying a [5%, 95%] scenario count was located in the MVC trees searched; the [5%, 95%] attribution in the quoted wording is a labelling error, not a separate computation.
+
+### Certified counts
+The certified per-model count of pre-test scenarios outside [5%, 95%], taken from the certified pretest_baseline.csv with each model's rate over all 30 calls, is: Claude 9, DeepSeek 9, Gemini 3, GPT-5.5 10. Gemini's count of 3 predates the Stage 1 classifier re-classification recorded in Entry 011. These are the figures used in the Paper 1, FAccT and Meta-Psychology drafts. They are distinct from the checkpoint figure of 8 and from the quoted [5%, 95%] definition.
+
+### Impact assessment
+Fallback trigger criterion (b) requires at least 2 scenarios. It is met on every count considered (10 under the quoted definition; 8 under the 20% to 80% no-ambiguous-cell count; 9, 9, 3 and 10 under the certified per-model count). The registered grand-mean fallback (Option 3, §C.1.1) invocation and the fallback verdict therefore do not change. No registered rule, threshold, pre-test design, data, analysis, certified output or verdict is altered by this entry.
+
+### Disclosure timing
+The provenance query was raised by the PI on 2026-10-25 and the filing directed on 2026-11-05. Amendment 00a and Entry 028 were filed earlier carrying the quoted figure; both remain as filed, and this entry is the correcting record.
+
+### Audit trail anchors
+- Amendment 00a, section 2 (L47): criterion (b) "met (8 of 10 scenarios outside [5%, 95%])".
+- Entry 028 (2026-08-19): late disclosure of Option 3 activation, carrying the same figure.
+- Entry 011 (2026-06-04): Stage 1 classifier parser-robustness re-classification; Gemini's certified count of 3 predates it.
+- compute_checkpoint_metrics.py SHA-256 25924f3c38eac080703da0092b6d14a9f1eef42c1d198f8cd449dcb6dae4cd64.
+- stage1_checkpoint_metrics.json SHA-256 a8c07bd9936c3a3de8c7fcce14bcf39f213a59d9b929986731f6d8c431d65dd1.
+- ambiguity_band_cells.csv: 40 scenario by model cells; 3 ambiguous (scenario_002 twice, scenario_006 once).
+
+### Post-entry state
+The §C.1.1 fallback criterion (b) evidence is corrected for provenance: the 26 May checkpoint figure of 8 traces to the 20% to 80% ambiguity-band count in compute_checkpoint_metrics.py, recorded under a [5%, 95%] label it does not match; the certified per-model counts outside [5%, 95%] are 9, 9, 3 and 10 (Gemini pre-Entry 011). Criterion (b) remains met and the registered fallback verdict is unchanged. Amendment 00a and Entry 028 remain as filed; Entry 011 is not rewritten. No registered rule, data, analysis, certified output or verdict is changed.
+
+**Logged by:** JDMA
