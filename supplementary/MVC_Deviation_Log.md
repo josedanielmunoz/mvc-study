@@ -3074,3 +3074,20 @@ This deviation stands and is not withdrawn by Entry 052 (PI Deviation 3). No MVC
 ### Post-entry state
 In effect (SHA-256 recorded in FREEZE_RECORD.txt on 2026-11-04). Entry 050 (PI Deviation 1) is withdrawn; Entry 051 (PI Deviation 2) stands. No MVC registered rule, data, analysis, certified output or verdict is changed by this entry.
 **Logged by:** JDMA
+## Entry 053 — 2026-11-08 — Paper 3 Stage 1 calibration census-block: the 17 September comparison recorded with two corrections (MINOR, documentation-only)
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Type:** Documentary record (census-block). No change to any registered rule, threshold, data, analysis, certified output or verdict.
+**Classification (§7.4):** Minor, documentation-only. Records the Paper 3 Stage 1 calibration comparison of 17 September 2026 and two corrections to it, per the PI's direction to file. Entry 049 precedent (documentation-only minor).
+**PI written approval:** Emile Boullineau, consolidated checklist of 2026-11-05 (item 12), directing that the census-block entry be filed with the two corrections to his 17 September comparison as recorded in the Study Log line of 3 October 2026.
+**Affected scope:** Paper 3 Stage 1 calibration (judge-aggregation sub-study, Item 5). Not part of the OSF registration. No MVC registered rule, data, analysis, certified output or verdict is affected.
+### The 17 September comparison (Study Log, 2026-09-17 01:30 UTC)
+Comparison run 2026-09-17 01:30 UTC over two frozen calibration sheets, 6 papers, 17 columns. Derived-code agreement 6/6, with no computable disagreement against the count gate. Differences in supplied fields in 4 of the 6 rows. Stage 1 was open at that date, with four departures from Pack Amendment 1 §A3(c), and joint cause assignment was required before closing Stage 1.
+### Two corrections (Study Log, 2026-10-03), verbatim
+"the pack Amendment 2 §B1 resolution mapping is not applied, and the as-run hash 3bf572ca… was first recorded 2026-09-17 04:13 UTC, after the revision and reconstruction"
+Correction 1: the Pack Amendment 2 §B1 resolution mapping is not applied to the 17 September comparison.
+Correction 2: the as-run script (derive_item5_calibration_ASRUN_20260917T013000Z.py, SHA-256 3bf572ca411b3d15592cfb222ce25749eb4f4e63ab6557da159d101736a3e712) had its hash first recorded on 2026-09-17 04:13 UTC, after the revision and reconstruction; it is not to be presented as recorded before them.
+### Audit trail anchors
+Study Log 2026-09-17 (the comparison) and 2026-10-03 (the two corrections and the OSF deposit). OSF Stage 1 gate tool deposit (https://osf.io/mzykd/, CC BY 4.0; project created 2026-10-01 20:31 UTC), with the as-run and current scripts, DEPOSIT_RECORD.md and SHA256SUMS at the SHA-256 values listed in the Study Log of 3 October 2026, and Version 3 (derive_item5_calibration_v3.py, SHA-256 b3a4e3c2d1c37ad6eba2f3d83a69da8be1d6a36299620ea2035ce3485afd3697; DEPOSIT_RECORD_v3.md, SHA-256 4c58890648253e6e52b909d7e2fed987de03dd096544f8cc7bdfb745a26f3204).
+### Post-entry state
+Recorded: the 17 September Stage 1 calibration comparison with the two corrections. No MVC registered rule, data, analysis, certified output or verdict is changed by this entry.
+**Logged by:** JDMA
