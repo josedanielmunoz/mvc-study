@@ -3027,3 +3027,50 @@ The provenance query was raised by the PI on 2026-10-25 and the filing directed 
 The §C.1.1 fallback criterion (b) evidence is corrected for provenance: the 26 May checkpoint figure of 8 traces to the 20% to 80% ambiguity-band count in compute_checkpoint_metrics.py, recorded under a [5%, 95%] label it does not match; the certified per-model counts outside [5%, 95%] are 9, 9, 3 and 10 (Gemini pre-Entry 011). Criterion (b) remains met and the registered fallback verdict is unchanged. Amendment 00a and Entry 028 remain as filed; Entry 011 is not rewritten. No registered rule, data, analysis, certified output or verdict is changed.
 
 **Logged by:** JDMA
+
+## Entry 050 — 2026-11-08 — Paper 3 scan check: primary comparison changed from main coder vs PI signed reference key to independent AI reference key (MINOR)
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Type:** MINOR deviation (§7.4), as classified by the PI (email 2026-11-02 21:30 UTC). Documentary record of a change to the primary comparison in the Paper 3 scan check. No certified number is recomputed and no registered output is changed.
+**PI written approval:** Emile Boullineau, email 2026-11-02 21:30 UTC (directing this entry, classifying it minor under §7.4 as a change to the PI's timestamped scoring policy of 16 October 2026 for the scan check and not part of the OSF registration, and instructing it be filed with its entry number and commit hash returned).
+**Affected scope:** The Paper 3 scan check (main coder: Dave) and the PI's scoring policy of 16 October 2026 for that check. Not part of the OSF registration. No MVC registered rule, data, analysis, certified output or verdict is affected.
+
+### PI suggested entry (verbatim)
+"2 November 2026. Minor. Deviation 1 to the Paper 3 main-coding scoring policy of 16 October 2026. Primary comparison changed from the coder against the PI's signed reference to the coder against the independent AI reference key, because the signed reference was not blind. Adopted after scoring against the signed reference and before any AI code existed. The original primary figures are reported in full."
+
+### Trigger
+The scoring policy of 16 October 2026 made agreement between the main coder and the PI's signed reference key the primary figure. The signed reference key was not blind. The primary comparison was therefore changed to the main coder against an independent AI reference key, built by GPT-6.1 Sol from the coding guide and the paper text alone. The change was made after the main coder's answers were scored against the signed key and before any AI code existed. The AI key covers the 24 papers whose licences allow them to be sent to a provider, so the primary figures rest on 24 papers, not 32 (coverage later corrected by Entry 051).
+
+### Post-entry state
+The main-coder-vs-signed-key comparison is still reported in full, labelled as the comparison the policy fixed as primary. This deviation is subsequently withdrawn by Entry 052 (PI Deviation 3, 2026-11-04). No MVC registered rule, data, analysis, certified output or verdict is changed by this entry.
+**Affected files:** None modified.
+**Logged by:** JDMA
+
+## Entry 051 — 2026-11-08 — Paper 3 AI reference key: coverage corrected to all 32 sample papers; earlier run stopped after 5 unused outputs (MINOR)
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Type:** MINOR deviation (§7.4), as classified by the PI (email 2026-11-03 02:13 UTC). Correction to Entry 050. No certified number is recomputed and no registered output is changed.
+**PI written approval:** Emile Boullineau, email 2026-11-03 02:13 UTC (directing this correction and classifying it minor under §7.4; filed as its own minor entry).
+**Affected scope:** The Paper 3 scan-check AI reference key (Entry 050). No MVC registered rule, data, analysis, certified output or verdict is affected.
+
+### PI suggested entry (verbatim)
+"2 November 2026. Minor. Deviation 2 to the Paper 3 AI reference key. All 32 sample papers are coded, including the 8 without an open licence, which are public and are coded for research only. A first run under the earlier rule was stopped after 5 outputs, which were not read or used."
+
+### Trigger
+Correction to the note on the AI reference key for the main coder's work. The key now covers all 32 papers, not 24. The other 8 are public papers coded for research only, with the provider set not to store them. A first run under the earlier rule was stopped after 5 outputs, which were not read or used.
+
+### Post-entry state
+This deviation stands and is not withdrawn by Entry 052 (PI Deviation 3). No MVC registered rule, data, analysis, certified output or verdict is changed by this entry.
+**Logged by:** JDMA
+
+## Entry 052 — 2026-11-08 — Paper 3 scan check: primary comparison restored to main coder vs signed reference key; AI reference key limited to post hoc sensitivity; Deviation 1 withdrawn (MINOR)
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Type:** MINOR deviation (§7.4), as classified by the PI (email 2026-11-08). Documentary record of PI Deviation 3, a signed document dated 2026-11-04. No certified number is recomputed and no registered output is changed.
+**PI written approval:** Emile Boullineau, item 11 of his email of 2026-11-05 (directing that Deviations 1, 2 and 3 be filed together, in that order, citing Deviation 3 by SHA-256) and his email of 2026-11-08 (classifying Deviation 3 minor under §7.4 and directing a single commit in the order 1, 2, 3).
+**Source document:** PI Deviation 3, signed Emile Boullineau, 2026-11-04 (UTC). PI_DEVIATION_3_PRIMARY_RESTORED_2026-11-04.md, SHA-256 6b4ed4c7d8062d9d5dc6fae68fd3f60571139e0f268551cfa8705c9b37cdde40, recorded in FREEZE_RECORD.txt on 2026-11-04.
+**Affected scope:** The Paper 3 scan check. Supersedes Entry 050 (PI Deviation 1). No MVC registered rule, data, analysis, certified output or verdict is affected.
+
+### PI suggested entry (verbatim)
+"4 November 2026. Minor. Deviation 3 to the Paper 3 main-coding scoring policy of 16 October 2026. Withdraws Deviation 1 and the blind evidence review decision of 3 November 2026. The primary comparison is again the main coder against the PI's signed reference key, as the policy fixed. The independent AI reference key is kept as a post hoc sensitivity analysis only. Deviation 2 stands. Signed Deviation 3 document, SHA-256 6b4ed4c7d8062d9d5dc6fae68fd3f60571139e0f268551cfa8705c9b37cdde40."
+
+### Post-entry state
+In effect (SHA-256 recorded in FREEZE_RECORD.txt on 2026-11-04). Entry 050 (PI Deviation 1) is withdrawn; Entry 051 (PI Deviation 2) stands. No MVC registered rule, data, analysis, certified output or verdict is changed by this entry.
+**Logged by:** JDMA
