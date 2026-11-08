@@ -3091,3 +3091,22 @@ Study Log 2026-09-17 (the comparison) and 2026-10-03 (the two corrections and th
 ### Post-entry state
 Recorded: the 17 September Stage 1 calibration comparison with the two corrections. No MVC registered rule, data, analysis, certified output or verdict is changed by this entry.
 **Logged by:** JDMA
+
+## Entry 054 — 2026-11-08 — Follow-up to Entries 046 to 048: "credibly" withdrawn from the Entry 048 characterisation; R4(b) note corrected to v7; Entry 048 cross-referenced to Entry 047
+**Event:** Three documentary follow-ups to the R4(b) and P4 structural-zero records of 2026-11-05. (1) Entry 048 describes the six P4 structural-zero AME intervals as "credibly negative"; "credibly" is withdrawn. (2) The R4(b) note is corrected from R4b_note_v5.md (cff2af95...) to R4b_note_v7.md (627834bf...). (3) Entry 048 is cross-referenced to Entry 047.
+**Filed:** 2026-11-08 (the commit date; also the heading date above).
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-11-08 20:50 UTC
+**Type:** MINOR deviation (§7.4), documentary follow-up. No registered rule, threshold, data, code, certified output or verdict is changed; no number is recomputed and no fit is run.
+**Affected files:** New: R4b_note_v7.md (SHA-256 627834bf5b8ec0b873db95f8b0c66395daf17ef541500dea9e9ee7d3d4a5b3f0), which replaces R4b_note_v5.md (cff2af956e1b11e77a8f166d14b0f3697f81101d447ba436728ca3c39c7d587b). Entries 046, 047 and 048 are unchanged; this append-only entry records the follow-up beside them.
+**Affected scope:** The wording of the Entry 048 characterisation, the R4(b) note version, and the Entry 047 to 048 cross-reference. Paper 1 revision (R4(b)) and the P4 structural-zero record. Does not affect the per-cell reversal rates or intervals, the 5B(d) count, the P4 verdict ratio, or P1 to P4.
+### On "credibly"
+Entry 048 states each persona's AME (at severity_struct >= 7) is "credibly negative". "credibly" is withdrawn. The six reported intervals in P4_structural_zero_ordinal_ame.csv (11d07edf...) exclude zero, so the sign is not in question; but they are posterior-mean intervals on an exploratory and unsupported P4 output whose fit and draws were not saved (Entry 048) and whose registered posterior median (section 5.1) was not computed, so the credible-interval reading that "credibly" implies is not asserted. The factual statement stands: all six intervals exclude zero.
+### On the R4(b) note
+R4b_note_v7.md corrects four stale statements in R4b_note_v5.md ("v5 has not yet been run" and "No run-of-record folder exists under ~/MVC_Study_operational" in the Prior-runs field; and "No R4(b) run has been made; the v5 run of record must reproduce ..." in sections 2 and 3) that predated and contradicted the note's own Status field and Entry 046, both of which record the v5 run of record (2026-11-05 17:14:16 UTC, exit 0). The revision date moves from 2026-11-04 to 2026-11-08. The change is editorial; the certified per-cell n_reversal and n_evals, the canonical 423 and secondary 325 figures, inputs, outputs and hashes are unchanged.
+### On Entry 046
+Entry 046 already records the 2026-10-20 v4 runs as smoke (non-record), stopped at the section-2 guard, and the v5 run of record; no correction to Entry 046 is needed and none is made.
+### Post-entry state
+Recorded: "credibly" withdrawn from the Entry 048 characterisation; R4b_note_v7.md supersedes v5 editorially; Entry 048 cross-referenced to Entry 047. No registered rule, data, analysis, certified output or verdict is changed.
+**PI written approval:** Emile Boullineau, emails 2026-11-05, 2026-11-06 and 2026-11-07 (the tidy-ups, as the RA set out), and email 2026-11-08 (approving this entry's wording).
+**Logged by:** JDMA
