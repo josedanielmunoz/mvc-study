@@ -3110,3 +3110,29 @@ Entry 046 already records the 2026-10-20 v4 runs as smoke (non-record), stopped 
 Recorded: "credibly" withdrawn from the Entry 048 characterisation; R4b_note_v7.md supersedes v5 editorially; Entry 048 cross-referenced to Entry 047. No registered rule, data, analysis, certified output or verdict is changed.
 **PI written approval:** Emile Boullineau, emails 2026-11-05, 2026-11-06 and 2026-11-07 (the tidy-ups, as the RA set out), and email 2026-11-08 (approving this entry's wording).
 **Logged by:** JDMA
+
+## Entry 055 — 2026-11-10 — C.3.3 scoring: reviewed_reference parser-label fix in v5 (found before any scored run)
+
+**Event:** While verifying the re-anchored C.3.3 scoring script before requesting approval, a pre-existing parser issue was found in the internal v3: its reviewed_reference loader did not recognise the certified file's "dimN_name" dimension labels (for example dim1_motive_attribution), so it stopped before validation. The issue had not surfaced earlier because v3 always halted first on the live-file hash of the Deviation Log. v5 adds one exact alias per dimension so the loader reads the certified reviewed_reference; unknown or ambiguous labels are still rejected.
+
+**Filed:** 2026-11-10 (the commit date; also the heading date above).
+
+**Commit SHA:** Self-referential; see the Git commit containing this Entry.
+
+**Entry timestamp (UTC):** 2026-11-10 15:10 UTC
+
+**Type:** MINOR deviation (§7.4), a parser-label fix to a new, not-yet-certified scoring script, made before any scored run. No registered rule, threshold, reference, data, scoring path, certified output or verdict is changed; no number is recomputed and no fit is run.
+
+**Affected files:** C33_scoring_v5.py (SHA-256 df724c8f4792f1d4b6d37f93ab7e4c068d997aa463eb5c17e8a72a39b25773aa), which carries this fix relative to the internal v3. v5 also re-anchors entry034_source to the fixed Deviation Log commit e39dd05dd24eae6c74d55f58bbe1dee2793d6ef8 (expected content hash cbdae0bd41d759187fc32ac870c41eeb4f98a5ab3ccaed01cfc684dc17f6cebc), per the PI email of 2026-11-07; that re-anchor changes no figure or verdict. No certified file is altered by either change.
+
+**Affected scope:** The reviewed_reference label parser in the C.3.3 scoring script only. Does not affect the July cycle-1 A/B/C figures, the Entry 034 reviewed and H cell identities, the reference-C descriptive handling, or any threshold or minimum column. On 2026-11-10 the validation-only pass reproduced the July cycle-1 A/B/C figures exactly (exit 0).
+
+### Post-entry state
+
+Recorded: the C.3.3 scoring reviewed_reference parser accepts one exact "dimN_name" alias per dimension (v5); all other labels are still rejected. No registered rule, data, analysis, certified output or verdict is changed.
+
+**PI written approval:** Emile Boullineau, email 2026-11-09 (approving C33_scoring_v5.py, SHA-256 df724c8f4792f1d4b6d37f93ab7e4c068d997aa463eb5c17e8a72a39b25773aa, and the filing of this note).
+
+**Logged by:** JDMA
+
+---
