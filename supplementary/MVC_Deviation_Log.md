@@ -3136,3 +3136,100 @@ Recorded: the C.3.3 scoring reviewed_reference parser accepts one exact "dimN_na
 **Logged by:** JDMA
 
 ---
+
+## Entry 056 — 2026-11-16 — P4 classification AME computed on the expected-count scale, ten times the registered probability scale (MAJOR)
+
+**Commit SHA:** Self-referential. See the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-11-16 19:45 UTC
+**Type:** MAJOR deviation (§7.4), as classified by the PI (2026-11-16). Recorded after the analysis, on a check of the certified outputs against the registration. No certified file is edited and no model is refitted.
+**Affected scope:** The certified P4 classification AME and every P4 quantity built on it (threshold posteriors, posterior ratio, and the prior-width, random-intercept, structural-zero and severity-threshold comparisons). P4 is exploratory. Not P1, P2 or P3. The P4 verdict is unchanged.
+
+### What the registration specifies
+Registration §5.5 defines the P4 classification effect as the change in P(classification = yes) and states that both average marginal effects are on the probability scale.
+
+### What the certified run does
+05_Statistical_Analysis.R (SHA-256 cce3a319...) fits the P4 classification model as n_yes | trials(n_total), with n_total = 10 trials per sub-cell. It computes the classification AME with posterior_epred (function posterior_epred_rowmean_chunked, line 4629, called at lines 4719 and 4720). For this binomial model posterior_epred returns the expected number of yes answers, not the probability, and no later step divides by n_total. The code comment at line 4717 calls the value a probability. Each certified classification AME is therefore ten times the registered value, for example −2.58 rather than −0.26 for the climate activist. The severity AME is on the registered probability scale.
+
+### Registered-scale values
+Recomputed read-only from the certified model objects p4_class_model.rds (SHA-256 af9d9169...) and p4_sev_model.rds (SHA-256 ae77319d...), all 8,000 draws, with the classification expected count divided by n_total. The same code without the division reproduces the certified values to the reported precision.
+
+| Quantity | Certified (count scale) | Registered (probability scale) |
+| --- | --- | --- |
+| P(\|AME_class\| > 2 × \|AME_sev\|), primary | .9245 | .24 |
+| P(\|AME_class\| > 1.5 × \|AME_sev\|) | .9416 | .38 |
+| P(\|AME_class\| > 3 × \|AME_sev\|) | .8984 | .16 |
+| Posterior median ratio | 11.39 | 1.14 |
+| Posterior median \|AME_class\| against \|AME_sev\| | 1.13 against .082 | .113 against .082 |
+
+### Consequence
+P4 fails on its primary posterior and meets two F4 criteria. On the registered scale two of the five sensitivity gates pass as the script defines them, and three if the structural-zero gate is read by direction only, as registered. The P4 verdict NOT SUPPORTED is unchanged. Registration §7.4 states that the registration prose governs where a script conflicts with it.
+
+### Post-entry state
+Recorded: the certified P4 classification AME is on the expected-count scale, and the registered-scale values are as above. The PI will file an OSF amendment recording this entry late. No registered rule, data, code, certified output or verdict is changed by this entry.
+
+**PI written approval:** Emile Boullineau, email 2026-11-16 (classifying this as a major deviation under §7.4 and directing this record).
+
+**Logged by:** JDMA
+
+## Entry 057 — 2026-11-16 — Hash-locked script departures from registered specifications, not previously logged (MAJOR)
+
+**Commit SHA:** Self-referential. See the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-11-16 19:45 UTC
+**Type:** MAJOR deviation (§7.4), as classified by the PI (2026-11-16). Recorded after the analysis, on a check of the certified outputs against the registration. §7.4 assigns changes to covariate sets, posterior-probability thresholds and primary statistical specifications to a deviation amendment. No certified file is edited and no model is refitted.
+**Affected scope:** Fourteen analyses in canonical 05_Statistical_Analysis.R (SHA-256 cce3a319...), listed below. No registered P1 to P4 verdict changes.
+
+### Departures
+Under §7.4 the prose of §§5.1 to 5.8 governs where the script conflicts with it, and the registration states that it is the sole authoritative specification of all analytical decisions.
+
+- (a) P2 agent-type sensitivity (§5.3). Registered as a refit of the P2 model with agent type as an added covariate. The script instead fitted a persona by ambiguity by agent-type interaction model on the ten pretested scenarios and one model per agent type. The registered refit was not run.
+- (b) Alignment-pair sub-model (§5.2). The script added agent type as a covariate, which the registration does not include. The output is descriptive.
+- (c) P4 prior-width gate (§5.5). Registered as the dissociation posterior above .90 under each of the three priors, with the 1.5× and 3× sub-rules. The script also required the 2× posterior to exceed .95 under each prior.
+- (d) Signal-detection classes (§5.6, §2.4). Registered per model from each model's own neutral baseline. The script averaged the four models' pretest rates, GPT-5.5 included, and applied one class to every model. No scenario was clear benign, so all 21 cells were non-estimable. Under per-model classes Claude has three clear-benign scenarios (001, 006, 020), Gemini two (001, 020) and DeepSeek none.
+- (e) Heckman selection check (§5.5). The script added agent type to both equations. The ten pretested scenarios include no platform agent (the platform scenarios 007, 013 and 017 were not pretested), so the empty level produced the singularity at column 10. The termination is an execution defect, not a failed check.
+- (f) P4 priors (Table 6). Registered Exponential(1) on random-effect standard deviations and Normal(0, 1) on slopes. The primary P4 classification and severity fits used the brms default Student-t(3, 0, 2.5) on the standard deviations. The structural-zero fit set no priors, so its slopes had flat priors. The certified prior-width refit under Normal(0, 1), which used the registered standard-deviation priors, is within .004 of the primary fit on the certified scale. The effect of the flat priors was not assessed.
+- (g) Co-primary multinomial refusal test (§2.7). Registered as a test of whether refusal rates differ by persona. The script ran an omnibus test across all three response categories, likelihood ratio 260.0 on 12 df, and printed a finding of persona-driven refusal. The yes-versus-no contrasts carry that result. Every refusal contrast had p ≥ .38. A post hoc refusal-only test from the certified counts gives χ²(6) = 6.61, p = .36.
+- (h) High-R against zero-R comparison (§5.3). Registered on non-role-relevant scenarios with 95% credible intervals. The script kept role-relevant cells (480 rows rather than 348) and used Wald intervals. Restricted to non-role-relevant cells the high-R odds ratio is unchanged at 0.20 [0.15, 0.27], so the certified equivalence holds.
+- (i) Label-free P2 test (§5.3). Registered in a fixed-effect version and a random-intercept version. The script fitted only the fixed-effect version, which was rank deficient (35 coefficients dropped), and used it in no verdict. The random-intercept version was not fitted. The ambiguity gate fails whatever the label-free result.
+- (j) Polarity-reversal overlay (§2.6). The overlay column and the footnotes were not produced. No loaded persona met the odds-ratio criterion on concern detection, so the flag could not have fired.
+- (k) Integration test 2 (§1.2). The certified integration output credits the domain test to valence priming whenever both P2 gates fail. Registration §1.2 counts the domain test for valence priming only if persona effects are confined to role-relevant domains. On that reading the domain test favoured neither account.
+- (l) Refusal-imputation sensitivity (§2.7). Run as a persona-only refit with random intercepts for scenario and model, not as the primary specification. Refusals were imputed at fixed probabilities and the fitted refusal model was not used.
+- (m) VCI threshold (§5.7). Registered as a neutral-baseline spread for each scenario. The script used one pooled bootstrap threshold of 0.291 across all 60 scenario and model cells. The per-scenario spread was not computed.
+- (n) Missingness trigger (§3.4). Registered per model on trials lost to API failure, against 5%. The script tested the 5% threshold on Stage 1 refusals and unclear responses pooled across the retained panel, 46 of 8,400, and did not examine Stage 2. No main trial was lost to API failure, so the registered trigger was not reached.
+
+### Post-entry state
+Recorded: the fourteen departures above. The PI will file an OSF amendment recording this entry late. No registered rule, data, code, certified output or verdict is changed by this entry.
+
+**PI written approval:** Emile Boullineau, email 2026-11-16 (classifying these departures as a major deviation under §7.4 and directing this record).
+
+**Logged by:** JDMA
+
+## Entry 058 — 2026-11-16 — Registered outputs and checks not produced or not evidenced, with corrections to Entries 039 and 047 (MINOR)
+
+**Commit SHA:** Self-referential. See the Git commit containing this Entry.
+**Entry timestamp (UTC):** 2026-11-16 19:45 UTC
+**Type:** MINOR deviation (§7.4), as classified by the PI (2026-11-16). Documentary record. No number is recomputed, no file is edited and no fit is run.
+**Affected scope:** The registered outputs and checks listed below, and the record in Entries 039 and 047. No registered P1 to P4 verdict changes.
+
+### Outputs and checks
+- (a) Nonsense attention checks (§2.3). The collection script has an attention-check mode, but the certified run read no attention-check records, the execution ledger holds none, and no record shows that the checks ran.
+- (b) Drift alerts (§3.3). The main-run alert files (`data/main/<model>/2026-06-05/drift_alerts.jsonl`) hold 64 non-halting alerts, Claude 50, Gemini 9, GPT-5.5 3 and DeepSeek 2. The registration makes each alert a trigger for post hoc review and a possible re-run. No review is recorded and no model was re-run. The Study Log entry of 2026-06-07 18:35 UTC records 13 alerts and is corrected by a Study Log line of the same date as this entry.
+- (c) Version-string audit (§3.3) and provider request IDs (§3.4, §7.3). No record shows the daily model-info query. No record carries the request ID of the completed call. Claude's records keep only the request ID of the rejected temperature attempt before each call.
+- (d) §2.4 supplementary outputs. The grand-mean ambiguity-class analysis was not produced. The threshold sensitivity refitted only P2, without the act-type terms, and P1 was not re-run.
+- (e) §5.1 descriptive sensitivity at odds-ratio thresholds 1.3 and 1.7 was not produced. No persona's odds ratio reached 1.3.
+- (f) High-linkage sensitivity (§5.1.5). The script set the flag from conditional severity alone (359 of 420 cells) and re-ran nothing. With all five narrative dimensions excluded, §5.4.4 requires this sensitivity to be reported as not evaluable and the moral-entry framing as unsupported.
+- (g) The persona by ambiguity-band cross-tabulations specified in Amendment 1 §4.2 and §4.4 were not produced.
+- (h) The certified file P4_stage4_reversal_modifier.csv labels the panel reversal rate (219 of 7,200, 3.04%) CONSTRUCTION_WITH_DENIAL_SIGNATURE, although §5.5 applies no modifier unless P4 is supported. The verdict file records the modifier as not applicable.
+- (i) Exploratory item (j) (§5.9). The variance output pools responses by persona and repetition block. It is not the registered within-cell comparison.
+
+### Correction to Entry 039
+Entry 039 states that the item (i) input does not exist and that producing it would need Stage 3 human coding. The input, narrative_coded.csv, is present in the 7 August 2026 data snapshot, and item (i) matches keywords in its Stage 3 response text without human coding. The four Amendment 2 runs produced item (i) from it, pooled across the four models. It was absent from the data of the certified run of 16 August 2026. Entry 039 is otherwise unchanged.
+
+### Clarification to Entry 047
+The 389 DeepSeek Stage 1 Yes trials without a parseable Stage 2 rating are 317 empty responses, 69 responses cut at the 64-token limit and 3 responses with text but no rating. Each had a Stage 2 record. Entry 047 is otherwise unchanged.
+
+### Post-entry state
+Recorded: the omissions above, the correction to Entry 039 and the clarification to Entry 047. No registered rule, threshold, data, code, certified output or verdict is changed by this entry.
+
+**PI written approval:** Emile Boullineau, email 2026-11-16 (classifying these as a minor deviation under §7.4 and directing this record, the correction to Entry 039 and the clarification to Entry 047).
+
+**Logged by:** JDMA
